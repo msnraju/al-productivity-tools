@@ -573,6 +573,7 @@ export class Keywords {
     setrecfilter: "SetRecFilter",
     setrequesturi: "SetRequestUri",
     setresultcode: "SetResultCode",
+    setselectionfilter: "SetSelectionFilter",
     setstamp: "SetStamp",
     setsystemid: "SetSystemId",
     settable: "SetTable",

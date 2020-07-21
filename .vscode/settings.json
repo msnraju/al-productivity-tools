@@ -425,6 +425,7 @@
         "setrecfilter",
         "setrequesturi",
         "setresultcode",
+        "setselectionfilter",
         "setstamp",
         "setsystemid",
         "settaskready",

@@ -3,7 +3,7 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "icon": "icon/logo.png",
   "repository": {
     "url": "https://github.com/msnraju/al-productivity-tools"
