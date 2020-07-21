@@ -3,28 +3,38 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "icon": "icon/logo.png",
+  "repository": {
+    "url": "https://github.com/msnraju/al-productivity-tools"
+  },
   "engines": {
     "vscode": "^1.47.0"
   },
   "categories": [
-    "Linters", "Programming Languages", "Other"
+    "Linters",
+    "Programming Languages",
+    "Other"
   ],
   "activationEvents": [
-    "onCommand:al-productivity-tools.standardizeALCode",
-    "onCommand:al-productivity-tools.standardizeALFiles"
+    "onCommand:alProductivityTools.standardizeALCode",
+    "onCommand:alProductivityTools.standardizeALFiles",
+    "onCommand:alProductivityTools.fixAlFileNames"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "al-productivity-tools.standardizeALCode",
+        "command": "alProductivityTools.standardizeALCode",
         "title": "MSN: Standardize AL Code"
       },
       {
-        "command": "al-productivity-tools.standardizeALFiles",
+        "command": "alProductivityTools.standardizeALFiles",
         "title": "MSN: Standardize AL Files"
+      },
+      {
+        "command": "alProductivityTools.fixAlFileNames",
+        "title": "MSN: Fix AL File Names"
       }
     ]
   },
@@ -40,6 +50,7 @@
     "@types/glob": "^7.1.1",
     "@types/lodash": "^4.14.157",
     "@types/mocha": "^7.0.2",
+    "@types/n-readlines": "^1.0.1",
     "@types/node": "^13.11.0",
     "@types/vscode": "^1.47.0",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
@@ -51,7 +62,8 @@
     "vscode-test": "^1.3.0"
   },
   "dependencies": {
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.19",
+    "n-readlines": "^1.0.0"
   },
   "keywords": [
     "Microsoft",

@@ -306,7 +306,7 @@ export class FunctionReader {
     header.parameters.forEach((param) => {
       paramsBuffer.push(param.value);
     });
-    let parameters = paramsBuffer.join('');
+    let parameters = paramsBuffer.join(' ');
 
     if (parameters.length > 80) {
       parameters = `\r\n${pad}${paramsBuffer.join(`\r\n${pad}`)}`;
