@@ -3,7 +3,7 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "icon": "icon/logo.png",
   "repository": {
     "url": "https://github.com/msnraju/al-productivity-tools"
@@ -17,24 +17,24 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:alProductivityTools.standardizeALCode",
-    "onCommand:alProductivityTools.standardizeALFiles",
-    "onCommand:alProductivityTools.fixAlFileNames"
+    "onCommand:alProductivityTools.fixALCodeCopIssues",
+    "onCommand:alProductivityTools.fixALCodeCopIssuesInAllFiles",
+    "onCommand:alProductivityTools.fixALFileNamingNotation"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "alProductivityTools.standardizeALCode",
-        "title": "MSN: Standardize AL Code"
+        "command": "alProductivityTools.fixALCodeCopIssues",
+        "title": "MSN: Fix AL CodeCop Issues"
       },
       {
-        "command": "alProductivityTools.standardizeALFiles",
-        "title": "MSN: Standardize AL Files"
+        "command": "alProductivityTools.fixALCodeCopIssuesInAllFiles",
+        "title": "MSN: Fix AL CodeCop Issues In All Files"
       },
       {
-        "command": "alProductivityTools.fixAlFileNames",
-        "title": "MSN: Fix AL File Names"
+        "command": "alProductivityTools.fixALFileNamingNotation",
+        "title": "MSN: Fix AL File Naming Notation"
       }
     ]
   },

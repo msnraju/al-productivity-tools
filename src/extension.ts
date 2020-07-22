@@ -10,7 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "alProductivityTools.standardizeALCode",
+      "alProductivityTools.fixALCodeCopIssues",
       () => {
         try {
           const editor = vscode.window.activeTextEditor;
@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "alProductivityTools.standardizeALFiles",
+      "alProductivityTools.fixALCodeCopIssuesInAllFiles",
       () => {
         try {
           if (vscode.workspace.workspaceFolders)
@@ -62,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "alProductivityTools.fixAlFileNames",
+      "alProductivityTools.fixALFileNamingNotation",
       async () => {
         try {
           if (vscode.workspace.workspaceFolders)

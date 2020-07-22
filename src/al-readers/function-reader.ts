@@ -1,9 +1,9 @@
-import { IReadContext } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { Keywords } from './keywords';
-import { VariableReader, IVariable } from './variable-reader';
-import _ = require('lodash');
+import { IReadContext } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { Keywords } from "./keywords";
+import { VariableReader, IVariable } from "./variable-reader";
+import _ = require("lodash");
 
 export interface IFunctionHeader {
   local: boolean;
@@ -47,16 +47,16 @@ export class FunctionReader {
     attributeType.eventSubscriber = false;
 
     let token = context.tokens[context.pos];
-    while (token.value === '[' || token.type === 'comment') {
-      if (token.value === '[') {
+    while (token.value === "[" || token.type === "comment") {
+      if (token.value === "[") {
         const attribute = Helper.readAttribute(context, Keywords.Variables);
-        if (attribute.toLocaleLowerCase().indexOf('integrationevent') !== -1) {
+        if (attribute.toLocaleLowerCase().indexOf("integrationevent") !== -1) {
           attributeType.integrationEvent = true;
         }
-        if (attribute.toLocaleLowerCase().indexOf('businessevent') !== -1) {
+        if (attribute.toLocaleLowerCase().indexOf("businessevent") !== -1) {
           attributeType.businessEvent = true;
         }
-        if (attribute.toLocaleLowerCase().indexOf('subscriber') !== -1) {
+        if (attribute.toLocaleLowerCase().indexOf("subscriber") !== -1) {
           attributeType.eventSubscriber = true;
         }
 
@@ -65,7 +65,7 @@ export class FunctionReader {
         continue;
       }
 
-      if (token.type === 'comment') {
+      if (token.type === "comment") {
         lines.push(token.value);
         Helper.readWhiteSpaces(context, []);
         token = context.tokens[context.pos];
@@ -84,23 +84,23 @@ export class FunctionReader {
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
 
     if (
-      value !== 'local' &&
-      value !== 'internal' &&
-      value !== 'procedure' &&
-      value !== 'trigger'
+      value !== "local" &&
+      value !== "internal" &&
+      value !== "procedure" &&
+      value !== "trigger"
     )
-      throw new Error('Invalid function name');
+      throw new Error("Invalid function name");
 
     let local = false;
     let internal = false;
     let event = false;
 
-    if (value === 'internal') {
+    if (value === "internal") {
       internal = true;
       value = context.tokens[++context.pos].value.toLocaleLowerCase();
     }
 
-    if (value === 'local') {
+    if (value === "local") {
       local = true;
       value = context.tokens[++context.pos].value.toLocaleLowerCase();
     }
@@ -108,19 +108,19 @@ export class FunctionReader {
     Helper.readWhiteSpaces(context, []);
     let functionType = context.tokens[context.pos].value.toLocaleLowerCase();
 
-    if (functionType !== 'trigger' && functionType !== 'procedure')
-      throw new Error('Invalid function name');
+    if (functionType !== "trigger" && functionType !== "procedure")
+      throw new Error("Invalid function name");
 
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     let functionName = context.tokens[context.pos].value;
-    let variableName = '';
+    let variableName = "";
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value;
-    if (value === '::') {
+    if (value === "::") {
       event = true;
       context.pos++;
       Helper.readWhiteSpaces(context, []);
@@ -133,24 +133,24 @@ export class FunctionReader {
       value = context.tokens[context.pos].value;
     }
 
-    if (value !== '(') throw new Error('Invalid function name');
+    if (value !== "(") throw new Error("Invalid function name");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== ')') {
+    while (value !== ")") {
       let resetIndex = context.pos;
 
       let ref = false;
-      if (value === 'var') {
+      if (value === "var") {
         ref = true;
         context.pos++;
         Helper.readWhiteSpaces(context, []);
       }
 
       const variable = VariableReader.readVariable(context, false, resetIndex);
-      if (!variable) throw new Error('It should return a variable');
-      if (ref) variable.value = 'var ' + variable.value;
+      if (!variable) throw new Error("It should return a variable");
+      if (ref) variable.value = "var " + variable.value;
 
       parameters.push({
         ref: ref,
@@ -160,17 +160,17 @@ export class FunctionReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== ')') throw new Error('Invalid function name');
+    if (value !== ")") throw new Error("Invalid function name");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'begin' && value !== 'var' && value !== ';') {
+    if (value !== "begin" && value !== "var" && value !== ";") {
       returnType = VariableReader.readVariable(context, true, context.pos);
     }
 
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value === ';') {
+    if (value === ";") {
       context.pos++;
       Helper.readWhiteSpaces(context, []);
     }
@@ -199,37 +199,36 @@ export class FunctionReader {
       attributeType
     );
     const functionHeader = this.readHeader(context);
+    if (attributeType.eventSubscriber) functionHeader.local = true;
+
     let variables: Array<IVariable> = [];
     const tokens: Array<IToken> = [];
-
-    if (functionHeader.name === 'AddSoapActionHeader')
-      console.log(functionHeader.name);
 
     const preVariableComments = Helper.readComments(context);
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value === 'var') {
+    if (value === "var") {
       variables = VariableReader.readVariables(context);
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
     const postVariableComments = Helper.readComments(context);
 
-    if (value !== 'begin') throw new Error('read function, begin expected');
+    if (value !== "begin") throw new Error("read function, begin expected");
 
     let counter = 1;
-    while (value !== 'end' || counter !== 0) {
+    while (value !== "end" || counter !== 0) {
       tokens.push(context.tokens[context.pos]);
       value = context.tokens[++context.pos].value.toLocaleLowerCase();
-      if (value === 'begin' || value === 'case') counter++;
-      else if (value === 'end') counter--;
+      if (value === "begin" || value === "case") counter++;
+      else if (value === "end") counter--;
     }
 
-    if (value !== 'end' || counter !== 0) throw new Error('trigger end error.');
+    if (value !== "end" || counter !== 0) throw new Error("trigger end error.");
     tokens.push(context.tokens[context.pos++]);
 
     value = context.tokens[context.pos].value;
-    if (value !== ';') throw new Error(`trigger end error.`);
+    if (value !== ";") throw new Error(`trigger end error.`);
 
     tokens.push(context.tokens[context.pos++]);
     Helper.readWhiteSpaces(context, []);
@@ -267,8 +266,8 @@ export class FunctionReader {
 
   static functionToString(func: IFunction, indentation: number): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad4 = _.padStart('', indentation + 4);
+    const pad = _.padStart("", indentation);
+    const pad4 = _.padStart("", indentation + 4);
 
     if (func.preFunction.length > 0)
       func.preFunction.forEach((line) => lines.push(`${pad}${line}`));
@@ -292,13 +291,13 @@ export class FunctionReader {
   }
 
   static headerToString(header: IFunctionHeader, indentation: number): string {
-    const pad = _.padStart('', indentation + 4);
+    const pad = _.padStart("", indentation + 4);
 
-    let access = '';
-    if (header.local) access = 'local ';
-    else if (header.internal) access = 'internal ';
+    let access = "";
+    if (header.local) access = "local ";
+    else if (header.internal) access = "internal ";
 
-    let name = '';
+    let name = "";
     if (header.event) name = `${header.variable}::${header.name}`;
     else name = header.name;
 
@@ -306,13 +305,13 @@ export class FunctionReader {
     header.parameters.forEach((param) => {
       paramsBuffer.push(param.value);
     });
-    let parameters = paramsBuffer.join(' ');
+    let parameters = paramsBuffer.join(" ");
 
     if (parameters.length > 80) {
       parameters = `\r\n${pad}${paramsBuffer.join(`\r\n${pad}`)}`;
     }
 
-    let returns = '';
+    let returns = "";
     if (header.returnType) {
       if (header.returnType.name)
         returns = ` ${header.returnType.value.trim()}`;

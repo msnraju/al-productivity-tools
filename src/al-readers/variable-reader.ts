@@ -76,6 +76,7 @@ export class VariableReader {
       );
 
       if (context.tokens[pos].value.toLocaleLowerCase() === 'of') {
+        pos++;
         while (context.tokens[pos].type === 'whitespace') pos++;
       }
 
