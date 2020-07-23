@@ -1,7 +1,7 @@
 {
   "name": "al-productivity-tools",
   "displayName": "AL Productivity Tools",
-  "description": "Microsoft Business Central - AL Productivity Tools",
+  "description": "Microsoft Dynamics 365 Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
   "version": "1.0.5",
   "icon": "icon/logo.png",
