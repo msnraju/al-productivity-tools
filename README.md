@@ -1,4 +1,8 @@
 # AL Productivity Tools
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/msnraju.al-productivity-tools)
+![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/msnraju.al-productivity-tools)
+![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/msnraju.al-productivity-tools)
+![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/msnraju.al-productivity-tools)
 
 This extension is intended to provide tools to increase your productivity in developing Business Central extensions.
 Commands in the current release are mainly focused on AL Coding Guidelines, and File naming notation.
