@@ -1,10 +1,10 @@
-# AL Productivity Tools
+# Microsoft Dynamics 365 Business Central - AL Productivity Tools
 ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/msnraju.al-productivity-tools)
 ![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/msnraju.al-productivity-tools)
 ![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/msnraju.al-productivity-tools)
 ![Visual Studio Marketplace Rating (Stars)](https://img.shields.io/visual-studio-marketplace/stars/msnraju.al-productivity-tools)
 
-This extension is intended to provide tools to increase your productivity in developing Business Central extensions.
+This extension is intended to provide developer tools to increase your productivity in developing Microsoft Dynamics 365 Business Central extensions.
 Commands in the current release are mainly focused on AL Coding Guidelines, and File naming notation.
 Currently available commands are focused on fixing some of the common warnings, and errors raised by [CodeCop](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/analyzers/codecop) analyzer.
 
