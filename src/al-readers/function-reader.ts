@@ -250,11 +250,42 @@ export class FunctionReader {
   ): number {
     let weight = 0;
 
-    if (header.local === false && header.internal === false) return 0;
-    else if (attributeType.eventSubscriber) return 200;
-    else if (attributeType.integrationEvent || attributeType.businessEvent)
-      return 5000;
-    else return 100;
+    if (
+      header.local === false &&
+      header.internal === false &&
+      attributeType.integrationEvent == false &&
+      attributeType.businessEvent === false &&
+      attributeType.eventSubscriber === false
+    ) {
+      // global
+      weight = 0;
+    } else if (attributeType.eventSubscriber) {
+      // event subscriber
+      weight = 100;
+      header.local = true;
+    } else if (
+      header.internal &&
+      attributeType.integrationEvent === false &&
+      attributeType.businessEvent === false
+    ) {
+      // internal
+      weight = 150;
+    } else if (header.local &&
+      attributeType.integrationEvent === false &&
+      attributeType.businessEvent === false) {
+      // local
+      weight = 200;
+    } else if (attributeType.integrationEvent) {
+      // integration event
+      weight = 250;
+    } else if (attributeType.businessEvent) {
+      // business event
+      weight = 300;
+    } else {      
+      weight = 400;
+    }
+
+    return weight;
 
     // if (header.local) weight = 3000;
     // else if (header.internal) weight = 2000;
