@@ -688,6 +688,7 @@ export class Keywords {
     yes: "Yes",
     begin: "begin",
     end: "end",
+    exit: "exit",
     if: "if",
     then: "then",
     else: "else",
