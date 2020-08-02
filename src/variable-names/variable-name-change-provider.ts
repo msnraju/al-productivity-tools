@@ -20,13 +20,13 @@ export class VariableNameChangeProvider implements vscode.CodeActionProvider {
     if (!names || names.length === 0) return;
 
     const fixes = [];
-    // const fix = new vscode.CodeAction(name, vscode.CodeActionKind.);
+
     for (let i = 0; i < names.length; i++) {
       if (names[i] === variable.name) continue;
 
       const fix = this.createFix(document, range, names[i], variable);
-      if (i === 1 || names.length === 1) fix.isPreferred = true;
-      fixes.push(fix);
+      if (i === 0) fix.isPreferred = true;
+      fixes.push( fix);
     }
 
     return fixes;
@@ -39,12 +39,13 @@ export class VariableNameChangeProvider implements vscode.CodeActionProvider {
         if (variable.temporary) prefix = "Temp";
       case "codeunit":
       case "report":
+      case "page":
+      case "testpage":
       case "query":
       case "xmlport":
       case "enum":
         const words = this.nameToWords(variable.objectName);
-        const names = [`${prefix}${this.getFullName(words)}`];
-
+        const names: Array<string> = [];
         if (NameShortForms[variable.objectName]) {
           const fullShortForm = `${prefix}${
             NameShortForms[variable.objectName]
@@ -52,16 +53,65 @@ export class VariableNameChangeProvider implements vscode.CodeActionProvider {
           if (names.indexOf(fullShortForm) === -1) names.push(fullShortForm);
         }
 
-        const short = `${prefix}${this.getShortName(words)}`;
-        if (names.indexOf(short) === -1) names.push(short);
+        // names.push(`${prefix}${this.getFullName(words)}`);
 
-        const shortest = `${prefix}${this.getShortestName(words)}`;
-        if (names.indexOf(shortest) === -1) names.push(shortest);
+        // const short = `${prefix}${this.getShortName(words)}`;
+        // if (names.indexOf(short) === -1) names.push(short);
 
-        return names;
+        // const shortest = `${prefix}${this.getShortestName(words)}`;
+        // if (names.indexOf(shortest) === -1) names.push(shortest);
+
+        return [...names, ...this.generateNames(words)];
       default:
         return null;
     }
+  }
+
+  private generateNames(
+    words: Array<string>,
+    prefix: string = ""
+  ): Array<string> {
+    const wordsMatrix: Array<Array<string>> = [];
+    words.forEach((word) => {
+      const innerList = [word];
+      const shortWord = this.getShortWord(word);
+      if (shortWord && innerList.indexOf(shortWord) === -1)
+        innerList.push(shortWord);
+      wordsMatrix.push(innerList);
+    });
+
+    const names2 = this.generateNamesFromMatrix(wordsMatrix, 0);
+    const names: Array<string> = [];
+    names2.forEach((name) => {
+      const nameWithPrefix = `${prefix}${name}`;
+      if (names.indexOf(nameWithPrefix) === -1) names.push(nameWithPrefix);
+    });
+
+    return _.sortBy(names, (name) => name.length);
+  }
+
+  private generateNamesFromMatrix(
+    wordsMatrix: Array<Array<string>>,
+    index: number
+  ): Array<string> {
+    const names: Array<string> = [];
+    const words = wordsMatrix[index];
+    let namesFromLeaf: Array<string> = [];
+
+    if (index + 1 < wordsMatrix.length) {
+      namesFromLeaf = this.generateNamesFromMatrix(wordsMatrix, index + 1);
+      words.forEach((name) => {
+        namesFromLeaf.forEach((nameL2) => {
+          names.push(`${name}${nameL2}`);
+        });
+      });
+    } else {
+      words.forEach((name) => {
+        names.push(name);
+      });
+    }
+
+    return names;
   }
 
   private nameToWords(name: string) {
@@ -69,25 +119,25 @@ export class VariableNameChangeProvider implements vscode.CodeActionProvider {
     return name2.split(/\s+/g);
   }
 
-  private getFullName(words: Array<string>) {
-    return words.map((word) => this.titleCase(word)).join("");
-  }
+  // private getFullName(words: Array<string>) {
+  //   return words.map((word) => this.titleCase(word)).join("");
+  // }
 
   private titleCase(word: string) {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }
 
-  private getShortName(words: Array<string>): string {
-    if (words.length > 1) {
-      const last = words[words.length - 1];
-      words = words.slice(0, words.length - 1);
-      return [this.getShortestName(words), this.titleCase(last)].join("");
-    } else return words.map((word) => this.getShortWord(word)).join("");
-  }
+  // private getShortName(words: Array<string>): string {
+  //   if (words.length > 1) {
+  //     const last = words[words.length - 1];
+  //     words = words.slice(0, words.length - 1);
+  //     return [this.getShortestName(words), this.titleCase(last)].join("");
+  //   } else return words.map((word) => this.getShortWord(word)).join("");
+  // }
 
-  private getShortestName(words: Array<string>) {
-    return words.map((word) => this.getShortWord(word)).join("");
-  }
+  // private getShortestName(words: Array<string>) {
+  //   return words.map((word) => this.getShortWord(word)).join("");
+  // }
 
   private getShortWord(word: string) {
     const shortWord = WordShortForms[word.toLowerCase()];
@@ -134,7 +184,7 @@ export class VariableNameChangeProvider implements vscode.CodeActionProvider {
     const line = document.lineAt(range.start.line);
     const pos = line.text.indexOf(variable.matchText);
     const start = new vscode.Position(range.start.line, pos);
-    
+
     fix.edit.replace(
       document.uri,
       new vscode.Range(start, start.translate(0, variable.name.length)),
