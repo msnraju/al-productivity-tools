@@ -44,6 +44,9 @@ This will run 'Fix AL CodeCop Issues' command on all the files in the current wo
 ### Fix AL File Naming Notation
 Run the 'Fix AL File Naming Notation' command from the Command Palette (`Ctrl+Shift+P`). This command will fix the [file naming notation](https://docs.microsoft.com/en-us/dynamics365/business-central/dev-itpro/compliance/apptest-bestpracticesforalcode#file-naming-notation) as per the best practices for AL.
 
+#### Fix Variable Name
+Press (`Ctrl+.`) or click on quick actions icon to get list of suggested variable names, and select a name that you want to use.
+
 ## Report an Issue
 
 You can report issue on [Github](https://github.com/msnraju/al-productivity-tools/issues)
