@@ -32,7 +32,7 @@ export class Tokenizer {
       // COMMENTS
       if (char === '/' && char2 === '/') {
         let value = '';
-        while (char !== '\n' && char !== '\r') {
+        while (current < input.length && char !== '\n' && char !== '\r') {
           value += char;
           char = input[++current];
         }

@@ -17,6 +17,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onLanguage:al",
     "onCommand:alProductivityTools.fixALCodeCopIssues",
     "onCommand:alProductivityTools.fixALCodeCopIssuesInAllFiles",
     "onCommand:alProductivityTools.fixALFileNamingNotation"
