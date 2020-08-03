@@ -20,7 +20,8 @@
     "onLanguage:al",
     "onCommand:alProductivityTools.fixALCodeCopIssues",
     "onCommand:alProductivityTools.fixALCodeCopIssuesInAllFiles",
-    "onCommand:alProductivityTools.fixALFileNamingNotation"
+    "onCommand:alProductivityTools.fixALFileNamingNotation",
+    "onCommand:alProductivityTools.fixALCurrentFileNamingNotation"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -36,6 +37,11 @@
       {
         "command": "alProductivityTools.fixALFileNamingNotation",
         "title": "MSN: Fix AL File Naming Notation"
+      }
+      ,
+      {
+        "command": "alProductivityTools.fixALCurrentFileNamingNotation",
+        "title": "MSN: Fix AL Current File Naming Notation"
       }
     ]
   },

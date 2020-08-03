@@ -98,6 +98,7 @@
         "cmpltn",
         "cnfrmn",
         "cntr",
+        "codecop",
         "codecoverageinclude",
         "codecoverageload",
         "codecoveragelog",
