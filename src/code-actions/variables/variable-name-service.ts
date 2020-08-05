@@ -8,7 +8,7 @@ export default class VariableNameService {
   static getNameSuggestions(variable: IVariableDeclaration): Array<string> {
     let prefix = variable.temporary ? "Temp" : "";
 
-    if(ALObjectTypes.isALObjectType(variable.dataType)) {
+    if (ALObjectTypes.isALObjectType(variable.dataType)) {
       const words = StringHelper.splitWords(variable.objectName);
       const names: Array<string> = [];
       if (VariableAbbreviations.getShortName(variable.objectName)) {
@@ -29,11 +29,13 @@ export default class VariableNameService {
     prefix: string = ""
   ): Array<string> {
     const wordsMatrix: Array<Array<string>> = [];
-    words.forEach((word) => {
+    words.forEach((word, index) => {
       const innerList = [word];
-      const abbreviation = VariableAbbreviations.getAbbreviation(word);
-      if (abbreviation && innerList.indexOf(abbreviation) === -1)
-        innerList.push(abbreviation);
+      if (index + 1 < words.length) {
+        const abbreviation = VariableAbbreviations.getAbbreviation(word);
+        if (abbreviation && innerList.indexOf(abbreviation) === -1)
+          innerList.push(abbreviation);
+      }
       wordsMatrix.push(innerList);
     });
 

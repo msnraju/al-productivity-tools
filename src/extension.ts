@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
 import ALCodeCopFixer from "./commands/al-codecop-fixer";
-import ALFileNameFixer from "./commands/al-file-name-fixer";
+import ALFileNameCommands from "./commands/al-file-name-commands";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -21,14 +21,14 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.fixALFileNamingNotation",
-      ALFileNameFixer.fixALFileNamingNotation
+      ALFileNameCommands.fixALFileNamingNotation
     )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.fixALCurrentFileNamingNotation",
-      ALFileNameFixer.fixALCurrentFileNamingNotation
+      ALFileNameCommands.fixALCurrentFileNamingNotation
     )
   );
 

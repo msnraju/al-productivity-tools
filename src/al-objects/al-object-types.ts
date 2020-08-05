@@ -31,7 +31,7 @@ export default class ALObjectTypes {
     return objectTypes.indexOf(type.toLowerCase()) !== -1;
   }
 
-  static getALObjectSuffix(name: string): string {
+  static getALFileSuffix(name: string): string {
     return this.ALFileSuffix[name.toLowerCase()];
   }
 }
