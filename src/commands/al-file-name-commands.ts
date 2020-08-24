@@ -1,13 +1,27 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 import ALFileNameHelper from "./al-file-name-helper";
+import simpleGit, { SimpleGit, SimpleGitOptions } from "simple-git";
+import { exit } from "process";
 
 export default class ALFileNameCommands {
   static fixALFileNamingNotation() {
     if (!vscode.workspace.workspaceFolders) return;
 
     try {
-      vscode.workspace.workspaceFolders.forEach((workspaceFolder) => {
-        ALFileNameHelper.renameALFiles(workspaceFolder.uri.fsPath);
+      vscode.workspace.workspaceFolders.forEach((folder) => {
+        let git = false;
+        if (fs.lstatSync(path.join(folder.uri.fsPath, ".git")).isDirectory()) {
+          git = true;
+        }
+
+        ALFileNameHelper.renameALFiles(
+          folder.uri.fsPath,
+          (oldFile, newFile) => {
+            this.renameALFileInternal(oldFile, newFile, git, folder.uri.fsPath);
+          }
+        );
       });
 
       vscode.window.showInformationMessage(
@@ -24,51 +38,88 @@ export default class ALFileNameCommands {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
 
-    // if (vscode.workspace.workspaceFolders) {
-    //   vscode.workspace.workspaceFolders.forEach((workspaceFolder) => {
-    //     ALFileNameHelper.getObjects(workspaceFolder.uri.fsPath).then(
-    //       (objects) => {
-    //         console.log(objects);
-    //       }
-    //     );
-    //   });
-    // }
-
-    const position = editor.selection.active;
-
     try {
       editor.document.save().then(async (value) => {
-        const oldFile = editor.document.fileName;
-        const newFile = await ALFileNameHelper.renameALFile(
-          editor.document.fileName
-        );
-
-        if (oldFile !== newFile) {
-          vscode.commands
-            .executeCommand("workbench.action.closeActiveEditor")
-            .then(() => {
-              var openPath = vscode.Uri.parse("file:///" + newFile);
-
-              vscode.workspace.openTextDocument(openPath).then((doc) => {
-                vscode.window.showTextDocument(doc).then(() => {
-                  if (vscode.window.activeTextEditor) {
-                    const editor = vscode.window.activeTextEditor;
-                    editor.selection = new vscode.Selection(position, position);
-                    editor.revealRange(new vscode.Range(position, position));
-                  }
-
-                  vscode.window.showInformationMessage(
-                    "AL file names corrected as per the best practices"
-                  );
-                });
-              });
-            });
-        }
+        await ALFileNameCommands.renameALFile();
       });
     } catch (err) {
-      vscode.window.showInformationMessage(
-        "An error occurred while standardizing AL files in this workspace!"
-      );
+      console.log(err);
     }
+  }
+
+  static async renameALFile() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+
+    const oldFile = editor.document.fileName;
+    const newFile = await ALFileNameHelper.renameALFile(
+      editor.document.fileName
+    );
+
+    const folder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+    if (
+      folder &&
+      fs.lstatSync(path.join(folder.uri.fsPath, ".git")).isDirectory()
+    ) {
+      this.renameALFileInternal(
+        oldFile,
+        newFile,
+        true,
+        folder.uri.fsPath,
+        this.openNewALFile
+      );
+    } else
+      this.renameALFileInternal(
+        oldFile,
+        newFile,
+        false,
+        "",
+        this.openNewALFile
+      );
+  }
+
+  private static renameALFileInternal(
+    oldFile: string,
+    newFile: string,
+    git: boolean,
+    gitPath: string,
+    openNewFile: ((newFile: string) => void) | undefined = undefined
+  ) {
+    if (oldFile === newFile) exit;
+
+    if (git)
+      simpleGit(gitPath).mv(oldFile, newFile, () => {
+        if (openNewFile) openNewFile(newFile);
+      });
+    else {
+      fs.renameSync(oldFile, newFile);
+      if (openNewFile) openNewFile(newFile);
+    }
+  }
+
+  private static openNewALFile(newFile: string) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+    const position = editor.selection.active;
+
+    vscode.commands
+      .executeCommand("workbench.action.closeActiveEditor")
+      .then(() => {
+        var openPath = vscode.Uri.parse("file:///" + newFile);
+
+        vscode.workspace.openTextDocument(openPath).then((doc) => {
+          vscode.window.showTextDocument(doc).then(() => {
+            ALFileNameCommands.setCursorPosition(position);
+          });
+        });
+      });
+  }
+
+  private static setCursorPosition(position: vscode.Position) {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+
+    editor.selection = new vscode.Selection(position, position);
+    editor.revealRange(new vscode.Range(position, position));
   }
 }

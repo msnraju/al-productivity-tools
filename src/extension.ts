@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
 import ALCodeCopFixer from "./commands/al-codecop-fixer";
 import ALFileNameCommands from "./commands/al-file-name-commands";
+import { exit } from "process";
+import WorkspaceEvents from "./commands/workspace-events";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -40,6 +42,17 @@ export function activate(context: vscode.ExtensionContext) {
         providedCodeActionKinds:
           VariableCodeActionProvider.providedCodeActionKinds,
       }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.onDidSaveTextDocument(
+      WorkspaceEvents.onDidSaveTextDocument
+    )
+  );
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(
+      WorkspaceEvents.onDidOpenTextDocument
     )
   );
 }

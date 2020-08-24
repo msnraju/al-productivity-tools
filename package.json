@@ -37,13 +37,29 @@
       {
         "command": "alProductivityTools.fixALFileNamingNotation",
         "title": "MSN: Fix AL File Naming Notation"
-      }
-      ,
+      },
       {
         "command": "alProductivityTools.fixALCurrentFileNamingNotation",
         "title": "MSN: Fix AL Current File Naming Notation"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "AL Productivity Tool Configuration Parameters",
+      "properties": {
+        "msn.fixALFileNameOnSave": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Auto fix the AL file name on save"
+        },
+        "msn.removeUnusedLocalVariables": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Removed unused local variables on save"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -70,7 +86,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.19",
-    "n-readlines": "^1.0.0"
+    "n-readlines": "^1.0.0",
+    "simple-git": "^2.20.1"
   },
   "keywords": [
     "Microsoft",

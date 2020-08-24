@@ -5,7 +5,7 @@ import IObjectDefinition from "../al-objects/object-definition";
 
 export default class ALFileNameHelper {
   static async renameALFile(file: string) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<string>(async (resolve, reject) => {
       fs.readFile(file, async (err, data) => {
         if (err) {
           reject(err);
@@ -26,21 +26,17 @@ export default class ALFileNameHelper {
             const newFileName = `${newObjectName}.${suffix}.al`;
             const folder = path.dirname(file);
             const newFilePath = `${folder}\\${newFileName}`;
-            fs.rename(file, newFilePath, (err) => {
-              if (err) {
-                reject(err);
-                return;
-              }
-
-              resolve(newFilePath);
-            });
+            resolve(newFilePath);
           }
         });
       });
     });
   }
 
-  static async renameALFiles(filePath: string) {
+  static async renameALFiles(
+    filePath: string,
+    renameCb: (oldName: string, newName: string) => void
+  ) {
     return new Promise(async (resolve, reject) => {
       fs.readdir(filePath, (err, files) => {
         if (err) {
@@ -58,12 +54,13 @@ export default class ALFileNameHelper {
             }
 
             if (stats.isDirectory()) {
-              await this.renameALFiles(fileName);
+              await this.renameALFiles(fileName, renameCb);
             } else {
               const ext = path.extname(file).toLowerCase();
 
               if (ext === ".al") {
                 const newFile = await this.renameALFile(fileName);
+                renameCb(fileName, newFile);
                 resolve(newFile);
               }
             }
