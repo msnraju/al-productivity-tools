@@ -35,6 +35,13 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "alProductivityTools.insertGuid",
+      ALFileNameCommands.insertGuid
+    )
+  );
+
+  context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
       "al",
       new VariableCodeActionProvider(),

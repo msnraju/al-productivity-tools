@@ -41,6 +41,10 @@
       {
         "command": "alProductivityTools.fixALCurrentFileNamingNotation",
         "title": "MSN: Fix AL Current File Naming Notation"
+      },
+      {
+        "command": "alProductivityTools.insertGuid",
+        "title": "MSN: Insert Guid"
       }
     ],
     "configuration": {
@@ -51,12 +55,6 @@
           "default": true,
           "scope": "resource",
           "description": "Auto fix the AL file name on save"
-        },
-        "msn.removeUnusedLocalVariables": {
-          "type": "boolean",
-          "default": true,
-          "scope": "resource",
-          "description": "Removed unused local variables on save"
         }
       }
     }
@@ -75,6 +73,7 @@
     "@types/mocha": "^7.0.2",
     "@types/n-readlines": "^1.0.1",
     "@types/node": "^13.11.0",
+    "@types/uuid": "^8.3.0",
     "@types/vscode": "^1.47.0",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
@@ -87,7 +86,8 @@
   "dependencies": {
     "lodash": "^4.17.19",
     "n-readlines": "^1.0.0",
-    "simple-git": "^2.20.1"
+    "simple-git": "^2.20.1",
+    "uuid": "^8.3.0"
   },
   "keywords": [
     "Microsoft",

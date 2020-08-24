@@ -2,10 +2,22 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import ALFileNameHelper from "./al-file-name-helper";
-import simpleGit, { SimpleGit, SimpleGitOptions } from "simple-git";
+import simpleGit from "simple-git";
 import { exit } from "process";
+import { v4 as uuidv4 } from "uuid";
 
 export default class ALFileNameCommands {
+  static insertGuid() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) return;
+
+    const pos = editor.selection.active;
+    editor.edit((editBuilder) => {
+      editBuilder.delete(editor.selection);
+      editBuilder.insert(pos, uuidv4());
+    });
+  }
+
   static fixALFileNamingNotation() {
     if (!vscode.workspace.workspaceFolders) return;
 
