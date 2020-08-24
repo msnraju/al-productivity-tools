@@ -1,11 +1,11 @@
-import { IReadContext, ISegment } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { FunctionReader, IFunction } from './function-reader';
-import { PropertyReader } from './property-reader';
-import { ActionsReader, IActionContainer } from './actions-reader';
-import { Keywords } from './keywords';
-import _ = require('lodash');
+import { IReadContext, ISegment } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { FunctionReader, IFunction } from "./function-reader";
+import { PropertyReader } from "./property-reader";
+import { ActionsReader, IActionContainer } from "./actions-reader";
+import { Keywords } from "./keywords";
+import _ = require("lodash");
 
 export interface ILayout {
   controls: Array<IControl>;
@@ -28,14 +28,14 @@ export class LayoutReader {
     const controls: Array<IControl> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'layout') throw new Error('Invalid layout position');
+    if (value !== "layout") throw new Error("Invalid layout position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid layout position');
+    if (value !== "{") throw new Error("Invalid layout position");
     context.pos++;
 
     const comments = Helper.readComments(context);
@@ -52,7 +52,7 @@ export class LayoutReader {
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== '}') throw new Error('Invalid layout position');
+    if (value !== "}") throw new Error("Invalid layout position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -65,7 +65,7 @@ export class LayoutReader {
 
   static readControl(context: IReadContext): IControl {
     const control: IControl = {
-      header: '',
+      header: "",
       controls: [],
       triggers: [],
       segments: [],
@@ -78,27 +78,27 @@ export class LayoutReader {
       Keywords.PageControlTypes.indexOf(name) === -1 &&
       Keywords.ExtensionKeywords.indexOf(name) === -1
     )
-      throw Error('Invalid control position');
+      throw Error("Invalid control position");
 
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     let value = context.tokens[context.pos].value;
-    if (value !== '(') throw Error('Invalid control position');
+    if (value !== "(") throw Error("Invalid control position");
     let counter = 1;
     const headerTokens: Array<IToken> = [];
-    while (value !== ')' || counter !== 0) {
+    while (value !== ")" || counter !== 0) {
       headerTokens.push(context.tokens[context.pos]);
       context.pos++;
       value = context.tokens[context.pos].value;
-      if (value === '(') {
+      if (value === "(") {
         counter++;
-      } else if (value === ')') {
+      } else if (value === ")") {
         counter--;
       }
     }
 
-    if (value !== ')') throw Error('Invalid control position');
+    if (value !== ")") throw Error("Invalid control position");
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
     control.header = `${name}${Helper.tokensToString(headerTokens, {})}`;
@@ -107,38 +107,43 @@ export class LayoutReader {
     control.comments = Helper.readComments(context);
 
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid control position');
+    if (value !== "{") throw new Error("Invalid control position");
     context.pos++;
+
+    let comments: Array<string> = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== '}') {
+    while (value !== "}") {
       switch (value) {
-        case 'area':
-        case 'group':
-        case 'cuegroup':
-        case 'repeater':
-        case 'grid':
-        case 'fixed':
-        case 'part':
-        case 'systempart':
-        case 'usercontrol':
-        case 'field':
-        case 'label':
+        case "area":
+        case "group":
+        case "cuegroup":
+        case "repeater":
+        case "grid":
+        case "fixed":
+        case "part":
+        case "systempart":
+        case "usercontrol":
+        case "field":
+        case "label":
           control.controls.push(this.readControl(context));
           break;
-        case 'actions':
+        case "actions":
           control.actionContainer = ActionsReader.readActions(context);
           break;
-        case 'trigger':
-          control.triggers.push(FunctionReader.readFunction(context));
+        case "trigger":
+          control.triggers.push(FunctionReader.readFunction(context, comments));
+          comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === 'comment') {
-            control.properties.push(context.tokens[context.pos].value);
+          if (context.tokens[context.pos].type === "comment") {
+            comments.push(context.tokens[context.pos].value);
             context.pos++;
             Helper.readWhiteSpaces(context, []);
           } else {
+            comments.forEach((comment) => control.properties.push(comment));
+            comments = [];
             control.properties.push(PropertyReader.readProperties(context));
           }
           break;
@@ -147,7 +152,7 @@ export class LayoutReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== '}') throw new Error('Invalid control position');
+    if (value !== "}") throw new Error("Invalid control position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
@@ -156,7 +161,7 @@ export class LayoutReader {
 
   static layoutToString(layout: ILayout): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', 4);
+    const pad = _.padStart("", 4);
 
     lines.push(`${pad}layout`);
     if (layout.postLabelComments.length > 0) {
@@ -181,9 +186,9 @@ export class LayoutReader {
     indentation: number
   ): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad12 = _.padStart('', indentation + 4);
-    
+    const pad = _.padStart("", indentation);
+    const pad12 = _.padStart("", indentation + 4);
+
     lines.push(`${pad}${control.header}`);
     control.comments.forEach((line) => lines.push(`${pad}${line}`));
     lines.push(`${pad}{`);
@@ -192,7 +197,7 @@ export class LayoutReader {
       control.properties.forEach((property) => {
         lines.push(`${pad12}${property}`);
       });
-      lines.push('');
+      lines.push("");
     }
 
     if (control.controls.length > 0) {
@@ -212,17 +217,18 @@ export class LayoutReader {
     }
 
     if (control.triggers.length > 0) {
+      lines.push("");
       control.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,
           indentation + 4
         );
         triggerLines.forEach((line) => lines.push(line));
-        lines.push('');
+        lines.push("");
       });
     }
 
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     lines.push(`${pad}}`);
     return lines;
   }

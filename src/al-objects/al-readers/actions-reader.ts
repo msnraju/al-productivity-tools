@@ -1,10 +1,10 @@
-import { IReadContext, ISegment } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { FunctionReader, IFunction } from './function-reader';
-import { PropertyReader } from './property-reader';
-import { Keywords } from './keywords';
-import _ = require('lodash');
+import { IReadContext, ISegment } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { FunctionReader, IFunction } from "./function-reader";
+import { PropertyReader } from "./property-reader";
+import { Keywords } from "./keywords";
+import _ = require("lodash");
 
 export interface IActionContainer {
   actions: Array<IAction>;
@@ -26,15 +26,15 @@ export class ActionsReader {
     const actions: Array<IAction> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'actions')
-      throw new Error('Invalid actions container position');
+    if (value !== "actions")
+      throw new Error("Invalid actions container position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid actions container position');
+    if (value !== "{") throw new Error("Invalid actions container position");
     context.pos++;
 
     const comments = Helper.readComments(context);
@@ -51,7 +51,7 @@ export class ActionsReader {
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== '}') throw new Error('Invalid actions container position');
+    if (value !== "}") throw new Error("Invalid actions container position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -64,7 +64,7 @@ export class ActionsReader {
 
   static readAction(context: IReadContext): IAction {
     const action: IAction = {
-      header: '',
+      header: "",
       childActions: [],
       triggers: [],
       segments: [],
@@ -77,22 +77,22 @@ export class ActionsReader {
       Keywords.PageActionTypes.indexOf(name) === -1 &&
       Keywords.ExtensionKeywords.indexOf(name) === -1
     )
-      throw Error('Invalid action position');
+      throw Error("Invalid action position");
 
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     let value = context.tokens[context.pos].value;
-    if (value !== '(') throw Error('Invalid action position');
+    if (value !== "(") throw Error("Invalid action position");
 
     const headerTokens: Array<IToken> = [];
-    while (value !== ')') {
+    while (value !== ")") {
       headerTokens.push(context.tokens[context.pos]);
       context.pos++;
       value = context.tokens[context.pos].value;
     }
 
-    if (value !== ')') throw Error('Invalid field position');
+    if (value !== ")") throw Error("Invalid field position");
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
     action.header = `${name}${Helper.tokensToString(headerTokens, {})}`;
@@ -101,30 +101,35 @@ export class ActionsReader {
     action.comments = Helper.readComments(context);
 
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid field position');
+    if (value !== "{") throw new Error("Invalid field position");
     context.pos++;
+
+    let comments: Array<string> = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== '}') {
+    while (value !== "}") {
       switch (value) {
-        case 'area':
-        case 'group':
-        case 'actions':
-        case 'action':
-        case 'separator':
+        case "area":
+        case "group":
+        case "actions":
+        case "action":
+        case "separator":
           const childAction = this.readAction(context);
           action.childActions.push(childAction);
           break;
-        case 'trigger':
-          action.triggers.push(FunctionReader.readFunction(context));
+        case "trigger":
+          action.triggers.push(FunctionReader.readFunction(context, comments));
+          comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === 'comment') {
-            action.properties.push(context.tokens[context.pos].value);
+          if (context.tokens[context.pos].type === "comment") {
+            comments.push(context.tokens[context.pos].value);
             context.pos++;
             Helper.readWhiteSpaces(context, []);
           } else {
+            comments.forEach((comment) => action.properties.push(comment));
+            comments = [];
             action.properties.push(PropertyReader.readProperties(context));
           }
           break;
@@ -133,7 +138,7 @@ export class ActionsReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== '}') throw new Error('Invalid field position');
+    if (value !== "}") throw new Error("Invalid field position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
@@ -145,7 +150,7 @@ export class ActionsReader {
     indentation: number
   ): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
+    const pad = _.padStart("", indentation);
 
     lines.push(`${pad}actions`);
     if (container.postLabelComments.length > 0) {
@@ -169,8 +174,8 @@ export class ActionsReader {
 
   static actionToString(action: IAction, indentation: number): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad12 = _.padStart('', indentation + 4);
+    const pad = _.padStart("", indentation);
+    const pad12 = _.padStart("", indentation + 4);
 
     lines.push(`${pad}${action.header}`);
     action.comments.forEach((line) => lines.push(`${pad}${line}`));
@@ -180,7 +185,7 @@ export class ActionsReader {
       action.properties.forEach((property) => {
         lines.push(`${pad12}${property}`);
       });
-      lines.push('');
+      lines.push("");
     }
 
     if (action.childActions.length > 0) {
@@ -191,17 +196,18 @@ export class ActionsReader {
     }
 
     if (action.triggers.length > 0) {
+      lines.push("");
       action.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,
           indentation + 4
         );
         triggerLines.forEach((line) => lines.push(line));
-        lines.push('');
+        lines.push("");
       });
     }
 
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     lines.push(`${pad}}`);
     return lines;
   }
