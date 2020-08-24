@@ -27,6 +27,7 @@ export interface IParameter extends IVariable {
 }
 
 export interface IFunction {
+  preFunctionComments: Array<string>;
   preFunction: Array<string>;
   header: IFunctionHeader;
   weight: number;
@@ -187,7 +188,10 @@ export class FunctionReader {
     };
   }
 
-  static readFunction(context: IReadContext): IFunction {
+  static readFunction(
+    context: IReadContext,
+    comments: Array<string>
+  ): IFunction {
     const attributeType: IAttributeType = {
       integrationEvent: false,
       businessEvent: false,
@@ -235,6 +239,7 @@ export class FunctionReader {
     const body = Helper.tokensToString(tokens, Keywords.Symbols);
 
     return {
+      preFunctionComments: comments,
       preFunction: preFunctionLines,
       weight: this.getWeight(functionHeader, attributeType),
       header: functionHeader,
@@ -270,9 +275,11 @@ export class FunctionReader {
     ) {
       // internal
       weight = 150;
-    } else if (header.local &&
+    } else if (
+      header.local &&
       attributeType.integrationEvent === false &&
-      attributeType.businessEvent === false) {
+      attributeType.businessEvent === false
+    ) {
       // local
       weight = 200;
     } else if (attributeType.integrationEvent) {
@@ -281,7 +288,7 @@ export class FunctionReader {
     } else if (attributeType.businessEvent) {
       // business event
       weight = 300;
-    } else {      
+    } else {
       weight = 400;
     }
 
@@ -299,6 +306,11 @@ export class FunctionReader {
     const lines: Array<string> = [];
     const pad = _.padStart("", indentation);
     const pad4 = _.padStart("", indentation + 4);
+
+    if (func.preFunctionComments.length > 0)
+      func.preFunctionComments.forEach((comment) =>
+        lines.push(`${pad}${comment}`)
+      );
 
     if (func.preFunction.length > 0)
       func.preFunction.forEach((line) => lines.push(`${pad}${line}`));

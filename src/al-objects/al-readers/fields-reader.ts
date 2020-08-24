@@ -1,9 +1,9 @@
-import { IReadContext, ISegment } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { FunctionReader, IFunction } from './function-reader';
-import { PropertyReader } from './property-reader';
-import _ = require('lodash');
+import { IReadContext, ISegment } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { FunctionReader, IFunction } from "./function-reader";
+import { PropertyReader } from "./property-reader";
+import _ = require("lodash");
 
 export interface IFieldsContainer {
   fields: Array<IField>;
@@ -24,28 +24,28 @@ export class FieldsReader {
     const fields: Array<IField> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'fields') throw new Error('Invalid fields position');
+    if (value !== "fields") throw new Error("Invalid fields position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid fields position');
+    if (value !== "{") throw new Error("Invalid fields position");
     context.pos++;
 
     const comments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value === 'field') {
+    while (value === "field") {
       const field = this.readField(context);
       fields.push(field);
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== '}') throw new Error('Invalid fields position');
+    if (value !== "}") throw new Error("Invalid fields position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -58,7 +58,7 @@ export class FieldsReader {
 
   static readField(context: IReadContext): IField {
     const field: IField = {
-      header: '',
+      header: "",
       triggers: [],
       segments: [],
       comments: [],
@@ -66,21 +66,21 @@ export class FieldsReader {
     };
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'field') throw Error('Invalid field position');
+    if (value !== "field") throw Error("Invalid field position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value;
-    if (value !== '(') throw Error('Invalid field position');
+    if (value !== "(") throw Error("Invalid field position");
 
     const headerTokens: Array<IToken> = [];
-    while (value !== ')') {
+    while (value !== ")") {
       headerTokens.push(context.tokens[context.pos]);
       context.pos++;
       value = context.tokens[context.pos].value;
     }
 
-    if (value !== ')') throw Error('Invalid field position');
+    if (value !== ")") throw Error("Invalid field position");
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
     field.header = `field${Helper.tokensToString(headerTokens, {})}`;
@@ -89,22 +89,27 @@ export class FieldsReader {
     field.comments = Helper.readComments(context);
 
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid field position');
+    if (value !== "{") throw new Error("Invalid field position");
     context.pos++;
+
+    let comments: Array<string> = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    while (value !== '}') {
+    while (value !== "}") {
       switch (value) {
-        case 'trigger':
-          field.triggers.push(FunctionReader.readFunction(context));
+        case "trigger":
+          field.triggers.push(FunctionReader.readFunction(context, comments));
+          comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === 'comment') {
-            field.properties.push(context.tokens[context.pos].value);
+          if (context.tokens[context.pos].type === "comment") {
+            comments.push(context.tokens[context.pos].value);
             context.pos++;
             Helper.readWhiteSpaces(context, []);
           } else {
+            comments.forEach((comment) => field.properties.push(comment));
+            comments = [];
             field.properties.push(PropertyReader.readProperties(context));
           }
           break;
@@ -113,7 +118,7 @@ export class FieldsReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== '}') throw new Error('Invalid field position');
+    if (value !== "}") throw new Error("Invalid field position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
@@ -122,7 +127,7 @@ export class FieldsReader {
 
   static fieldsToString(fields: IFieldsContainer): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', 4);
+    const pad = _.padStart("", 4);
 
     lines.push(`${pad}fields`);
     if (fields.postLabelComments.length > 0) {
@@ -144,8 +149,8 @@ export class FieldsReader {
 
   static fieldToString(field: IField): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', 8);
-    const pad12 = _.padStart('', 12);
+    const pad = _.padStart("", 8);
+    const pad12 = _.padStart("", 12);
     lines.push(`${pad}${field.header}`);
     field.comments.forEach((line) => lines.push(`${pad}${line}`));
     lines.push(`${pad}{`);
@@ -154,18 +159,19 @@ export class FieldsReader {
       field.properties.forEach((property) => {
         lines.push(`${pad12}${property}`);
       });
-      lines.push('');
+      lines.push("");
     }
 
     if (field.triggers.length > 0) {
+      lines.push("");
       field.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(trigger, 12);
         triggerLines.forEach((line) => lines.push(line));
-        lines.push('');
+        lines.push("");
       });
     }
 
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     lines.push(`${pad}}`);
     return lines;
   }

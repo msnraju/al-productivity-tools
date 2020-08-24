@@ -1,10 +1,10 @@
-import { IReadContext, ISegment } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { FunctionReader, IFunction } from './function-reader';
-import { PropertyReader } from './property-reader';
-import { Keywords } from './keywords';
-import _ = require('lodash');
+import { IReadContext, ISegment } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { FunctionReader, IFunction } from "./function-reader";
+import { PropertyReader } from "./property-reader";
+import { Keywords } from "./keywords";
+import _ = require("lodash");
 
 export interface IDataSet {
   dataItems: Array<IDataItem>;
@@ -26,14 +26,14 @@ export class DataSetReader {
     const dataItems: Array<IDataItem> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'dataset') throw new Error('Invalid dataset position');
+    if (value !== "dataset") throw new Error("Invalid dataset position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid dataset position');
+    if (value !== "{") throw new Error("Invalid dataset position");
     context.pos++;
 
     const comments = Helper.readComments(context);
@@ -47,7 +47,7 @@ export class DataSetReader {
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== '}') throw new Error('Invalid dataset position');
+    if (value !== "}") throw new Error("Invalid dataset position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -60,7 +60,7 @@ export class DataSetReader {
 
   static readDataItem(context: IReadContext): IDataItem {
     const dataItem: IDataItem = {
-      header: '',
+      header: "",
       dataItems: [],
       triggers: [],
       segments: [],
@@ -70,27 +70,27 @@ export class DataSetReader {
 
     const name = context.tokens[context.pos].value.toLocaleLowerCase();
     if (Keywords.ReportDataItemTypes.indexOf(name) === -1)
-      throw Error('Invalid data item position');
+      throw Error("Invalid data item position");
 
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     let value = context.tokens[context.pos].value;
-    if (value !== '(') throw Error('Invalid data item position');
+    if (value !== "(") throw Error("Invalid data item position");
     let counter = 1;
     const headerTokens: Array<IToken> = [];
-    while (value !== ')' || counter !== 0) {
+    while (value !== ")" || counter !== 0) {
       headerTokens.push(context.tokens[context.pos]);
       context.pos++;
       value = context.tokens[context.pos].value;
-      if (value === '(') {
+      if (value === "(") {
         counter++;
-      } else if (value === ')') {
+      } else if (value === ")") {
         counter--;
       }
     }
 
-    if (value !== ')') throw Error('Invalid data item position');
+    if (value !== ")") throw Error("Invalid data item position");
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
     dataItem.header = `${name}${Helper.tokensToString(headerTokens, {})}`;
@@ -99,26 +99,33 @@ export class DataSetReader {
     dataItem.comments = Helper.readComments(context);
 
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid data item position');
+    if (value !== "{") throw new Error("Invalid data item position");
     context.pos++;
+
+    let comments: Array<string> = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== '}') {
+    while (value !== "}") {
       switch (value) {
-        case 'dataitem':
-        case 'column':
+        case "dataitem":
+        case "column":
           dataItem.dataItems.push(this.readDataItem(context));
           break;
-        case 'trigger':
-          dataItem.triggers.push(FunctionReader.readFunction(context));
+        case "trigger":
+          dataItem.triggers.push(
+            FunctionReader.readFunction(context, comments)
+          );
+          comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === 'comment') {
-            dataItem.properties.push(context.tokens[context.pos].value);
+          if (context.tokens[context.pos].type === "comment") {
+            comments.push(context.tokens[context.pos].value);
             context.pos++;
             Helper.readWhiteSpaces(context, []);
           } else {
+            comments.forEach((comment) => dataItem.properties.push(comment));
+            comments = [];
             dataItem.properties.push(PropertyReader.readProperties(context));
           }
           break;
@@ -127,7 +134,7 @@ export class DataSetReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== '}') throw new Error('Invalid data item position');
+    if (value !== "}") throw new Error("Invalid data item position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
@@ -136,7 +143,7 @@ export class DataSetReader {
 
   static dataSetToString(dataset: IDataSet): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', 4);
+    const pad = _.padStart("", 4);
 
     lines.push(`${pad}dataset`);
     if (dataset.postLabelComments.length > 0) {
@@ -161,8 +168,8 @@ export class DataSetReader {
     indentation: number
   ): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad12 = _.padStart('', indentation + 4);
+    const pad = _.padStart("", indentation);
+    const pad12 = _.padStart("", indentation + 4);
     lines.push(`${pad}${dataItem.header}`);
     dataItem.comments.forEach((line) => lines.push(`${pad}${line}`));
     lines.push(`${pad}{`);
@@ -171,7 +178,7 @@ export class DataSetReader {
       dataItem.properties.forEach((property) => {
         lines.push(`${pad12}${property}`);
       });
-      lines.push('');
+      lines.push("");
     }
 
     if (dataItem.dataItems.length > 0) {
@@ -182,17 +189,18 @@ export class DataSetReader {
     }
 
     if (dataItem.triggers.length > 0) {
+      lines.push("");
       dataItem.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,
           indentation + 4
         );
         triggerLines.forEach((line) => lines.push(line));
-        lines.push('');
+        lines.push("");
       });
     }
 
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     lines.push(`${pad}}`);
     return lines;
   }

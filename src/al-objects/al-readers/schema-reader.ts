@@ -1,10 +1,10 @@
-import { IReadContext, ISegment } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { FunctionReader, IFunction } from './function-reader';
-import { PropertyReader } from './property-reader';
-import { Keywords } from './keywords';
-import _ = require('lodash');
+import { IReadContext, ISegment } from "./object-reader";
+import { IToken } from "./tokenizer";
+import { Helper } from "./helper";
+import { FunctionReader, IFunction } from "./function-reader";
+import { PropertyReader } from "./property-reader";
+import { Keywords } from "./keywords";
+import _ = require("lodash");
 
 export interface ISchema {
   nodes: Array<INode>;
@@ -26,14 +26,14 @@ export class schemaReader {
     const nodes: Array<INode> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'schema') throw new Error('Invalid schema position');
+    if (value !== "schema") throw new Error("Invalid schema position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid schema position');
+    if (value !== "{") throw new Error("Invalid schema position");
     context.pos++;
 
     const comments = Helper.readComments(context);
@@ -50,7 +50,7 @@ export class schemaReader {
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== '}') throw new Error('Invalid schema position');
+    if (value !== "}") throw new Error("Invalid schema position");
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -63,7 +63,7 @@ export class schemaReader {
 
   static readNode(context: IReadContext): INode {
     const node: INode = {
-      header: '',
+      header: "",
       nodes: [],
       triggers: [],
       segments: [],
@@ -76,27 +76,27 @@ export class schemaReader {
       Keywords.XmlPortNodeTypes.indexOf(name) === -1 &&
       Keywords.ExtensionKeywords.indexOf(name) === -1
     )
-      throw Error('Invalid node position');
+      throw Error("Invalid node position");
 
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
     let value = context.tokens[context.pos].value;
-    if (value !== '(') throw Error('Invalid node position');
+    if (value !== "(") throw Error("Invalid node position");
     let counter = 1;
     const headerTokens: Array<IToken> = [];
-    while (value !== ')' || counter !== 0) {
+    while (value !== ")" || counter !== 0) {
       headerTokens.push(context.tokens[context.pos]);
       context.pos++;
       value = context.tokens[context.pos].value;
-      if (value === '(') {
+      if (value === "(") {
         counter++;
-      } else if (value === ')') {
+      } else if (value === ")") {
         counter--;
       }
     }
 
-    if (value !== ')') throw Error('Invalid node position');
+    if (value !== ")") throw Error("Invalid node position");
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
     node.header = `${name}${Helper.tokensToString(headerTokens, {})}`;
@@ -105,29 +105,35 @@ export class schemaReader {
     node.comments = Helper.readComments(context);
 
     value = context.tokens[context.pos].value;
-    if (value !== '{') throw new Error('Invalid node position');
+    if (value !== "{") throw new Error("Invalid node position");
     context.pos++;
+
+    let comments: Array<string> = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== '}') {
+    while (value !== "}") {
       switch (value) {
-        case 'tableelement':
-        case 'textelement':
-        case 'textattribute':
-        case 'fieldelement':
-        case 'fieldattribute':
+        case "tableelement":
+        case "textelement":
+        case "textattribute":
+        case "fieldelement":
+        case "fieldattribute":
           node.nodes.push(this.readNode(context));
           break;
-        case 'trigger':
-          node.triggers.push(FunctionReader.readFunction(context));
+        case "trigger":
+          node.triggers.push(FunctionReader.readFunction(context, comments));
+          comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === 'comment') {
-            node.properties.push(context.tokens[context.pos].value);
+          if (context.tokens[context.pos].type === "comment") {
+            comments.push(context.tokens[context.pos].value);
+
             context.pos++;
             Helper.readWhiteSpaces(context, []);
           } else {
+            comments.forEach((comment) => node.properties.push(comment));
+            comments = [];
             node.properties.push(PropertyReader.readProperties(context));
           }
           break;
@@ -136,7 +142,7 @@ export class schemaReader {
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
-    if (value !== '}') throw new Error('Invalid node position');
+    if (value !== "}") throw new Error("Invalid node position");
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
@@ -145,7 +151,7 @@ export class schemaReader {
 
   static schemaToString(schema: ISchema): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', 4);
+    const pad = _.padStart("", 4);
 
     lines.push(`${pad}schema`);
     if (schema.postLabelComments.length > 0) {
@@ -167,8 +173,8 @@ export class schemaReader {
 
   static nodeToString(node: INode, indentation: number): Array<string> {
     const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad12 = _.padStart('', indentation + 4);
+    const pad = _.padStart("", indentation);
+    const pad12 = _.padStart("", indentation + 4);
     lines.push(`${pad}${node.header}`);
     node.comments.forEach((line) => lines.push(`${pad}${line}`));
     lines.push(`${pad}{`);
@@ -177,7 +183,7 @@ export class schemaReader {
       node.properties.forEach((property) => {
         lines.push(`${pad12}${property}`);
       });
-      lines.push('');
+      lines.push("");
     }
 
     if (node.nodes.length > 0) {
@@ -188,17 +194,18 @@ export class schemaReader {
     }
 
     if (node.triggers.length > 0) {
+      lines.push("");
       node.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,
           indentation + 4
         );
         triggerLines.forEach((line) => lines.push(line));
-        lines.push('');
+        lines.push("");
       });
     }
 
-    if (lines[lines.length - 1] === '') lines.pop();
+    if (lines[lines.length - 1] === "") lines.pop();
     lines.push(`${pad}}`);
     return lines;
   }
