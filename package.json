@@ -53,7 +53,7 @@
       "properties": {
         "msn.fixALFileNameOnSave": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "scope": "resource",
           "description": "Auto fix the AL file name on save"
         }
