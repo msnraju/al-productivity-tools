@@ -49,11 +49,11 @@ export default class ALFileNameCommands {
   static async fixALCurrentFileNamingNotation() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
+    if (path.extname(editor.document.fileName).toLowerCase() != ".al") return;
 
     try {
-      editor.document.save().then(async (value) => {
-        await ALFileNameCommands.renameALFile();
-      });
+      if (editor.document.isDirty) await editor.document.save();
+      await ALFileNameCommands.renameALFile();
     } catch (err) {
       console.log(err);
     }
@@ -64,9 +64,11 @@ export default class ALFileNameCommands {
     if (!editor) return;
 
     const oldFile = editor.document.fileName;
-    const newFile = await ALFileNameHelper.renameALFile(
+    const newFile = await ALFileNameHelper.getALFileName(
       editor.document.fileName
     );
+
+    if (oldFile.toLowerCase() === newFile.toLowerCase()) return;
 
     const folder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
     if (

@@ -4,7 +4,7 @@ import ALObjectTypes from "../al-objects/al-object-types";
 import IObjectDefinition from "../al-objects/object-definition";
 
 export default class ALFileNameHelper {
-  static async renameALFile(file: string) {
+  static async getALFileName(file: string) {
     return new Promise<string>(async (resolve, reject) => {
       fs.readFile(file, async (err, data) => {
         if (err) {
@@ -59,7 +59,7 @@ export default class ALFileNameHelper {
               const ext = path.extname(file).toLowerCase();
 
               if (ext === ".al") {
-                const newFile = await this.renameALFile(fileName);
+                const newFile = await this.getALFileName(fileName);
                 renameCb(fileName, newFile);
                 resolve(newFile);
               }
