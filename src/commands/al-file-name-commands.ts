@@ -62,6 +62,7 @@ export default class ALFileNameCommands {
   static async renameALFile() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
+    if (path.extname(editor.document.fileName).toLowerCase() != ".al") return;
 
     const oldFile = editor.document.fileName;
     const newFile = await ALFileNameHelper.getALFileName(
