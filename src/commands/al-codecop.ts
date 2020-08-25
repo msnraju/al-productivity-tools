@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { ObjectReader } from "../al-objects/al-readers/object-reader";
 import { ALFormatter } from "../al-objects/al-readers/al-formatter";
 
-export default class ALCodeCopFixer {
+export default class ALCodeCop {
   static fixALCodeCopIssues() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;

@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
-import ALCodeCopFixer from "./commands/al-codecop-fixer";
+import ALCodeCopFixer from "./commands/al-codecop";
 import ALFileNameCommands from "./commands/al-file-name-commands";
-import { exit } from "process";
 import WorkspaceEvents from "./commands/workspace-events";
 
 export function activate(context: vscode.ExtensionContext) {

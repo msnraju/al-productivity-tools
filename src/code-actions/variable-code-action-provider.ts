@@ -3,7 +3,8 @@ import IVariableDeclaration from "./variables/variable-declaration";
 import VariableNameService from "./variables/variable-name-service";
 import ActiveVariableReader from "./variables/active-variable-reader";
 
-export default class VariableCodeActionProvider implements vscode.CodeActionProvider {
+export default class VariableCodeActionProvider
+  implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
     vscode.CodeActionKind.QuickFix,
   ];
@@ -32,7 +33,6 @@ export default class VariableCodeActionProvider implements vscode.CodeActionProv
 
     return fixes;
   }
-
 
   private createFix(
     document: vscode.TextDocument,
