@@ -1,8 +1,8 @@
-import _ = require("lodash");
 import VariableAbbreviations from "./variable-abbreviations";
 import IVariableDeclaration from "./variable-declaration";
 import StringHelper from "../../helpers/string-helper";
 import ALObjectTypes from "../../al-objects/al-object-types";
+import _ = require("lodash");
 
 export default class VariableNameService {
   static getNameSuggestions(variable: IVariableDeclaration): Array<string> {

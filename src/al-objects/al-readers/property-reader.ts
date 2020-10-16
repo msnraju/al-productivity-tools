@@ -1,7 +1,7 @@
-import { IReadContext } from './object-reader';
-import { IToken } from './tokenizer';
-import { Helper } from './helper';
-import { Keywords } from './keywords';
+import { IReadContext } from "../models/IReadContext";
+import { IToken } from '../tokenizer';
+import { Helper } from '../helper';
+import { Keywords } from '../keywords';
 
 export class PropertyReader {
   static readProperties(context: IReadContext): string {

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { ObjectReader } from "../al-objects/al-readers/object-reader";
-import { ALFormatter } from "../al-objects/al-readers/al-formatter";
+import { ALFormatter } from "../al-objects/al-formatter";
 
 export default class ALCodeCop {
   static fixALCodeCopIssues() {

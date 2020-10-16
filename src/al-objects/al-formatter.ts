@@ -1,24 +1,20 @@
 import fs = require("fs");
 import path = require("path");
-import { ObjectReader } from "./object-reader";
+import { ObjectReader } from "./al-readers/object-reader";
 
 export class ALFormatter {
   static readALFiles(folderPath: string) {
     folderPath = path.resolve(folderPath);
 
     const files = fs.readdirSync(folderPath);
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
+    files.forEach((file) => {
       const fileName = `${folderPath}\\${file}`;
       if (fs.lstatSync(fileName).isDirectory()) {
         this.readALFiles(fileName);
-      } else {
-        if (file.toLocaleUpperCase().endsWith(".AL")) {
-          console.log(`reading ${file}`);
-          this.readALFile(fileName);
-        }
+      } else if (file.toLowerCase().endsWith(".al")) {
+        this.readALFile(fileName);
       }
-    }
+    });
   }
 
   static readALFile(filePath: string) {
@@ -31,9 +27,6 @@ export class ALFormatter {
 
   static start() {
     this.readALFiles("./assets/AppObject");
-    // this.readALFile(
-    //   './assets/AppObject/Report/AddContacts.Report.al'
-    // );
     console.log("All Done!");
   }
 }

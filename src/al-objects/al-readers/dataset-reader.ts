@@ -1,25 +1,12 @@
-import { IReadContext, ISegment } from "./object-reader";
-import { IToken } from "./tokenizer";
-import { Helper } from "./helper";
-import { FunctionReader, IFunction } from "./function-reader";
+import { ISegment } from "../models/ISegment";
+import { IReadContext } from "../models/IReadContext";
+import { IToken } from "../tokenizer";
+import { Helper } from "../helper";
+import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
-import { Keywords } from "./keywords";
-import _ = require("lodash");
-
-export interface IDataSet {
-  dataItems: Array<IDataItem>;
-  postLabelComments: Array<string>;
-  comments: Array<string>;
-}
-
-export interface IDataItem {
-  dataItems: Array<IDataItem>;
-  comments: string[];
-  header: string;
-  triggers: Array<IFunction>;
-  segments: Array<ISegment>;
-  properties: Array<string>;
-}
+import { Keywords } from "../keywords";
+import { IDataSet } from "../models/IDataSet";
+import { IDataItem } from "../models/IDataItem";
 
 export class DataSetReader {
   static readDataSet(context: IReadContext): IDataSet {
@@ -139,68 +126,5 @@ export class DataSetReader {
 
     Helper.readWhiteSpaces(context, []);
     return dataItem;
-  }
-
-  static dataSetToString(dataset: IDataSet): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", 4);
-
-    lines.push(`${pad}dataset`);
-    if (dataset.postLabelComments.length > 0) {
-      dataset.postLabelComments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-    lines.push(`${pad}{`);
-    if (dataset.comments.length > 0) {
-      dataset.comments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-
-    dataset.dataItems.forEach((dataItem) => {
-      const dataItemLines = this.dataItemToString(dataItem, 8);
-      dataItemLines.forEach((line) => lines.push(line));
-    });
-
-    lines.push(`${pad}}`);
-    return lines;
-  }
-
-  static dataItemToString(
-    dataItem: IDataItem,
-    indentation: number
-  ): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", indentation);
-    const pad12 = _.padStart("", indentation + 4);
-    lines.push(`${pad}${dataItem.header}`);
-    dataItem.comments.forEach((line) => lines.push(`${pad}${line}`));
-    lines.push(`${pad}{`);
-
-    if (dataItem.properties.length > 0) {
-      dataItem.properties.forEach((property) => {
-        lines.push(`${pad12}${property}`);
-      });
-      lines.push("");
-    }
-
-    if (dataItem.dataItems.length > 0) {
-      dataItem.dataItems.forEach((control2) => {
-        const controlLines = this.dataItemToString(control2, indentation + 4);
-        controlLines.forEach((line) => lines.push(line));
-      });
-    }
-
-    if (dataItem.triggers.length > 0) {
-      dataItem.triggers.forEach((trigger) => {
-        const triggerLines = FunctionReader.functionToString(
-          trigger,
-          indentation + 4
-        );
-        triggerLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (lines[lines.length - 1] === "") lines.pop();
-    lines.push(`${pad}}`);
-    return lines;
   }
 }

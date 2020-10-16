@@ -1,23 +1,10 @@
-import { IReadContext, ISegment } from "./object-reader";
-import { IToken } from "./tokenizer";
-import { Helper } from "./helper";
-import { FunctionReader, IFunction } from "./function-reader";
+import { IReadContext } from "../models/IReadContext";
+import { IToken } from "../tokenizer";
+import { Helper } from "../helper";
+import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
-import _ = require("lodash");
-
-export interface IFieldsContainer {
-  fields: Array<IField>;
-  postLabelComments: Array<string>;
-  comments: Array<string>;
-}
-
-export interface IField {
-  comments: string[];
-  header: string;
-  triggers: Array<IFunction>;
-  segments: Array<ISegment>;
-  properties: Array<string>;
-}
+import { IFieldsContainer } from "../models/IFieldsContainer";
+import { IField } from "../models/IField";
 
 export class FieldsReader {
   static readFields(context: IReadContext): IFieldsContainer {
@@ -140,56 +127,5 @@ export class FieldsReader {
 
     Helper.readWhiteSpaces(context, []);
     return field;
-  }
-
-  static fieldsToString(fields: IFieldsContainer): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", 4);
-
-    lines.push(`${pad}fields`);
-    if (fields.postLabelComments.length > 0) {
-      fields.postLabelComments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-    lines.push(`${pad}{`);
-    if (fields.comments.length > 0) {
-      fields.comments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-
-    fields.fields.forEach((field) => {
-      const fieldLines = this.fieldToString(field);
-      fieldLines.forEach((line) => lines.push(line));
-    });
-
-    lines.push(`${pad}}`);
-    return lines;
-  }
-
-  static fieldToString(field: IField): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", 8);
-    const pad12 = _.padStart("", 12);
-    lines.push(`${pad}${field.header}`);
-    field.comments.forEach((line) => lines.push(`${pad}${line}`));
-    lines.push(`${pad}{`);
-
-    if (field.properties.length > 0) {
-      field.properties.forEach((property) => {
-        lines.push(`${pad12}${property}`);
-      });
-      lines.push("");
-    }
-
-    if (field.triggers.length > 0) {
-      // lines.push("");
-      field.triggers.forEach((trigger) => {
-        const triggerLines = FunctionReader.functionToString(trigger, 12);
-        triggerLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (lines[lines.length - 1] === "") lines.pop();
-    lines.push(`${pad}}`);
-    return lines;
   }
 }

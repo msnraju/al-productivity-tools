@@ -1,25 +1,11 @@
-import { IReadContext, ISegment } from "./object-reader";
-import { IToken } from "./tokenizer";
-import { Helper } from "./helper";
-import { FunctionReader, IFunction } from "./function-reader";
+import { IReadContext } from "../models/IReadContext";
+import { IToken } from "../tokenizer";
+import { Helper } from "../helper";
+import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
-import { Keywords } from "./keywords";
-import _ = require("lodash");
-
-export interface IActionContainer {
-  actions: Array<IAction>;
-  postLabelComments: Array<string>;
-  comments: Array<string>;
-}
-
-export interface IAction {
-  childActions: Array<IAction>;
-  comments: string[];
-  header: string;
-  triggers: Array<IFunction>;
-  segments: Array<ISegment>;
-  properties: Array<string>;
-}
+import { Keywords } from "../keywords";
+import { IActionContainer } from "../models/IActionContainer";
+import { IAction } from "../models/IAction";
 
 export class ActionsReader {
   static readActions(context: IReadContext): IActionContainer {
@@ -143,71 +129,5 @@ export class ActionsReader {
 
     Helper.readWhiteSpaces(context, []);
     return action;
-  }
-
-  static actionContainerToString(
-    container: IActionContainer,
-    indentation: number
-  ): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", indentation);
-
-    lines.push(`${pad}actions`);
-    if (container.postLabelComments.length > 0) {
-      container.postLabelComments.forEach((line) =>
-        lines.push(`${pad}${line}`)
-      );
-    }
-    lines.push(`${pad}{`);
-    if (container.comments.length > 0) {
-      container.comments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-
-    container.actions.forEach((action) => {
-      const fieldLines = this.actionToString(action, indentation + 4);
-      fieldLines.forEach((line) => lines.push(line));
-    });
-
-    lines.push(`${pad}}`);
-    return lines;
-  }
-
-  static actionToString(action: IAction, indentation: number): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", indentation);
-    const pad12 = _.padStart("", indentation + 4);
-
-    lines.push(`${pad}${action.header}`);
-    action.comments.forEach((line) => lines.push(`${pad}${line}`));
-    lines.push(`${pad}{`);
-
-    if (action.properties.length > 0) {
-      action.properties.forEach((property) => {
-        lines.push(`${pad12}${property}`);
-      });
-      lines.push("");
-    }
-
-    if (action.childActions.length > 0) {
-      action.childActions.forEach((action2) => {
-        const fieldLines = this.actionToString(action2, indentation + 4);
-        fieldLines.forEach((line) => lines.push(line));
-      });
-    }
-
-    if (action.triggers.length > 0) {
-      action.triggers.forEach((trigger) => {
-        const triggerLines = FunctionReader.functionToString(
-          trigger,
-          indentation + 4
-        );
-        triggerLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (lines[lines.length - 1] === "") lines.pop();
-    lines.push(`${pad}}`);
-    return lines;
   }
 }

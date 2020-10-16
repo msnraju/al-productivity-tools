@@ -1,27 +1,13 @@
-import { IReadContext, ISegment } from "./object-reader";
-import { IToken } from "./tokenizer";
-import { Helper } from "./helper";
-import { FunctionReader, IFunction } from "./function-reader";
+import { IReadContext } from "../models/IReadContext";
+import { IToken } from "../tokenizer";
+import { Helper } from "../helper";
+import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
-import { Keywords } from "./keywords";
-import _ = require("lodash");
+import { Keywords } from "../keywords";
+import { ISchema } from "../models/ISchema";
+import { INode } from "../models/INode";
 
-export interface ISchema {
-  nodes: Array<INode>;
-  postLabelComments: Array<string>;
-  comments: Array<string>;
-}
-
-export interface INode {
-  nodes: Array<INode>;
-  comments: string[];
-  header: string;
-  triggers: Array<IFunction>;
-  segments: Array<ISegment>;
-  properties: Array<string>;
-}
-
-export class schemaReader {
+export class SchemaReader {
   static readSchema(context: IReadContext): ISchema {
     const nodes: Array<INode> = [];
 
@@ -147,65 +133,5 @@ export class schemaReader {
 
     Helper.readWhiteSpaces(context, []);
     return node;
-  }
-
-  static schemaToString(schema: ISchema): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", 4);
-
-    lines.push(`${pad}schema`);
-    if (schema.postLabelComments.length > 0) {
-      schema.postLabelComments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-    lines.push(`${pad}{`);
-    if (schema.comments.length > 0) {
-      schema.comments.forEach((line) => lines.push(`${pad}${line}`));
-    }
-
-    schema.nodes.forEach((node) => {
-      const nodeLines = this.nodeToString(node, 8);
-      nodeLines.forEach((line) => lines.push(line));
-    });
-
-    lines.push(`${pad}}`);
-    return lines;
-  }
-
-  static nodeToString(node: INode, indentation: number): Array<string> {
-    const lines: Array<string> = [];
-    const pad = _.padStart("", indentation);
-    const pad12 = _.padStart("", indentation + 4);
-    lines.push(`${pad}${node.header}`);
-    node.comments.forEach((line) => lines.push(`${pad}${line}`));
-    lines.push(`${pad}{`);
-
-    if (node.properties.length > 0) {
-      node.properties.forEach((property) => {
-        lines.push(`${pad12}${property}`);
-      });
-      lines.push("");
-    }
-
-    if (node.nodes.length > 0) {
-      node.nodes.forEach((node2) => {
-        const nodeLines = this.nodeToString(node2, indentation + 4);
-        nodeLines.forEach((line) => lines.push(line));
-      });
-    }
-
-    if (node.triggers.length > 0) {
-      node.triggers.forEach((trigger) => {
-        const triggerLines = FunctionReader.functionToString(
-          trigger,
-          indentation + 4
-        );
-        triggerLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (lines[lines.length - 1] === "") lines.pop();
-    lines.push(`${pad}}`);
-    return lines;
   }
 }

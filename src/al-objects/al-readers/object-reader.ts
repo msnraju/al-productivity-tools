@@ -1,42 +1,18 @@
-import { Tokenizer, IToken } from "./tokenizer";
-import { Helper } from "./helper";
-import { VariableReader, IVariable } from "./variable-reader";
-import { FunctionReader, IFunction } from "./function-reader";
-import { Keywords } from "./keywords";
-import { FieldsReader, IField, IFieldsContainer } from "./fields-reader";
+import { Helper } from "../helper";
+import { Tokenizer, IToken } from "../tokenizer";
+import { VariableReader } from "./variable-reader";
+import { FunctionReader } from "./function-reader";
+import { Keywords } from "../keywords";
+import { FieldsReader } from "./fields-reader";
 import { PropertyReader } from "./property-reader";
-import { LayoutReader, ILayout } from "./layout-reader";
-import { ActionsReader, IActionContainer } from "./actions-reader";
-import { DataSetReader, IDataSet } from "./dataset-reader";
-import { schemaReader, ISchema } from "./schema-reader";
-import { ViewsReader, IViewContainer } from "./views-reader";
-import _ = require("lodash");
-
-export interface ISegment {
-  name: string;
-  tokens: Array<IToken>;
-}
-
-export interface IObjectContext {
-  views?: IViewContainer;
-  schema?: ISchema;
-  dataSet?: IDataSet;
-  actions?: IActionContainer;
-  layout?: ILayout;
-  header: string;
-  footer: string;
-  fields?: IFieldsContainer;
-  variables: Array<IVariable>;
-  procedures: Array<IFunction>;
-  triggers: Array<IFunction>;
-  segments: Array<ISegment>;
-  properties: Array<string>;
-}
-
-export interface IReadContext {
-  tokens: Array<IToken>;
-  pos: number;
-}
+import { LayoutReader } from "./layout-reader";
+import { ActionsReader } from "./actions-reader";
+import { DataSetReader } from "./dataset-reader";
+import { SchemaReader } from "./schema-reader";
+import { ViewsReader } from "./views-reader";
+import { IObjectContext } from "../models/IObjectContext";
+import { IReadContext } from "../models/IReadContext";
+import { ObjectWriter } from "../al-writers/object-writer";
 
 export class ObjectReader {
   static convert(content: string): string {
@@ -47,116 +23,7 @@ export class ObjectReader {
     };
 
     const appObject = this.readObject(context);
-    return this.objectToString(appObject);
-  }
-
-  static objectToString(context: IObjectContext): string {
-    const lines: Array<string> = [];
-    const segmentNames = [
-      "keys",
-      "fieldgroups",
-      "actions",
-      "requestpage",
-      "labels",
-      "elements",
-      "schema",
-      "value",
-    ];
-    lines.push(context.header);
-
-    const pad = _.padStart("", 4);
-
-    if (context.properties.length > 0) {
-      context.properties.forEach((property) => {
-        lines.push(`${pad}${property}`);
-      });
-      lines.push("");
-    }
-
-    if (context.fields) {
-      const fieldLines = FieldsReader.fieldsToString(context.fields);
-      fieldLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.layout) {
-      const layoutLines = LayoutReader.layoutToString(context.layout);
-      layoutLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.actions) {
-      const actionLines = ActionsReader.actionContainerToString(
-        context.actions,
-        4
-      );
-      actionLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.views) {
-      const viewLines = ViewsReader.viewContainerToString(context.views, 4);
-      viewLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.dataSet) {
-      const dataSetLines = DataSetReader.dataSetToString(context.dataSet);
-      dataSetLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.schema) {
-      const schemaLines = schemaReader.schemaToString(context.schema);
-      schemaLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    segmentNames.forEach((name) => {
-      const segments = _.filter(
-        context.segments,
-        (segment) => segment.name === name
-      );
-
-      if (segments.length > 0) {
-        segments.forEach((segment) => {
-          const segmentBody = Helper.tokensToString(segment.tokens, {});
-          lines.push(`${pad}${segmentBody}`);
-        });
-
-        lines.push("");
-      }
-    });
-
-    if (context.triggers.length > 0) {
-      context.triggers.forEach((trigger) => {
-        const triggerLines = FunctionReader.functionToString(trigger, 4);
-        triggerLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (context.variables.length > 0) {
-      const variableLines = VariableReader.variablesToString(
-        context.variables,
-        4
-      );
-      variableLines.forEach((line) => lines.push(line));
-      lines.push("");
-    }
-
-    if (context.procedures.length > 0) {      
-      const procedures = _.sortBy(context.procedures, (item) => [item.weight]);
-      procedures.forEach((procedure) => {
-        const procedureLines = FunctionReader.functionToString(procedure, 4);
-        procedureLines.forEach((line) => lines.push(line));
-        lines.push("");
-      });
-    }
-
-    if (lines[lines.length - 1] === "") lines.pop();
-    lines.push(context.footer);
-    return lines.join("\r\n");
+    return ObjectWriter.objectToString(appObject);
   }
 
   static readObject(context: IReadContext): IObjectContext {
@@ -219,7 +86,7 @@ export class ObjectReader {
           break;
         // XmlPort
         case "schema":
-          appObject.schema = schemaReader.readSchema(context);
+          appObject.schema = SchemaReader.readSchema(context);
           break;
         // Table
         case "keys":

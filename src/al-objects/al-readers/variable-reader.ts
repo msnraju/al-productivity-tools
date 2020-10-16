@@ -1,16 +1,9 @@
-import { Helper } from './helper';
-import { Keywords } from './keywords';
-import { IToken } from './tokenizer';
-import { IReadContext } from './object-reader';
+import { Helper } from '../helper';
+import { Keywords } from '../keywords';
+import { IToken } from '../tokenizer';
+import { IReadContext } from "../models/IReadContext";
+import { IVariable } from '../models/IVariable';
 import _ = require('lodash');
-
-export interface IVariable {
-  name: string;
-  dataType: string;
-  weight: number;
-  preVariable: Array<string>;
-  value: string;
-}
 
 export class VariableReader {
   static readVariable(
@@ -129,25 +122,5 @@ export class VariableReader {
 
     Helper.readWhiteSpaces(context, []);
     return variables;
-  }
-
-  static variablesToString(variables: Array<IVariable>, indentation: number) {
-    const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad4 = _.padStart('', indentation + 4);
-
-    if (variables.length > 0) {
-      variables = _.sortBy(variables, (item) => item.weight);
-      lines.push(`${pad}var`);
-      variables.forEach((variable) => {
-        if (variable.preVariable.length > 0) {
-          variable.preVariable.forEach((line) => lines.push(`${pad4}${line}`));
-        }
-
-        lines.push(`${pad4}${variable.value}`);
-      });
-    }
-
-    return lines;
   }
 }

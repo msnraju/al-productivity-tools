@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import ALObjectTypes from "../al-objects/al-object-types";
-import IObjectDefinition from "../al-objects/object-definition";
+import IObjectDefinition from "../al-objects/models/object-definition";
 
 export default class ALFileNameHelper {
   static async getALFileName(file: string) {
