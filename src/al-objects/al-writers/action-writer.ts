@@ -4,7 +4,7 @@ import { Helper } from "../helper";
 import { FunctionWriter } from "./function-writer";
 
 export class ActionWriter {
-  static actionToString(action: IAction, indentation: number): Array<string> {
+  static write(action: IAction, indentation: number): Array<string> {
     const lines: Array<string> = [];
     const pad = Helper.pad(indentation);
     const pad2 = Helper.pad(indentation + 4);
@@ -50,7 +50,7 @@ export class ActionWriter {
     if (!childActions) return;
 
     childActions.forEach((action) => {
-      const fieldLines = this.actionToString(action, indentation + 4);
+      const fieldLines = this.write(action, indentation + 4);
       fieldLines.forEach((line) => lines.push(line));
     });
   }
@@ -65,7 +65,7 @@ export class ActionWriter {
     properties.forEach((property) => {
       lines.push(`${pad}${property}`);
     });
-    
+
     lines.push("");
   }
 

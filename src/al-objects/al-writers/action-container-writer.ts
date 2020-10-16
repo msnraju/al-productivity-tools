@@ -32,7 +32,7 @@ export class ActionContainerWriter {
     if (!actions) return;
 
     actions.forEach((action) => {
-      const fieldLines = ActionWriter.actionToString(action, indentation + 4);
+      const fieldLines = ActionWriter.write(action, indentation + 4);
       fieldLines.forEach((line) => lines.push(line));
     });
   }
