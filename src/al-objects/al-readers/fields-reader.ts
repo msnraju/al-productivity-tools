@@ -24,28 +24,37 @@ export class FieldsReader {
     const fields: Array<IField> = [];
 
     let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== "fields") throw new Error("Invalid fields position");
+    if (value !== "fields") {
+      throw new Error("Invalid fields position");
+    }
+
     context.pos++;
 
     Helper.readWhiteSpaces(context, []);
     const postLabelComments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;
-    if (value !== "{") throw new Error("Invalid fields position");
+    if (value !== "{") {
+      throw new Error("Invalid fields position");
+    }
+
     context.pos++;
 
     const comments = Helper.readComments(context);
     Helper.readWhiteSpaces(context, []);
 
     value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value === "field") {
+    while (value === "field" || value === "modify") {
       const field = this.readField(context);
       fields.push(field);
       value = context.tokens[context.pos].value.toLocaleLowerCase();
     }
 
     value = context.tokens[context.pos].value;
-    if (value !== "}") throw new Error("Invalid fields position");
+    if (value !== "}") {
+      throw new Error("Invalid fields position");
+    }
+
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
@@ -65,13 +74,18 @@ export class FieldsReader {
       properties: [],
     };
 
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== "field") throw Error("Invalid field position");
+    let header = context.tokens[context.pos].value.toLocaleLowerCase();
+    if (header !== "field" && header !== "modify") {
+      throw Error(`fields section can have a subsection '${header}'.`);
+    }
+
     context.pos++;
     Helper.readWhiteSpaces(context, []);
 
-    value = context.tokens[context.pos].value;
-    if (value !== "(") throw Error("Invalid field position");
+    let value = context.tokens[context.pos].value;
+    if (value !== "(") {
+      throw Error(`field parsing error at ${value}, '(' expected.)`);
+    }
 
     const headerTokens: Array<IToken> = [];
     while (value !== ")") {
@@ -80,10 +94,13 @@ export class FieldsReader {
       value = context.tokens[context.pos].value;
     }
 
-    if (value !== ")") throw Error("Invalid field position");
+    if (value !== ")") {
+      throw Error(`field parsing error at ${value}, ')' expected.)`);
+    }
+
     headerTokens.push(context.tokens[context.pos]);
     context.pos++;
-    field.header = `field${Helper.tokensToString(headerTokens, {})}`;
+    field.header = `${header}${Helper.tokensToString(headerTokens, {})}`;
 
     Helper.readWhiteSpaces(context, []);
     field.comments = Helper.readComments(context);
@@ -163,7 +180,7 @@ export class FieldsReader {
     }
 
     if (field.triggers.length > 0) {
-      lines.push("");
+      // lines.push("");
       field.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(trigger, 12);
         triggerLines.forEach((line) => lines.push(line));

@@ -129,7 +129,6 @@ export class ObjectReader {
     });
 
     if (context.triggers.length > 0) {
-      lines.push("");
       context.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(trigger, 4);
         triggerLines.forEach((line) => lines.push(line));

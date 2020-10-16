@@ -217,7 +217,6 @@ export class LayoutReader {
     }
 
     if (control.triggers.length > 0) {
-      lines.push("");
       control.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,

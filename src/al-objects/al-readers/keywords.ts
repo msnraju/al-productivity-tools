@@ -35,6 +35,7 @@ export class Keywords {
   };
 
   static Symbols: any = {
+    skip: "Skip",
     abs: "Abs",
     accountdata: "AccountData",
     action: "Action",
@@ -166,6 +167,7 @@ export class Keywords {
     currentkeyindex: "CurrentKeyIndex",
     currenttransactiontype: "CurrentTransactionType",
     customercontent: "CustomerContent",
+    database: "Database",
     dataclassification: "DataClassification",
     datascope: "DataScope",
     dataversion: "DataVersion",

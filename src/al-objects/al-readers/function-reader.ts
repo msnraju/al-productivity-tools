@@ -293,19 +293,11 @@ export class FunctionReader {
     }
 
     return weight;
-
-    // if (header.local) weight = 3000;
-    // else if (header.internal) weight = 2000;
-    // else if (header.event) weight = 1000;
-    // else weight = 0;
-
-    // return weight;
   }
 
   static functionToString(func: IFunction, indentation: number): Array<string> {
     const lines: Array<string> = [];
     const pad = _.padStart("", indentation);
-    const pad4 = _.padStart("", indentation + 4);
 
     if (func.preFunctionComments.length > 0)
       func.preFunctionComments.forEach((comment) =>

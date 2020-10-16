@@ -189,7 +189,6 @@ export class DataSetReader {
     }
 
     if (dataItem.triggers.length > 0) {
-      lines.push("");
       dataItem.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,

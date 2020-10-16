@@ -194,7 +194,6 @@ export class schemaReader {
     }
 
     if (node.triggers.length > 0) {
-      lines.push("");
       node.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,

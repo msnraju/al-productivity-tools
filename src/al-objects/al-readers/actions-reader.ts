@@ -196,7 +196,6 @@ export class ActionsReader {
     }
 
     if (action.triggers.length > 0) {
-      lines.push("");
       action.triggers.forEach((trigger) => {
         const triggerLines = FunctionReader.functionToString(
           trigger,
