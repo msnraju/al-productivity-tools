@@ -4,7 +4,7 @@ import { IFunctionHeader } from "../models/IFunctionHeader";
 import { VariableWriter } from "./variable-writer";
 
 export class FunctionWriter {
-  static functionToString(func: IFunction, indentation: number): Array<string> {
+  static write(func: IFunction, indentation: number): Array<string> {
     const lines: Array<string> = [];
     const pad = Helper.pad(indentation);
 
@@ -34,7 +34,11 @@ export class FunctionWriter {
     return lines;
   }
 
-  static headerToString(header: IFunctionHeader, indentation: number): string {
+  private static headerToString(
+    header: IFunctionHeader | null,
+    indentation: number
+  ): string {
+    if (header === null) return "";
     const pad = Helper.pad(indentation + 4);
 
     let access = "";

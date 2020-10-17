@@ -33,7 +33,7 @@ export class ActionWriter {
     if (!triggers) return;
 
     triggers.forEach((trigger) => {
-      const triggerLines = FunctionWriter.functionToString(
+      const triggerLines = FunctionWriter.write(
         trigger,
         indentation + 4
       );

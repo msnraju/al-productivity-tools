@@ -20,8 +20,8 @@ export class Helper {
   static tokensToString(tokens: Array<IToken>, keywords: any) {
     const buffer: Array<string> = [];
     tokens.forEach((token) => {
-      if (keywords[token.value.toLocaleLowerCase()])
-        buffer.push(keywords[token.value.toLocaleLowerCase()]);
+      if (keywords[token.value.toLowerCase()])
+        buffer.push(keywords[token.value.toLowerCase()]);
       else buffer.push(token.value);
     });
 

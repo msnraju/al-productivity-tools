@@ -1,6 +1,6 @@
 import fs = require("fs");
 import path = require("path");
-import { ObjectReader } from "./al-readers/object-reader";
+import { ObjectFormatter } from "./object-formatter";
 
 export class ALFormatter {
   static readALFiles(folderPath: string) {
@@ -21,7 +21,7 @@ export class ALFormatter {
     filePath = path.resolve(filePath);
     const data = fs.readFileSync(filePath);
     const content = data.toString();
-    const newContent = ObjectReader.convert(content);
+    const newContent = ObjectFormatter.format(content);
     fs.writeFileSync(filePath, newContent);
   }
 

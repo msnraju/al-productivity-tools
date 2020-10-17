@@ -2,15 +2,98 @@ import { IReadContext } from "../models/IReadContext";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
-import { VariableReader } from "./variable-reader";
 import { IVariable } from "../models/IVariable";
 import { IFunctionHeader } from "../models/IFunctionHeader";
 import { IAttributeType } from "../models/IAttributeType";
-import { IParameter } from "../models/IParameter";
 import { IFunction } from "../models/IFunction";
+import { VariablesReader } from "./variables-reader";
+import { FunctionHeaderReader } from "./function-header-reader";
 
 export class FunctionReader {
-  static readAttributesAndComments(
+  static read(context: IReadContext, comments: Array<string>): IFunction {
+    const procedure = FunctionReader.getFunctionInstance(comments);
+
+    const attributeType: IAttributeType = {
+      integrationEvent: false,
+      businessEvent: false,
+      eventSubscriber: false,
+    };
+
+    procedure.preFunction = this.readAttributesAndComments(
+      context,
+      attributeType
+    );
+
+    procedure.header = FunctionHeaderReader.read(context);
+    if (attributeType.eventSubscriber) procedure.header.local = true;
+
+    procedure.preVariableComments = Helper.readComments(context);
+    procedure.variables = this.readVariables(context);
+    procedure.postVariableComments = Helper.readComments(context);
+    procedure.body = this.readFunctionBody(context);
+    procedure.weight = this.getWeight(procedure.header, attributeType);
+    
+    return procedure;
+  }
+
+  private static getFunctionInstance(comments: string[]): IFunction {
+    return {
+      preFunctionComments: comments,
+      preFunction: [],
+      weight: 0,
+      header: null,
+      preVariableComments: [],
+      variables: [],
+      postVariableComments: [],
+      body: "",
+    };
+  }
+
+  private static readVariables(context: IReadContext) {
+    let variables: Array<IVariable> = [];
+
+    let value = context.tokens[context.pos].value.toLowerCase();
+    if (value === "var") {
+      variables = VariablesReader.read(context);
+    }
+
+    return variables;
+  }
+
+  private static readFunctionBody(context: IReadContext) {
+    const tokens: Array<IToken> = [];
+
+    let value = context.tokens[context.pos].value.toLowerCase();
+    if (value !== "begin") {
+      throw new Error("read function, begin expected");
+    }
+
+    let counter = 1;
+    while (value !== "end" || counter !== 0) {
+      tokens.push(context.tokens[context.pos]);
+      value = context.tokens[++context.pos].value.toLowerCase();
+      if (value === "begin" || value === "case") counter++;
+      else if (value === "end") counter--;
+    }
+
+    if (value !== "end" || counter !== 0) {
+      throw new Error("trigger end error.");
+    }
+
+    tokens.push(context.tokens[context.pos++]);
+
+    value = context.tokens[context.pos].value;
+    if (value !== ";") {
+      throw new Error(`trigger end error.`);
+    }
+
+    tokens.push(context.tokens[context.pos++]);
+
+    Helper.readWhiteSpaces(context, []);
+    return Helper.tokensToString(tokens, Keywords.Symbols);
+  }
+
+  private static readAttributesAndComments(
     context: IReadContext,
     attributeType: IAttributeType
   ): Array<string> {
@@ -23,15 +106,15 @@ export class FunctionReader {
     while (token.value === "[" || token.type === "comment") {
       if (token.value === "[") {
         const attribute = Helper.readAttribute(context, Keywords.Variables);
-        if (attribute.toLocaleLowerCase().indexOf("integrationevent") !== -1) {
+        if (attribute.toLowerCase().indexOf("integrationevent") !== -1) {
           attributeType.integrationEvent = true;
         }
 
-        if (attribute.toLocaleLowerCase().indexOf("businessevent") !== -1) {
+        if (attribute.toLowerCase().indexOf("businessevent") !== -1) {
           attributeType.businessEvent = true;
         }
 
-        if (attribute.toLocaleLowerCase().indexOf("subscriber") !== -1) {
+        if (attribute.toLowerCase().indexOf("subscriber") !== -1) {
           attributeType.eventSubscriber = true;
         }
 
@@ -51,177 +134,6 @@ export class FunctionReader {
     }
 
     return lines;
-  }
-
-  static readHeader(context: IReadContext): IFunctionHeader {
-    const parameters: Array<IParameter> = [];
-    let returnType: IVariable | undefined = undefined;
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
-
-    if (
-      value !== "local" &&
-      value !== "internal" &&
-      value !== "procedure" &&
-      value !== "trigger"
-    )
-      throw new Error("Invalid function name");
-
-    let local = false;
-    let internal = false;
-    let event = false;
-
-    if (value === "internal") {
-      internal = true;
-      value = context.tokens[++context.pos].value.toLocaleLowerCase();
-    }
-
-    if (value === "local") {
-      local = true;
-      value = context.tokens[++context.pos].value.toLocaleLowerCase();
-    }
-
-    Helper.readWhiteSpaces(context, []);
-    let functionType = context.tokens[context.pos].value.toLocaleLowerCase();
-
-    if (functionType !== "trigger" && functionType !== "procedure")
-      throw new Error("Invalid function name");
-
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
-
-    let functionName = context.tokens[context.pos].value;
-    let variableName = "";
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value;
-    if (value === "::") {
-      event = true;
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
-
-      variableName = functionName;
-      functionName = context.tokens[context.pos].value;
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
-
-      value = context.tokens[context.pos].value;
-    }
-
-    if (value !== "(") throw new Error("Invalid function name");
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLocaleLowerCase();
-    while (value !== ")") {
-      let resetIndex = context.pos;
-
-      let ref = false;
-      if (value === "var") {
-        ref = true;
-        context.pos++;
-        Helper.readWhiteSpaces(context, []);
-      }
-
-      const variable = VariableReader.readVariable(context, false, resetIndex);
-      if (!variable) throw new Error("It should return a variable");
-      if (ref) variable.value = "var " + variable.value;
-
-      parameters.push({
-        ref: ref,
-        ...variable,
-      });
-
-      value = context.tokens[context.pos].value.toLocaleLowerCase();
-    }
-
-    if (value !== ")") throw new Error("Invalid function name");
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== "begin" && value !== "var" && value !== ";") {
-      returnType = VariableReader.readVariable(context, true, context.pos);
-    }
-
-    value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value === ";") {
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
-    }
-
-    return {
-      local: local,
-      internal: internal,
-      name: functionName,
-      variable: variableName,
-      event: event,
-      type: functionType,
-      parameters: parameters,
-      returnType: returnType,
-    };
-  }
-
-  static readFunction(
-    context: IReadContext,
-    comments: Array<string>
-  ): IFunction {
-    const attributeType: IAttributeType = {
-      integrationEvent: false,
-      businessEvent: false,
-      eventSubscriber: false,
-    };
-
-    const preFunctionLines = this.readAttributesAndComments(
-      context,
-      attributeType
-    );
-    const functionHeader = this.readHeader(context);
-    if (attributeType.eventSubscriber) functionHeader.local = true;
-
-    let variables: Array<IVariable> = [];
-    const tokens: Array<IToken> = [];
-
-    const preVariableComments = Helper.readComments(context);
-
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value === "var") {
-      variables = VariableReader.readVariables(context);
-      value = context.tokens[context.pos].value.toLocaleLowerCase();
-    }
-
-    const postVariableComments = Helper.readComments(context);
-
-    if (value !== "begin") throw new Error("read function, begin expected");
-
-    let counter = 1;
-    while (value !== "end" || counter !== 0) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value.toLocaleLowerCase();
-      if (value === "begin" || value === "case") counter++;
-      else if (value === "end") counter--;
-    }
-
-    if (value !== "end" || counter !== 0) throw new Error("trigger end error.");
-    tokens.push(context.tokens[context.pos++]);
-
-    value = context.tokens[context.pos].value;
-    if (value !== ";") throw new Error(`trigger end error.`);
-
-    tokens.push(context.tokens[context.pos++]);
-    Helper.readWhiteSpaces(context, []);
-    const body = Helper.tokensToString(tokens, Keywords.Symbols);
-
-    return {
-      preFunctionComments: comments,
-      preFunction: preFunctionLines,
-      weight: this.getWeight(functionHeader, attributeType),
-      header: functionHeader,
-      preVariableComments: preVariableComments,
-      variables: variables,
-      postVariableComments: postVariableComments,
-      body: body,
-    };
   }
 
   private static getWeight(

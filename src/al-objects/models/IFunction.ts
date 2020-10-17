@@ -4,7 +4,7 @@ import { IFunctionHeader } from "./IFunctionHeader";
 export interface IFunction {
   preFunctionComments: Array<string>;
   preFunction: Array<string>;
-  header: IFunctionHeader;
+  header: IFunctionHeader | null;
   weight: number;
   preVariableComments: Array<string>;
   variables: Array<IVariable>;

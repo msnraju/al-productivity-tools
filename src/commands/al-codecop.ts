@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { ObjectReader } from "../al-objects/al-readers/object-reader";
 import { ALFormatter } from "../al-objects/al-formatter";
+import { ObjectFormatter } from "../al-objects/object-formatter";
 
 export default class ALCodeCop {
   static fixALCodeCopIssues() {
@@ -20,7 +20,7 @@ export default class ALCodeCop {
       );
       const range = new vscode.Range(start, end);
 
-      const newContent = ObjectReader.convert(content);
+      const newContent = ObjectFormatter.format(content);
       editor.edit((editBuilder) => {
         editBuilder.replace(range, newContent);
       });

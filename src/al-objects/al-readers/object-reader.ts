@@ -1,92 +1,72 @@
 import { Helper } from "../helper";
-import { Tokenizer, IToken } from "../tokenizer";
-import { VariableReader } from "./variable-reader";
+import { IToken, Tokenizer } from "../tokenizer";
+import { VariablesReader } from "./variables-reader";
 import { FunctionReader } from "./function-reader";
 import { Keywords } from "../keywords";
 import { FieldsReader } from "./fields-reader";
 import { PropertyReader } from "./property-reader";
 import { LayoutReader } from "./layout-reader";
-import { ActionsReader } from "./actions-reader";
+import { ActionContainerReader } from "./action-container-reader";
 import { DataSetReader } from "./dataset-reader";
 import { SchemaReader } from "./schema-reader";
-import { ViewsReader } from "./views-reader";
+import { ViewContainerReader } from "./view-container-reader";
 import { IObjectContext } from "../models/IObjectContext";
 import { IReadContext } from "../models/IReadContext";
-import { ObjectWriter } from "../al-writers/object-writer";
 
 export class ObjectReader {
-  static convert(content: string): string {
-    const tokens = Tokenizer.tokenizer(content);
-    const context: IReadContext = {
-      tokens: tokens,
-      pos: 0,
-    };
+  static read(content: string): IObjectContext {
+    const context = this.getReadContext(content);
+    const appObject = this.getContextInstance();
 
-    const appObject = this.readObject(context);
-    return ObjectWriter.objectToString(appObject);
+    appObject.header = ObjectReader.readHeader(context);
+    this.readBody(context, appObject);
+    appObject.footer = this.readFooter(context);
+
+    return appObject;
   }
 
-  static readObject(context: IReadContext): IObjectContext {
-    const appObject: IObjectContext = {
-      header: "",
-      footer: "",
-      variables: [],
-      procedures: [],
-      triggers: [],
-      segments: [],
-      properties: [],
-    };
-
-    appObject.header = Helper.tokensToString(
-      ObjectReader.readHeader(context),
-      Keywords.ObjectTypes
-    );
-
+  private static readBody(context: IReadContext, appObject: IObjectContext) {
     let comments: string[] = [];
 
-    let value: string = context.tokens[context.pos].value.toLocaleLowerCase();
+    let value: string = context.tokens[context.pos].value.toLowerCase();
 
     while (value !== "}") {
       switch (value) {
         case "var":
-          appObject.variables = VariableReader.readVariables(context);
+          appObject.variables = VariablesReader.read(context);
           break;
         case "[":
         case "local":
         case "internal":
         case "procedure":
-          appObject.procedures.push(
-            FunctionReader.readFunction(context, comments)
-          );
+          appObject.procedures.push(FunctionReader.read(context, comments));
           comments = [];
           break;
         case "trigger":
-          appObject.triggers.push(
-            FunctionReader.readFunction(context, comments)
-          );
+          appObject.triggers.push(FunctionReader.read(context, comments));
           comments = [];
           break;
         // Table
         case "fields":
-          appObject.fields = FieldsReader.readFields(context);
+          appObject.fields = FieldsReader.read(context);
           break;
         // Page
         case "layout":
-          appObject.layout = LayoutReader.readLayout(context);
+          appObject.layout = LayoutReader.read(context);
           break;
         case "views":
-          appObject.views = ViewsReader.readViews(context);
+          appObject.views = ViewContainerReader.read(context);
           break;
         case "actions":
-          appObject.actions = ActionsReader.readActions(context);
+          appObject.actions = ActionContainerReader.read(context);
           break;
         // Report
         case "dataset":
-          appObject.dataSet = DataSetReader.readDataSet(context);
+          appObject.dataSet = DataSetReader.read(context);
           break;
         // XmlPort
         case "schema":
-          appObject.schema = SchemaReader.readSchema(context);
+          appObject.schema = SchemaReader.read(context);
           break;
         // Table
         case "keys":
@@ -111,20 +91,37 @@ export class ObjectReader {
           } else {
             comments.forEach((comment) => appObject.properties.push(comment));
             comments = [];
-            appObject.properties.push(PropertyReader.readProperties(context));
+            appObject.properties.push(PropertyReader.read(context));
           }
           break;
       }
 
-      value = context.tokens[context.pos].value.toLocaleLowerCase();
+      value = context.tokens[context.pos].value.toLowerCase();
     }
-
-    appObject.footer = Helper.tokensToString(this.readFooter(context), {});
-
-    return appObject;
   }
 
-  private static readHeader(context: IReadContext): Array<IToken> {
+  private static getReadContext(content: string) {
+    const tokens = Tokenizer.tokenizer(content);
+    const context: IReadContext = {
+      tokens: tokens,
+      pos: 0,
+    };
+    return context;
+  }
+
+  private static getContextInstance(): IObjectContext {
+    return {
+      header: "",
+      footer: "",
+      variables: [],
+      procedures: [],
+      triggers: [],
+      segments: [],
+      properties: [],
+    };
+  }
+
+  private static readHeader(context: IReadContext): string {
     const tokens: Array<IToken> = [];
     while (context.tokens[context.pos].value !== "{") {
       tokens.push(context.tokens[context.pos++]);
@@ -135,44 +132,21 @@ export class ObjectReader {
 
     tokens.push(context.tokens[context.pos++]);
     Helper.readWhiteSpaces(context, []);
-    return tokens;
+    return Helper.tokensToString(tokens, Keywords.ObjectTypes);
   }
 
-  private static readFooter(context: IReadContext): Array<IToken> {
+  private static readFooter(context: IReadContext): string {
     const tokens: Array<IToken> = [];
-    if (context.tokens[context.pos].value !== "}")
+    if (context.tokens[context.pos].value !== "}") {
       throw new Error("end body error");
+    }
 
     tokens.push(context.tokens[context.pos++]);
     Helper.readWhiteSpaces(context, []);
-    return tokens;
+    return Helper.tokensToString(tokens, []);
   }
 
-  static readBeginEndSegment(context: IReadContext): Array<IToken> {
-    const tokens: Array<IToken> = [];
-    let counter = 0;
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
-
-    while (value !== "end" || counter !== 0) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value.toLocaleLowerCase();
-      if (value === "begin" || value === "case") counter++;
-      else if (value === "end") counter--;
-    }
-
-    if (value !== "end" || counter !== 0) throw new Error("trigger end error.");
-
-    tokens.push(context.tokens[context.pos++]);
-
-    if (context.tokens[context.pos].value !== ";")
-      throw new Error("trigger end error.");
-
-    tokens.push(context.tokens[context.pos++]);
-    Helper.readWhiteSpaces(context, tokens);
-    return tokens;
-  }
-
-  static readBracesSegment(context: IReadContext): Array<IToken> {
+  private static readBracesSegment(context: IReadContext): Array<IToken> {
     const tokens: Array<IToken> = [];
     let counter = 0;
     let value = context.tokens[context.pos].value;
