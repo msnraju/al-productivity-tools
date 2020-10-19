@@ -21,5 +21,5 @@ export interface IObjectContext {
   procedures: Array<IFunction>;
   triggers: Array<IFunction>;
   segments: Array<ISegment>;
-  properties: Array<string>;
+  properties: string[];
 }

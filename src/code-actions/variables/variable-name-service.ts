@@ -5,12 +5,12 @@ import ALObjectTypes from "../../al-objects/al-object-types";
 import _ = require("lodash");
 
 export default class VariableNameService {
-  static getNameSuggestions(variable: IVariableDeclaration): Array<string> {
+  static getNameSuggestions(variable: IVariableDeclaration): string[] {
     let prefix = variable.temporary ? "Temp" : "";
 
     if (ALObjectTypes.isALObjectType(variable.dataType)) {
       const words = StringHelper.splitWords(variable.objectName);
-      const names: Array<string> = [];
+      const names: string[] = [];
       if (VariableAbbreviations.getShortName(variable.objectName)) {
         const fullShortForm = `${prefix}${VariableAbbreviations.getShortName(
           variable.objectName
@@ -25,10 +25,10 @@ export default class VariableNameService {
   }
 
   private static generateNames(
-    words: Array<string>,
+    words: string[],
     prefix: string = ""
-  ): Array<string> {
-    const wordsMatrix: Array<Array<string>> = [];
+  ): string[] {
+    const wordsMatrix: Array<string[]> = [];
     words.forEach((word, index) => {
       const innerList = [word];
       if (index + 1 < words.length) {
@@ -40,7 +40,7 @@ export default class VariableNameService {
     });
 
     const names2 = this.generateNamesFromMatrix(wordsMatrix, 0);
-    const names: Array<string> = [];
+    const names: string[] = [];
     names2.forEach((name) => {
       const nameWithPrefix = `${prefix}${name}`;
       if (names.indexOf(nameWithPrefix) === -1) names.push(nameWithPrefix);
@@ -50,12 +50,12 @@ export default class VariableNameService {
   }
 
   private static generateNamesFromMatrix(
-    wordsMatrix: Array<Array<string>>,
+    wordsMatrix: Array<string[]>,
     index: number
-  ): Array<string> {
-    const names: Array<string> = [];
+  ): string[] {
+    const names: string[] = [];
     const words = wordsMatrix[index];
-    let namesFromLeaf: Array<string> = [];
+    let namesFromLeaf: string[] = [];
 
     if (index + 1 < wordsMatrix.length) {
       namesFromLeaf = this.generateNamesFromMatrix(wordsMatrix, index + 1);

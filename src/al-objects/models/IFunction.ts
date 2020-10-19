@@ -2,12 +2,12 @@ import { IVariable } from "./IVariable";
 import { IFunctionHeader } from "./IFunctionHeader";
 
 export interface IFunction {
-  preFunctionComments: Array<string>;
-  preFunction: Array<string>;
+  preFunctionComments: string[];
+  preFunction: string[];
   header: IFunctionHeader | null;
   weight: number;
-  preVariableComments: Array<string>;
+  preVariableComments: string[];
   variables: Array<IVariable>;
-  postVariableComments: Array<string>;
+  postVariableComments: string[];
   body: string;
 }

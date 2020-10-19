@@ -1,27 +1,44 @@
 import { IDataSet } from "../models/IDataSet";
 import { Helper } from "../helper";
 import { DataItemWriter } from "./data-item-writer";
+import { IDataItem } from "../models/IDataItem";
 
 export class DataSetWriter {
-  static write(dataset: IDataSet): Array<string> {
-    const lines: Array<string> = [];
+  static write(dataset: IDataSet): string[] {
+    const lines: string[] = [];
     const pad = Helper.pad(4);
 
     lines.push(`${pad}dataset`);
-    if (dataset.postLabelComments.length > 0) {
-      dataset.postLabelComments.forEach((line) => lines.push(`${pad}${line}`));
-    }
+    lines.push(...this.writeComments(dataset.postLabelComments, 4));
     lines.push(`${pad}{`);
-    if (dataset.comments.length > 0) {
-      dataset.comments.forEach((line) => lines.push(`${pad}${line}`));
-    }
+    lines.push(...this.writeComments(dataset.comments, 8));
+    lines.push(...DataSetWriter.writeDataSetItems(dataset.dataItems, 8));
+    lines.push(`${pad}}`);
 
-    dataset.dataItems.forEach((dataItem) => {
-      const dataItemLines = DataItemWriter.write(dataItem, 8);
-      dataItemLines.forEach((line) => lines.push(line));
+    return lines;
+  }
+
+  private static writeDataSetItems(
+    dataItems: Array<IDataItem>,
+    indentation: number
+  ) {
+    const lines: string[] = [];
+    if (!dataItems) return lines;
+
+    dataItems.forEach((dataItem) => {
+      lines.push(...DataItemWriter.write(dataItem, indentation));
     });
 
-    lines.push(`${pad}}`);
+    return lines;
+  }
+
+  private static writeComments(comments: string[], indentation: number) {
+    const lines: string[] = [];
+    if (!comments) return lines;
+
+    const pad = Helper.pad(indentation);
+    comments.forEach((line) => lines.push(`${pad}${line}`));
+
     return lines;
   }
 }

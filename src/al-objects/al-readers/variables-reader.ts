@@ -28,7 +28,7 @@ export class VariablesReader {
 
   private static readVariables(context: IReadContext): IVariable[] {
     const variables: IVariable[] = [];
-    let preBuffer: Array<string> = [];
+    let preBuffer: string[] = [];
     let resetIndex = context.pos;
 
     while (context.pos + 3 < context.tokens.length) {

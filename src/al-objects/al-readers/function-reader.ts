@@ -10,7 +10,7 @@ import { VariablesReader } from "./variables-reader";
 import { FunctionHeaderReader } from "./function-header-reader";
 
 export class FunctionReader {
-  static read(context: IReadContext, comments: Array<string>): IFunction {
+  static read(context: IReadContext, comments: string[]): IFunction {
     const procedure = FunctionReader.getFunctionInstance(comments);
 
     const attributeType: IAttributeType = {
@@ -96,8 +96,8 @@ export class FunctionReader {
   private static readAttributesAndComments(
     context: IReadContext,
     attributeType: IAttributeType
-  ): Array<string> {
-    const lines: Array<string> = [];
+  ): string[] {
+    const lines: string[] = [];
     attributeType.integrationEvent = false;
     attributeType.businessEvent = false;
     attributeType.eventSubscriber = false;

@@ -1,24 +1,50 @@
 import { IVariable } from "../models/IVariable";
 import { Helper } from "../helper";
 import _ = require("lodash");
+import { comments } from "vscode";
 
 export class VariableWriter {
-  static variablesToString(variables: Array<IVariable>, indentation: number) {
+  static write(variables: Array<IVariable>, indentation: number) {
     if (!variables) return [];
 
-    const lines: Array<string> = [];
     const pad = Helper.pad(indentation);
-    const pad4 = Helper.pad(indentation + 4);
 
     variables = _.sortBy(variables, (item) => item.weight);
-    lines.push(`${pad}var`);
-    variables.forEach((variable) => {
-      if (variable.preVariable.length > 0) {
-        variable.preVariable.forEach((line) => lines.push(`${pad4}${line}`));
-      }
 
-      lines.push(`${pad4}${variable.value}`);
+    const lines: string[] = [];
+    lines.push(`${pad}var`);
+    lines.push(...this.writeVariables(variables, indentation + 4));
+
+    return lines;
+  }
+
+  private static writeVariables(
+    variables: IVariable[],
+    indentation: number
+  ): string[] {
+    const lines: string[] = [];
+
+    const pad = Helper.pad(indentation);
+
+    if (!variables) return lines;
+
+    variables.forEach((variable) => {
+      lines.push(...this.writeComments(variable.preVariable, indentation));
+      lines.push(`${pad}${variable.value}`);
     });
+
+    return lines;
+  }
+
+  private static writeComments(
+    comments: string[],
+    indentation: number
+  ): string[] {
+    const lines: string[] = [];
+    if (!comments || comments.length === 0) return lines;
+
+    const pad = Helper.pad(indentation);
+    comments.forEach((line) => lines.push(`${pad}${line}`));
 
     return lines;
   }

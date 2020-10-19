@@ -7,5 +7,5 @@ export interface INode {
   header: string;
   triggers: Array<IFunction>;
   segments: Array<ISegment>;
-  properties: Array<string>;
+  properties: string[];
 }

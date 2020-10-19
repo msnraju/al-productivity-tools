@@ -5,5 +5,5 @@ export interface IView {
   comments: string[];
   header: string;
   segments: Array<ISegment>;
-  properties: Array<string>;
+  properties: string[];
 }

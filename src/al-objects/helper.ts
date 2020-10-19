@@ -18,7 +18,7 @@ export class Helper {
   }
 
   static tokensToString(tokens: Array<IToken>, keywords: any) {
-    const buffer: Array<string> = [];
+    const buffer: string[] = [];
     tokens.forEach((token) => {
       if (keywords[token.value.toLowerCase()])
         buffer.push(keywords[token.value.toLowerCase()]);
@@ -56,8 +56,8 @@ export class Helper {
     return Helper.tokensToString(tokens, keywords);
   }
 
-  static readComments(context: IReadContext): Array<string> {
-    const comments: Array<string> = [];
+  static readComments(context: IReadContext): string[] {
+    const comments: string[] = [];
     while (context.tokens[context.pos].type === "comment") {
       comments.push(context.tokens[context.pos].value);
       context.pos++;

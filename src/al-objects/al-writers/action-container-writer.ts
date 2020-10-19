@@ -7,44 +7,43 @@ export class ActionContainerWriter {
   static write(
     container: IActionContainer,
     indentation: number
-  ): Array<string> {
-    const lines: Array<string> = [];    
+  ): string[] {
     const pad = Helper.pad(indentation);
-    
+
+    const lines: string[] = [];
     lines.push(`${pad}actions`);
-
-    this.writeComments(container.postLabelComments, lines, indentation);
-
+    lines.push(...this.writeComments(container.postLabelComments, indentation));
     lines.push(`${pad}{`);
-
-    this.writeComments(container.comments, lines, indentation);
-    this.writeActions(container.actions, lines, indentation);
-
+    lines.push(...this.writeComments(container.comments, indentation + 4));
+    lines.push(...this.writeActions(container.actions, indentation + 4));
     lines.push(`${pad}}`);
+
     return lines;
   }
 
   private static writeActions(
     actions: IAction[],
-    lines: string[],
     indentation: number
-  ) {
-    if (!actions) return;
+  ): string[] {
+    const lines: string[] = [];
+    if (!actions) return lines;
 
     actions.forEach((action) => {
-      const fieldLines = ActionWriter.write(action, indentation + 4);
-      fieldLines.forEach((line) => lines.push(line));
+      lines.push(...ActionWriter.write(action, indentation));
     });
+
+    return lines;
   }
 
   private static writeComments(
     comments: string[],
-    lines: string[],
     indentation: number
-  ) {
-    if (!comments) return;
+  ): string[] {
+    const lines: string[] = [];
+    if (!comments) return lines;
 
     const pad = Helper.pad(indentation);
     comments.forEach((line) => lines.push(`${pad}${line}`));
+    return lines;
   }
 }

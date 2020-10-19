@@ -27,7 +27,7 @@ export class FieldReader {
 
     context.pos++;
 
-    let comments: Array<string> = [];
+    let comments: string[] = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value;

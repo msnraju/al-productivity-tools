@@ -45,7 +45,7 @@ export class ActionReader {
   }
 
   private static readActionItems(context: IReadContext, action: IAction) {
-    let comments: Array<string> = [];
+    let comments: string[] = [];
 
     let value = context.tokens[context.pos].value;
     if (value !== "{") {

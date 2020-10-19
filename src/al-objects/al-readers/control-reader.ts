@@ -38,7 +38,7 @@ export class ControlReader {
     }
     context.pos++;
 
-    let comments: Array<string> = [];
+    let comments: string[] = [];
 
     Helper.readWhiteSpaces(context, []);
     value = context.tokens[context.pos].value.toLowerCase();
@@ -58,7 +58,7 @@ export class ControlReader {
           control.controls.push(this.read(context));
           break;
         case "actions":
-          control.actionContainer = ActionContainerReader.read(context);
+          control.container = ActionContainerReader.read(context);
           break;
         case "trigger":
           control.triggers.push(FunctionReader.read(context, comments));
