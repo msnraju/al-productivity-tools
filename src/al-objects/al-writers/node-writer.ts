@@ -1,38 +1,20 @@
-import { Helper } from "../helper";
 import { INode } from "../models/INode";
-import CommentWriter from "./comment-writer";
-import ProceduresWriter from "./procedures-writer";
-import PropertiesWriter from "./properties-writer";
+import StringBuilder from "../models/string-builder";
+import { ProcedureWriter } from "./procedure-writer";
 
 export class NodeWriter {
-  static write(node: INode, indentation: number): string[] {
-    const lines: string[] = [];
-    const pad = Helper.pad(indentation);
-
-    lines.push(`${pad}${node.header}`);
-    lines.push(...CommentWriter.write(node.comments, indentation));
-    lines.push(`${pad}{`);
-    lines.push(...PropertiesWriter.write(node.properties, indentation + 4));
-    lines.push(...this.writeNodes(node.nodes, indentation + 4));
-    lines.push(...ProceduresWriter.write(node.triggers, indentation + 4));
-    Helper.removeBlankLine(lines);
-    lines.push(`${pad}}`);
-
-    return lines;
-  }
-
-  private static writeNodes(
-    nodes: Array<INode>,
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!nodes) return lines;
-
-    nodes.forEach((node) => {
-      lines.push(...this.write(node, indentation));
-    });
-
-    return lines;
+  static write(node: INode, indentation: number): string {
+    return new StringBuilder()
+      .write(node.header, indentation)
+      .write(node.comments, indentation)
+      .write("{", indentation)
+      .write(node.properties, indentation + 4)
+      .writeEach(node.nodes, (node) => NodeWriter.write(node, indentation + 4))
+      .writeEach(node.triggers, (trigger) =>
+        ProcedureWriter.write(trigger, indentation + 4)
+      )
+      .popEmpty()
+      .write("}", indentation)
+      .toString();
   }
 }

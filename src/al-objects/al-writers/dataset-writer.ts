@@ -1,35 +1,18 @@
 import { IDataSet } from "../models/IDataSet";
-import { Helper } from "../helper";
 import { DataItemWriter } from "./data-item-writer";
-import { IDataItem } from "../models/IDataItem";
-import CommentWriter from "./comment-writer";
+import StringBuilder from "../models/string-builder";
 
 export class DataSetWriter {
-  static write(dataset: IDataSet): string[] {
-    const lines: string[] = [];
-    const pad = Helper.pad(4);
-
-    lines.push(`${pad}dataset`);
-    lines.push(...CommentWriter.write(dataset.postLabelComments, 4));
-    lines.push(`${pad}{`);
-    lines.push(...CommentWriter.write(dataset.comments, 8));
-    lines.push(...DataSetWriter.writeDataSetItems(dataset.dataItems, 8));
-    lines.push(`${pad}}`);
-
-    return lines;
-  }
-
-  private static writeDataSetItems(
-    dataItems: Array<IDataItem>,
-    indentation: number
-  ) {
-    const lines: string[] = [];
-    if (!dataItems) return lines;
-
-    dataItems.forEach((dataItem) => {
-      lines.push(...DataItemWriter.write(dataItem, indentation));
-    });
-
-    return lines;
+  static write(dataset: IDataSet, indentation: number): string {
+    return new StringBuilder()
+      .write("dataset", indentation)
+      .write(dataset.postLabelComments, indentation)
+      .write("{", indentation)
+      .write(dataset.comments, indentation + 4)
+      .writeEach(dataset.dataItems, (dataItem) =>
+        DataItemWriter.write(dataItem, indentation + 4)
+      )
+      .write("}", indentation)
+      .toString();
   }
 }

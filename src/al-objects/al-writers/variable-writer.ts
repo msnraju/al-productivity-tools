@@ -1,38 +1,11 @@
-import _ = require("lodash");
 import { IVariable } from "../models/IVariable";
-import { Helper } from "../helper";
-import CommentWriter from "./comment-writer";
+import StringBuilder from "../models/string-builder";
 
-export class VariableWriter {
-  static write(variables: Array<IVariable>, indentation: number) {
-    if (!variables) return [];
-
-    const pad = Helper.pad(indentation);
-
-    variables = _.sortBy(variables, (item) => item.weight);
-
-    const lines: string[] = [];
-    lines.push(`${pad}var`);
-    lines.push(...this.writeVariables(variables, indentation + 4));
-
-    return lines;
-  }
-
-  private static writeVariables(
-    variables: IVariable[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    const pad = Helper.pad(indentation);
-
-    if (!variables) return lines;
-
-    variables.forEach((variable) => {
-      lines.push(...CommentWriter.write(variable.preVariable, indentation));
-      lines.push(`${pad}${variable.value}`);
-    });
-
-    return lines;
+export default class VariableWriter {
+  static write(variable: IVariable, indentation: number): string {
+    return new StringBuilder()
+      .write(variable.preVariable, indentation)
+      .write(variable.value, indentation)
+      .toString();
   }
 }

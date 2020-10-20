@@ -1,12 +1,7 @@
-import { Helper } from "../helper";
+import StringBuilder from "../models/string-builder";
 
 export default class CommentWriter {
-  static write(comments: string[], indentation: number): string[] {
-    const lines: string[] = [];
-    if (!comments) return lines;
-
-    const pad = Helper.pad(indentation);
-    comments.forEach((line) => lines.push(`${pad}${line}`));
-    return lines;
+  static write(comments: string[], indentation: number): string {
+    return new StringBuilder().write(comments, indentation).toString();
   }
 }
