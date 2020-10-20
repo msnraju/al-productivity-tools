@@ -2,6 +2,7 @@ import { commands } from "vscode";
 import { Helper } from "../helper";
 import { IView } from "../models/IView";
 import { IViewContainer } from "../models/IViewContainer";
+import CommentWriter from "./comment-writer";
 import { ViewWriter } from "./view-writer";
 
 export class ViewContainerWriter {
@@ -10,9 +11,9 @@ export class ViewContainerWriter {
     const pad = Helper.pad(indentation);
 
     lines.push(`${pad}views`);
-    lines.push(...this.writeComments(container.postLabelComments, indentation));
+    lines.push(...CommentWriter.write(container.postLabelComments, indentation));
     lines.push(`${pad}{`);
-    lines.push(...this.writeComments(container.comments, indentation + 4));
+    lines.push(...CommentWriter.write(container.comments, indentation + 4));
     lines.push(...this.writeViews(container.views, indentation + 4));
     lines.push(`${pad}}`);
     return lines;
@@ -29,19 +30,6 @@ export class ViewContainerWriter {
       lines.push(...ViewWriter.write(view, indentation));
     });
 
-    return lines;
-  }
-
-  private static writeComments(
-    comments: string[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!comments) return lines;
-
-    const pad = Helper.pad(indentation);
-    comments.forEach((line) => lines.push(`${pad}${line}`));
     return lines;
   }
 }

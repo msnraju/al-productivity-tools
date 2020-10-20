@@ -1,62 +1,44 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
+import { ITokenReader } from "../models/ITokenReader";
 import { IFieldsContainer } from "../models/IFieldsContainer";
 import { FieldReader } from "./field-reader";
+import FieldsContainer from "../dto/FieldsContainer";
 
 export class FieldsReader {
-  static read(context: IReadContext): IFieldsContainer {
-    const container: IFieldsContainer = this.getContainerInstance();
+  static read(tokenReader: ITokenReader): IFieldsContainer {
+    const container: IFieldsContainer = new FieldsContainer();
 
-    this.readFieldsDeclaration(context);
-    Helper.readWhiteSpaces(context, []);
-    container.postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readFieldsBody(context, container);
-    Helper.readWhiteSpaces(context, []);
+    this.readFieldsDeclaration(tokenReader);
+    container.postLabelComments = tokenReader.readComments();
+    this.readFieldsBody(tokenReader, container);
 
     return container;
   }
 
-  private static getContainerInstance(): IFieldsContainer {
-    return {
-      fields: [],
-      postLabelComments: [],
-      comments: [],
-    };
-  }
+  private static readFieldsBody(
+    tokenReader: ITokenReader,
+    container: IFieldsContainer
+  ) {
+    tokenReader.test("{", "Syntax error at Fields declaration, '{' expected.");
 
-  private static readFieldsBody(context: IReadContext, container: IFieldsContainer) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at Fields declaration, '{' expected.`);
-    }
+    container.comments = tokenReader.readComments();
+    tokenReader.readWhiteSpaces();
 
-    context.pos++;
-
-    container.comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (value === "field" || value === "modify") {
-      container.fields.push(FieldReader.read(context));
-      value = context.tokens[context.pos].value.toLowerCase();
+      container.fields.push(FieldReader.read(tokenReader));
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error(`Syntax error at Fields declaration, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("}", "Syntax error at Fields declaration, '}' expected.");
   }
 
-  private static readFieldsDeclaration(context: IReadContext) {
-    let name = context.tokens[context.pos].value.toLowerCase();
+  private static readFieldsDeclaration(tokenReader: ITokenReader) {
+    let name = tokenReader.tokenValue().toLowerCase();
     if (name !== "fields") {
       throw new Error(`Invalid fields label '${name}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
     return name;
   }
 }

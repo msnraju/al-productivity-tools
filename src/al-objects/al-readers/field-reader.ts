@@ -1,108 +1,75 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
 import { IField } from "../models/IField";
+import Field from "../dto/Field";
 
 export class FieldReader {
-  static read(context: IReadContext): IField {
-    const field: IField = this.getFieldInstance();
+  static read(tokenReader: ITokenReader): IField {
+    const field: IField = new Field();
 
-    this.readHeader(context, field);
+    field.header = this.readHeader(tokenReader);
+    field.comments = tokenReader.readComments();
+    this.readFieldBody(tokenReader, field);
+    tokenReader.readWhiteSpaces();
 
-    Helper.readWhiteSpaces(context, []);
-    field.comments = Helper.readComments(context);
-    this.readFieldBody(context, field);
-    Helper.readWhiteSpaces(context, []);
-    
     return field;
   }
 
-  private static readFieldBody(context: IReadContext, field: IField) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at Field declaration, '{' expected.`);
-    }
-
-    context.pos++;
+  private static readFieldBody(tokenReader: ITokenReader, field: IField) {
+    tokenReader.test("{", "Syntax error at Field declaration, '{' expected.");
 
     let comments: string[] = [];
 
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value;
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
       switch (value) {
         case "trigger":
-          field.triggers.push(FunctionReader.read(context, comments));
+          field.triggers.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === "comment") {
-            comments.push(context.tokens[context.pos].value);
-            context.pos++;
-            Helper.readWhiteSpaces(context, []);
+          if (tokenReader.tokenType() === "comment") {
+            comments.push(tokenReader.tokenValue());
+            tokenReader.readWhiteSpaces();
           } else {
             field.properties.push(...comments);
             comments = [];
-            field.properties.push(PropertyReader.read(context));
+            field.properties.push(PropertyReader.read(tokenReader));
           }
-          break;
       }
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    if (value !== "}") {
-      throw new Error(`Syntax error at Field declaration, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("}", "Syntax error at Field declaration, '}' expected.");
   }
 
-  private static readHeader(context: IReadContext, field: IField) {
-    let name = FieldReader.getFieldType(context);
-    Helper.readWhiteSpaces(context, []);
+  private static readHeader(tokenReader: ITokenReader): string {
+    let name = FieldReader.getFieldType(tokenReader);
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-      throw new Error(`Syntax error at Field declaration, '(' expected.`);
+    tokenReader.test("(", "Syntax error at Field declaration, '(' expected.");
+
+    const tokens: Array<IToken> = [];
+    while (tokenReader.peekTokenValue() !== ")") {
+      tokens.push(tokenReader.token());
     }
 
-    const headerTokens: Array<IToken> = [];
-    while (value !== ")") {
-      headerTokens.push(context.tokens[context.pos]);
-      context.pos++;
-      value = context.tokens[context.pos].value;
-    }
+    tokenReader.test(")", "Syntax error at Field declaration, ')' expected.");
 
-    if (value !== ")") {
-      throw new Error(`Syntax error at Field declaration, ')' expected.`);
-    }
-
-    headerTokens.push(context.tokens[context.pos]);
-    context.pos++;
-    field.header = `${name}${Helper.tokensToString(headerTokens, {})}`;
-    return value;
+    return `${name}(${Helper.tokensToString(tokens, {})})`;
   }
 
-  private static getFieldType(context: IReadContext) {
-    let name = context.tokens[context.pos].value.toLowerCase();
+  private static getFieldType(tokenReader: ITokenReader) {
+    let name = tokenReader.tokenValue().toLowerCase();
     if (name !== "field" && name !== "modify") {
       throw new Error(`Invalid field type '${name}'.`);
     }
 
-    context.pos++;
-    return name;
-  }
+    tokenReader.readWhiteSpaces();
 
-  private static getFieldInstance(): IField {
-    return {
-      header: "",
-      triggers: [],
-      segments: [],
-      comments: [],
-      properties: [],
-    };
+    return name;
   }
 }

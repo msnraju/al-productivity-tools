@@ -2,6 +2,7 @@ import { commands } from "vscode";
 import { Helper } from "../helper";
 import { IFunction } from "../models/IFunction";
 import { IFunctionHeader } from "../models/IFunctionHeader";
+import CommentWriter from "./comment-writer";
 import { VariableWriter } from "./variable-writer";
 
 export class FunctionWriter {
@@ -9,27 +10,13 @@ export class FunctionWriter {
     const lines: string[] = [];
     const pad = Helper.pad(indentation);
 
-    lines.push(...this.writeComments(func.preFunctionComments, indentation));
-    lines.push(...this.writeComments(func.preFunction, indentation));
+    lines.push(...CommentWriter.write(func.preFunctionComments, indentation));
+    lines.push(...CommentWriter.write(func.preFunction, indentation));
     lines.push(this.writeHeader(func.header, indentation));
-    lines.push(...this.writeComments(func.preVariableComments, indentation));
+    lines.push(...CommentWriter.write(func.preVariableComments, indentation));
     lines.push(...VariableWriter.write(func.variables, indentation));
-    lines.push(...this.writeComments(func.postVariableComments, indentation));
+    lines.push(...CommentWriter.write(func.postVariableComments, indentation));
     lines.push(`${pad}${func.body}`);
-
-    return lines;
-  }
-
-  private static writeComments(
-    comments: string[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!comments) return lines;
-
-    const pad = Helper.pad(indentation);
-    comments.forEach((comment) => lines.push(`${pad}${comment}`));
 
     return lines;
   }

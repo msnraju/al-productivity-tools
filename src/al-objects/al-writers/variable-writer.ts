@@ -1,7 +1,7 @@
+import _ = require("lodash");
 import { IVariable } from "../models/IVariable";
 import { Helper } from "../helper";
-import _ = require("lodash");
-import { comments } from "vscode";
+import CommentWriter from "./comment-writer";
 
 export class VariableWriter {
   static write(variables: Array<IVariable>, indentation: number) {
@@ -29,22 +29,9 @@ export class VariableWriter {
     if (!variables) return lines;
 
     variables.forEach((variable) => {
-      lines.push(...this.writeComments(variable.preVariable, indentation));
+      lines.push(...CommentWriter.write(variable.preVariable, indentation));
       lines.push(`${pad}${variable.value}`);
     });
-
-    return lines;
-  }
-
-  private static writeComments(
-    comments: string[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-    if (!comments || comments.length === 0) return lines;
-
-    const pad = Helper.pad(indentation);
-    comments.forEach((line) => lines.push(`${pad}${line}`));
 
     return lines;
   }

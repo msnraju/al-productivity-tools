@@ -1,86 +1,83 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
 import { Keywords } from "../keywords";
 import { IDataItem } from "../models/IDataItem";
+import DataItem from "../dto/DataItem";
 
 export class DataItemReader {
-  static read(context: IReadContext): IDataItem {
-    const dataItem: IDataItem = this.getDataItemInstance();
+  static read(tokenReader: ITokenReader): IDataItem {
+    const dataItem: IDataItem = new DataItem();
 
-    dataItem.header = this.readDataItemHeader(context);
+    dataItem.header = this.readDataItemHeader(tokenReader);
+    dataItem.comments = tokenReader.readComments();
+    this.readDataItemItems(tokenReader, dataItem);
 
-    Helper.readWhiteSpaces(context, []);
-    dataItem.comments = Helper.readComments(context);
-
-    this.readDataItemItems(context, dataItem);
-
-    Helper.readWhiteSpaces(context, []);
     return dataItem;
   }
 
-  private static readDataItemItems(context: IReadContext, dataItem: IDataItem) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at DateItem declaration, '{' expected.`);
-    }
+  private static readDataItemItems(
+    tokenReader: ITokenReader,
+    dataItem: IDataItem
+  ) {
+    tokenReader.test(
+      "{",
+      "Syntax error in DateItem declaration, '{' expected."
+    );
 
-    context.pos++;
+    let comments: Array<string> = [];
 
-    let comments: string[] = [];
-
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value.toLowerCase();
+    tokenReader.readWhiteSpaces();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
       switch (value) {
         case "dataitem":
         case "column":
-          dataItem.dataItems.push(this.read(context));
+          dataItem.dataItems.push(this.read(tokenReader));
           break;
         case "trigger":
-          dataItem.triggers.push(FunctionReader.read(context, comments));
+          dataItem.triggers.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === "comment") {
-            comments.push(context.tokens[context.pos].value);
-            context.pos++;
-            Helper.readWhiteSpaces(context, []);
+          if (tokenReader.tokenType() === "comment") {
+            comments.push(tokenReader.tokenValue());
+            tokenReader.readWhiteSpaces();
           } else {
             dataItem.properties.push(...comments);
             comments = [];
-            dataItem.properties.push(PropertyReader.read(context));
+            dataItem.properties.push(PropertyReader.read(tokenReader));
           }
           break;
       }
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    if (value !== "}") {
-      throw new Error(`Syntax error at DateItem declaration, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test(
+      "}",
+      "Syntax error in DateItem declaration, '}' expected."
+    );
   }
 
-  private static readDataItemHeader(context: IReadContext) {
-    const name = this.getDataItemType(context);
-    Helper.readWhiteSpaces(context, []);
+  private static readDataItemHeader(tokenReader: ITokenReader) {
+    const name = this.getDataItemType(tokenReader);
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-      throw new Error(`Syntax error at DateItem declaration, '(' expected.`);
-    }
+    tokenReader.test(
+      "(",
+      "Syntax error in DateItem declaration, '(' expected."
+    );
 
+    const tokens: Array<IToken> = [];
     let counter = 1;
-    const headerTokens: Array<IToken> = [];
+    let value = tokenReader.peekTokenValue();
+
     while (value !== ")" || counter !== 0) {
-      headerTokens.push(context.tokens[context.pos]);
-      context.pos++;
-      value = context.tokens[context.pos].value;
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue();
+
       if (value === "(") {
         counter++;
       } else if (value === ")") {
@@ -88,33 +85,21 @@ export class DataItemReader {
       }
     }
 
-    if (value !== ")") {
-      throw new Error(`Syntax error at DateItem declaration, ')' expected.`);
-    }
+    tokenReader.test(
+      ")",
+      "Syntax error in DateItem declaration, ')' expected."
+    );
 
-    headerTokens.push(context.tokens[context.pos]);
-    context.pos++;
-    return `${name}${Helper.tokensToString(headerTokens, {})}`;
+    return `${name}(${Helper.tokensToString(tokens, {})})`;
   }
 
-  private static getDataItemType(context: IReadContext) {
-    const name = context.tokens[context.pos].value.toLowerCase();
+  private static getDataItemType(tokenReader: ITokenReader) {
+    const name = tokenReader.tokenValue().toLowerCase();
     if (Keywords.ReportDataItemTypes.indexOf(name) === -1) {
       throw new Error(`Invalid DataItem type '${name}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
     return name;
-  }
-
-  private static getDataItemInstance(): IDataItem {
-    return {
-      header: "",
-      dataItems: [],
-      triggers: [],
-      segments: [],
-      comments: [],
-      properties: [],
-    };
   }
 }

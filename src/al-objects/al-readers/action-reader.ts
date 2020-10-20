@@ -1,60 +1,45 @@
+import Action from "../dto/Action";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IAction } from "../models/IAction";
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { FunctionReader } from "./function-reader";
 import { PropertyReader } from "./property-reader";
 
 export class ActionReader {
-  static read(context: IReadContext): IAction {
-    const action: IAction = this.getActionInstance();
+  static read(tokenReader: ITokenReader): IAction {
+    const action: IAction = new Action();
 
-    action.header = this.readActionHeader(context);
-    Helper.readWhiteSpaces(context, []);
-    action.comments = Helper.readComments(context);
-    ActionReader.readActionItems(context, action);
-    Helper.readWhiteSpaces(context, []);
+    action.header = this.readActionHeader(tokenReader);
+    action.comments = tokenReader.readComments();
+    this.readActionItems(tokenReader, action);
+    tokenReader.readWhiteSpaces();
 
     return action;
   }
 
-  private static getActionInstance(): IAction {
-    return {
-      header: "",
-      childActions: [],
-      triggers: [],
-      segments: [],
-      comments: [],
-      properties: [],
-    };
-  }
-
-  private static getActionType(context: IReadContext) {
-    const name = context.tokens[context.pos].value.toLowerCase();
-    context.pos++;
+  private static getActionType(tokenReader: ITokenReader) {
+    const actionType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      Keywords.PageActionTypes.indexOf(name) === -1 &&
-      Keywords.ExtensionKeywords.indexOf(name) === -1
+      Keywords.PageActionTypes.indexOf(actionType) === -1 &&
+      Keywords.ExtensionKeywords.indexOf(actionType) === -1
     ) {
-      throw new Error(`Invalid action type '${name}'.`);
+      throw new Error(`Invalid action type '${actionType}'.`);
     }
 
-    return name;
+    tokenReader.readWhiteSpaces();
+
+    return actionType;
   }
 
-  private static readActionItems(context: IReadContext, action: IAction) {
+  private static readActionItems(tokenReader: ITokenReader, action: IAction) {
     let comments: string[] = [];
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at action declaration, '{' expected.`);
-    }
-    context.pos++;
+    tokenReader.test("{", "Syntax error at action declaration, '{' expected.");
 
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue();
     while (value !== "}") {
       switch (value) {
         case "area":
@@ -62,57 +47,40 @@ export class ActionReader {
         case "actions":
         case "action":
         case "separator":
-          const childAction = this.read(context);
-          action.childActions.push(childAction);
+          action.childActions.push(this.read(tokenReader));
           break;
         case "trigger":
-          action.triggers.push(FunctionReader.read(context, comments));
+          action.triggers.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === "comment") {
-            comments.push(context.tokens[context.pos].value);
-            context.pos++;
-            Helper.readWhiteSpaces(context, []);
+          if (tokenReader.tokenType() === "comment") {
+            comments.push(tokenReader.tokenValue());
+            tokenReader.readWhiteSpaces();
           } else {
             action.properties.push(...comments);
             comments = [];
-            action.properties.push(PropertyReader.read(context));
+            action.properties.push(PropertyReader.read(tokenReader));
           }
       }
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue();
     }
 
-    if (value !== "}") {
-      throw new Error(`Syntax error at action declaration, '}' expected.`);
-    }
-    context.pos++;
+    tokenReader.test("}", "Syntax error at action declaration, '}' expected.");
   }
 
-  private static readActionHeader(context: IReadContext) {
+  private static readActionHeader(tokenReader: ITokenReader) {
     const tokens: Array<IToken> = [];
-    const name = this.getActionType(context);
-    Helper.readWhiteSpaces(context, []);
+    const name = this.getActionType(tokenReader);
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-      throw new Error(`Syntax error at action declaration, '(' expected.`);
+    tokenReader.test("(", "Syntax error at action declaration, '(' expected.");
+
+    while (tokenReader.peekTokenValue() !== ")") {
+      tokens.push(tokenReader.token());
     }
 
-    while (value !== ")") {
-      tokens.push(context.tokens[context.pos]);
-      context.pos++;
-      value = context.tokens[context.pos].value;
-    }
-
-    if (value !== ")") {
-      throw new Error(`Syntax error at action declaration, ')' expected.`);
-    }
-
-    tokens.push(context.tokens[context.pos]);
-    context.pos++;
-
-    return `${name}${Helper.tokensToString(tokens, {})}`;
+    tokenReader.test(")", "Syntax error at action declaration, ')' expected.");
+    return `${name}(${Helper.tokensToString(tokens, {})})`;
   }
 }

@@ -1,53 +1,53 @@
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
 import { VariableReader } from "./variable-reader";
 
 export class VariablesReader {
-  static read(context: IReadContext): Array<IVariable> {
-    if (!this.hasVariables(context)) {
+  static read(tokenReader: ITokenReader): Array<IVariable> {
+    if (!this.hasVariables(tokenReader)) {
       return [];
     }
 
-    Helper.readWhiteSpaces(context, []);
-    const variables = this.readVariables(context);
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.readWhiteSpaces();
+    const variables = this.readVariables(tokenReader);
+    tokenReader.readWhiteSpaces();
     return variables;
   }
 
-  private static hasVariables(context: IReadContext) {
-    let value = context.tokens[context.pos].value;
+  private static hasVariables(tokenReader: ITokenReader) {
+    let value = tokenReader.peekTokenValue();
     if (value.toLowerCase() === "var") {
-      context.pos++;
+      tokenReader.next();
       return true;
     }
 
     return false;
   }
 
-  private static readVariables(context: IReadContext): IVariable[] {
+  private static readVariables(tokenReader: ITokenReader): IVariable[] {
     const variables: IVariable[] = [];
     let preBuffer: string[] = [];
-    let resetIndex = context.pos;
+    let resetIndex = tokenReader.pos;
 
-    while (context.pos + 3 < context.tokens.length) {
+    while (tokenReader.pos + 3 < tokenReader.tokens.length) {
       // Comments
-      if (context.tokens[context.pos].type === "comment") {
-        preBuffer.push(...Helper.readComments(context));
+      if (tokenReader.tokenType() === "comment") {
+        preBuffer.push(...tokenReader.readComments());
         continue;
       }
 
       // Attributes
-      const attribute = Helper.readAttribute(context, Keywords.Variables);
+      const attribute = Helper.readAttribute(tokenReader, Keywords.Variables);
       if (attribute.length > 0) {
         preBuffer.push(attribute);
         continue;
       }
 
-      const variable = VariableReader.read(context, false, resetIndex);
+      const variable = VariableReader.read(tokenReader, false, resetIndex);
       if (!variable) {
-        context.pos = resetIndex;
+        tokenReader.pos = resetIndex;
         return variables;
       }
 
@@ -55,7 +55,7 @@ export class VariablesReader {
       variables.push(variable);
 
       preBuffer = [];
-      resetIndex = context.pos;
+      resetIndex = tokenReader.pos;
     }
 
     return variables;

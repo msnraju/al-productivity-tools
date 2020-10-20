@@ -9,3 +9,5 @@ export interface IDataItem {
   segments: Array<ISegment>;
   properties: string[];
 }
+
+

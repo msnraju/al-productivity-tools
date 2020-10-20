@@ -1,9 +1,10 @@
 import { Helper } from "../helper";
 import { IActionContainer } from "../models/IActionContainer";
 import { IControl } from "../models/IControl";
-import { IFunction } from "../models/IFunction";
 import { ActionContainerWriter } from "./action-container-writer";
-import { FunctionWriter } from "./function-writer";
+import CommentWriter from "./comment-writer";
+import FunctionsWriter from "./functions-writer";
+import PropertiesWriter from "./properties-writer";
 
 export class ControlWriter {
   static write(control: IControl, indentation: number): string[] {
@@ -11,34 +12,14 @@ export class ControlWriter {
 
     const lines: string[] = [];
     lines.push(`${pad}${control.header}`);
-    lines.push(...this.writeComments(control, indentation));
+    lines.push(...CommentWriter.write(control.comments, indentation));
     lines.push(`${pad}{`);
-    lines.push(...this.writeProperties(control.properties, indentation + 4));
+    lines.push(...PropertiesWriter.write(control.properties, indentation + 4));
     lines.push(...this.writeControls(control.controls, indentation + 4));
     lines.push(...this.writeContainer(control.container, indentation + 4));
-    lines.push(...this.writeTriggers(control.triggers, indentation + 4));
-    this.removeBlankLine(lines);
+    lines.push(...FunctionsWriter.write(control.triggers, indentation + 4));
+    Helper.removeBlankLine(lines);
     lines.push(`${pad}}`);
-
-    return lines;
-  }
-
-  private static removeBlankLine(lines: string[]) {
-    if (lines[lines.length - 1] === "") lines.pop();
-  }
-
-  private static writeTriggers(
-    triggers: Array<IFunction>,
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!triggers || triggers.length === 0) return lines;
-
-    triggers.forEach((trigger) => {
-      lines.push(...FunctionWriter.write(trigger, indentation));
-      lines.push("");
-    });
 
     return lines;
   }
@@ -65,35 +46,6 @@ export class ControlWriter {
     controls.forEach((control) => {
       lines.push(...this.write(control, indentation));
     });
-
-    return lines;
-  }
-
-  private static writeComments(
-    control: IControl,
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-    const pad = Helper.pad(indentation);
-
-    control.comments.forEach((line) => lines.push(`${pad}${line}`));
-
-    return lines;
-  }
-
-  private static writeProperties(
-    properties: string[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!properties) return lines;
-
-    const pad = Helper.pad(indentation);
-    properties.forEach((property) => {
-      lines.push(`${pad}${property}`);
-    });
-    lines.push("");
 
     return lines;
   }

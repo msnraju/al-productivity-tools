@@ -1,50 +1,35 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
+import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { ILayout } from "../models/ILayout";
 import { ControlReader } from "./control-reader";
 
 export class LayoutReader {
-  static read(context: IReadContext): ILayout {
+  static read(tokenReader: ITokenReader): ILayout {
     const layout = this.getLayoutInstance();
-    this.readLabel(context);
-
-    Helper.readWhiteSpaces(context, []);
-    layout.postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readLayoutBody(context, layout);
-    Helper.readWhiteSpaces(context, []);
+    this.readLabel(tokenReader);
+    layout.postLabelComments = tokenReader.readComments();
+    this.readLayoutBody(tokenReader, layout);
 
     return layout;
   }
 
-  private static readLayoutBody(context: IReadContext, layout: ILayout) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at layout body, '{' expected.`);
-    }
+  private static readLayoutBody(tokenReader: ITokenReader, layout: ILayout) {
+    tokenReader.test("{", "Syntax error at layout body, '{' expected.");
 
-    context.pos++;
+    layout.comments = tokenReader.readComments();
+    tokenReader.readWhiteSpaces();
 
-    layout.comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (
       Keywords.PageControlTypes.indexOf(value) !== -1 ||
       Keywords.ExtensionKeywords.indexOf(value) !== -1
     ) {
-      const control = ControlReader.read(context);
+      const control = ControlReader.read(tokenReader);
       layout.controls.push(control);
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error(`Syntax error at layout body, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("},", "Syntax error at layout body, '}' expected.");
   }
 
   private static getLayoutInstance(): ILayout {
@@ -55,13 +40,14 @@ export class LayoutReader {
     };
   }
 
-  private static readLabel(context: IReadContext) {
-    let name = context.tokens[context.pos].value.toLowerCase();
+  private static readLabel(tokenReader: ITokenReader) {
+    let name = tokenReader.tokenValue().toLowerCase();
     if (name !== "layout") {
       throw new Error(`Invalid layout label '${name}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
+
     return name;
   }
 }

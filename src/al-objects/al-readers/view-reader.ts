@@ -1,4 +1,4 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { PropertyReader } from "./property-reader";
@@ -6,79 +6,59 @@ import { Keywords } from "../keywords";
 import { IView } from "../models/IView";
 
 export class ViewReader {
-  static read(context: IReadContext): IView {
+  static read(tokenReader: ITokenReader): IView {
     const view = this.getViewInstance();
 
-    view.header = this.readHeader(context, view);
-    Helper.readWhiteSpaces(context, []);
-    view.comments = Helper.readComments(context);
-    this.readBody(context, view);
-    Helper.readWhiteSpaces(context, []);
+    view.header = this.readHeader(tokenReader, view);
+    tokenReader.readWhiteSpaces();
+    view.comments = tokenReader.readComments();
+    this.readBody(tokenReader, view);
 
     return view;
   }
 
-  private static readBody(context: IReadContext, view: IView) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at view body, '{' expected.`);
-    }
+  private static readBody(tokenReader: ITokenReader, view: IView) {
+    tokenReader.test("{", "Syntax error at view body, '{' expected.");
 
-    context.pos++;
-
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value;
+    tokenReader.readWhiteSpaces();
+    let value = tokenReader.peekTokenValue();
     while (value !== "}") {
-      if (context.tokens[context.pos].type === "comment") {
-        view.properties.push(context.tokens[context.pos].value);
-        context.pos++;
-        Helper.readWhiteSpaces(context, []);
+      if (tokenReader.tokenType() === "comment") {
+        view.properties.push(tokenReader.tokenValue());
+        tokenReader.readWhiteSpaces();
       } else {
-        view.properties.push(PropertyReader.read(context));
+        view.properties.push(PropertyReader.read(tokenReader));
       }
 
-      value = context.tokens[context.pos].value;
+      value = tokenReader.peekTokenValue();
     }
 
-    if (value !== "}") {
-      throw new Error(`Syntax error at view body, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("}", "Syntax error at view body, '}' expected.");
   }
 
-  private static readHeader(context: IReadContext, view: IView): string {
-    const name = this.getViewName(context);
-    Helper.readWhiteSpaces(context, []);
+  private static readHeader(tokenReader: ITokenReader, view: IView): string {
+    const name = this.getViewName(tokenReader);
+    tokenReader.test("(", "Syntax error at view declaration, '(' expected.");
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-      throw Error("Invalid view position");
-    }
-
-    const headerTokens: Array<IToken> = [];
+    const tokens: Array<IToken> = [];
+    let value = tokenReader.peekTokenValue();
     while (value !== ")") {
-      headerTokens.push(context.tokens[context.pos]);
-      context.pos++;
-      value = context.tokens[context.pos].value;
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue();
     }
 
-    if (value !== ")") {
-      throw Error("Invalid field position");
-    }
-
-    headerTokens.push(context.tokens[context.pos]);
-    context.pos++;
-    return `${name}${Helper.tokensToString(headerTokens, {})}`;
+    tokenReader.test(")", "Syntax error at view declaration, ')' expected.");
+    return `${name}(${Helper.tokensToString(tokens, {})})`;
   }
 
-  private static getViewName(context: IReadContext) {
-    const name = context.tokens[context.pos].value.toLowerCase();
+  private static getViewName(tokenReader: ITokenReader) {
+    const name = tokenReader.tokenValue().toLowerCase();
     if (Keywords.PageViewTypes.indexOf(name) === -1) {
       throw Error("Invalid view position");
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
+
     return name;
   }
 

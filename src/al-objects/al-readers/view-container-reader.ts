@@ -1,47 +1,34 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
+import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { IViewContainer } from "../models/IViewContainer";
 import { ViewReader } from "./view-reader";
 
 export class ViewContainerReader {
-  static read(context: IReadContext): IViewContainer {
+  static read(tokenReader: ITokenReader): IViewContainer {
     const container = this.getViewContainerInstance();
 
-    this.readLabel(context);
-
-    Helper.readWhiteSpaces(context, []);
-    container.postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readBody(context, container);
-    Helper.readWhiteSpaces(context, []);
+    this.readLabel(tokenReader);
+    container.postLabelComments = tokenReader.readComments();
+    this.readBody(tokenReader, container);
 
     return container;
   }
 
-  private static readBody(context: IReadContext, container: IViewContainer) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at views body, '{' expected.`);
-    }
+  private static readBody(
+    tokenReader: ITokenReader,
+    container: IViewContainer
+  ) {
+    tokenReader.test("{", `Syntax error at views body, '{' expected.`);
 
-    context.pos++;
+    container.comments = tokenReader.readComments();
 
-    container.comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (Keywords.PageViewTypes.indexOf(value) !== -1) {
-      container.views.push(ViewReader.read(context));
-      value = context.tokens[context.pos].value.toLowerCase();
+      container.views.push(ViewReader.read(tokenReader));
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error(`Syntax error at views body, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("}", `Syntax error at views body, '}' expected.`);
   }
 
   private static getViewContainerInstance(): IViewContainer {
@@ -52,13 +39,14 @@ export class ViewContainerReader {
     };
   }
 
-  private static readLabel(context: IReadContext) {
-    let label = context.tokens[context.pos].value;
+  private static readLabel(tokenReader: ITokenReader) {
+    let label = tokenReader.tokenValue();
     if (label.toLowerCase() !== "views") {
       throw new Error(`Invalid view container type '${label}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
+
     return label;
   }
 }

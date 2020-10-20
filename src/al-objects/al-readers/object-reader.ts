@@ -11,7 +11,8 @@ import { DataSetReader } from "./dataset-reader";
 import { SchemaReader } from "./schema-reader";
 import { ViewContainerReader } from "./view-container-reader";
 import { IObjectContext } from "../models/IObjectContext";
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
+import TokenReader from "../token-reader";
 
 export class ObjectReader {
   static read(content: string): IObjectContext {
@@ -25,48 +26,51 @@ export class ObjectReader {
     return appObject;
   }
 
-  private static readBody(context: IReadContext, appObject: IObjectContext) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    appObject: IObjectContext
+  ) {
     let comments: string[] = [];
 
-    let value: string = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
 
     while (value !== "}") {
       switch (value) {
         case "var":
-          appObject.variables = VariablesReader.read(context);
+          appObject.variables = VariablesReader.read(tokenReader);
           break;
         case "[":
         case "local":
         case "internal":
         case "procedure":
-          appObject.procedures.push(FunctionReader.read(context, comments));
+          appObject.procedures.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         case "trigger":
-          appObject.triggers.push(FunctionReader.read(context, comments));
+          appObject.triggers.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         // Table
         case "fields":
-          appObject.fields = FieldsReader.read(context);
+          appObject.fields = FieldsReader.read(tokenReader);
           break;
         // Page
         case "layout":
-          appObject.layout = LayoutReader.read(context);
+          appObject.layout = LayoutReader.read(tokenReader);
           break;
         case "views":
-          appObject.views = ViewContainerReader.read(context);
+          appObject.views = ViewContainerReader.read(tokenReader);
           break;
         case "actions":
-          appObject.actions = ActionContainerReader.read(context);
+          appObject.actions = ActionContainerReader.read(tokenReader);
           break;
         // Report
         case "dataset":
-          appObject.dataSet = DataSetReader.read(context);
+          appObject.dataSet = DataSetReader.read(tokenReader);
           break;
         // XmlPort
         case "schema":
-          appObject.schema = SchemaReader.read(context);
+          appObject.schema = SchemaReader.read(tokenReader);
           break;
         // Table
         case "keys":
@@ -80,33 +84,27 @@ export class ObjectReader {
         case "value":
           appObject.segments.push({
             name: value,
-            tokens: this.readBracesSegment(context),
+            tokens: this.readBracesSegment(tokenReader),
           });
           break;
         default:
-          if (context.tokens[context.pos].type === "comment") {
-            comments.push(context.tokens[context.pos].value);
-            context.pos++;
-            Helper.readWhiteSpaces(context, []);
+          if (tokenReader.tokenType() === "comment") {
+            comments.push(tokenReader.tokenValue());
           } else {
             comments.forEach((comment) => appObject.properties.push(comment));
             comments = [];
-            appObject.properties.push(PropertyReader.read(context));
+            appObject.properties.push(PropertyReader.read(tokenReader));
           }
           break;
       }
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      tokenReader.readWhiteSpaces();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
   }
 
-  private static getReadContext(content: string) {
-    const tokens = Tokenizer.tokenizer(content);
-    const context: IReadContext = {
-      tokens: tokens,
-      pos: 0,
-    };
-    return context;
+  private static getReadContext(content: string): ITokenReader {
+    return new TokenReader(Tokenizer.tokenizer(content));
   }
 
   private static getContextInstance(): IObjectContext {
@@ -121,49 +119,53 @@ export class ObjectReader {
     };
   }
 
-  private static readHeader(context: IReadContext): string {
+  private static readHeader(tokenReader: ITokenReader): string {
     const tokens: Array<IToken> = [];
-    while (context.tokens[context.pos].value !== "{") {
-      tokens.push(context.tokens[context.pos++]);
+    while (tokenReader.peekTokenValue() !== "{") {
+      tokens.push(tokenReader.token());
     }
 
-    if (context.tokens[context.pos].value !== "{")
+    if (tokenReader.peekTokenValue() !== "{") {
       throw new Error("body begin error");
+    }
 
-    tokens.push(context.tokens[context.pos++]);
-    Helper.readWhiteSpaces(context, []);
+    tokens.push(tokenReader.token());
+    tokenReader.readWhiteSpaces();
     return Helper.tokensToString(tokens, Keywords.ObjectTypes);
   }
 
-  private static readFooter(context: IReadContext): string {
+  private static readFooter(tokenReader: ITokenReader): string {
     const tokens: Array<IToken> = [];
-    if (context.tokens[context.pos].value !== "}") {
+    if (tokenReader.peekTokenValue() !== "}") {
       throw new Error("end body error");
     }
 
-    tokens.push(context.tokens[context.pos++]);
-    Helper.readWhiteSpaces(context, []);
+    tokens.push(tokenReader.token());
+    tokenReader.readWhiteSpaces();
     return Helper.tokensToString(tokens, []);
   }
 
-  private static readBracesSegment(context: IReadContext): Array<IToken> {
+  private static readBracesSegment(tokenReader: ITokenReader): Array<IToken> {
     const tokens: Array<IToken> = [];
     let counter = 0;
-    let value = context.tokens[context.pos].value;
-
+    let value = tokenReader.peekTokenValue();
     while (value !== "}" || counter !== 0) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value;
-      if (value === "{") counter++;
-      else if (value === "}") counter--;
+      tokens.push(tokenReader.token());
+
+      value = tokenReader.peekTokenValue();
+      if (value === "{") {
+        counter++;
+      } else if (value === "}") {
+        counter--;
+      }
     }
 
-    if (context.tokens[context.pos].value !== "}" || counter !== 0)
+    if (tokenReader.peekTokenValue() !== "}" || counter !== 0) {
       throw new Error("segment end error.");
+    }
 
-    tokens.push(context.tokens[context.pos++]);
-
-    Helper.readWhiteSpaces(context, []);
+    tokens.push(tokenReader.token());
+    tokenReader.readWhiteSpaces();
     return tokens;
   }
 }

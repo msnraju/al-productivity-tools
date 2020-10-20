@@ -1,13 +1,13 @@
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IToken } from "../tokenizer";
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
 import _ = require("lodash");
 
 export class VariableReader {
   static read(
-    context: IReadContext,
+    tokenReader: ITokenReader,
     returnType: boolean,
     resetIndex: number
   ): IVariable | undefined {
@@ -19,58 +19,55 @@ export class VariableReader {
       value: "",
     };
 
-    variable.name = context.tokens[context.pos].value;
+    variable.name = tokenReader.peekTokenValue();
     if (returnType && variable.name === ":") {
       variable.name = "";
     } else {
-      context.pos++;
+      tokenReader.next();
     }
 
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.readWhiteSpaces();
 
-    const colon = context.tokens[context.pos].value;
-    context.pos++;
+    const colon = tokenReader.tokenValue();
     if (colon !== ":") {
-      context.pos = resetIndex;
+      tokenReader.pos = resetIndex;
       return;
     }
 
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.readWhiteSpaces();
 
-    variable.dataType = this.getDataType(context);
-    variable.weight = this.getWeight(context, variable.dataType);
+    variable.dataType = this.getDataType(tokenReader);
+    variable.weight = this.getWeight(tokenReader, variable.dataType);
 
-    const subType = this.getSubType(context);
+    const subType = this.getSubType(tokenReader);
     variable.value = `${variable.name}: ${variable.dataType}${subType}`;
 
     return variable;
   }
 
-  private static getSubType(context: IReadContext) {
+  private static getSubType(tokenReader: ITokenReader) {
     const tokens: Array<IToken> = [];
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (
       value !== ";" &&
       value !== ")" &&
       value !== "var" &&
       value !== "begin"
     ) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value.toLowerCase();
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
     if (value === ";") {
-      tokens.push(context.tokens[context.pos]);
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
+      tokens.push(tokenReader.token());
+      tokenReader.readWhiteSpaces();
     }
 
     return Helper.tokensToString(tokens, Keywords.Variables);
   }
 
-  private static getDataType(context: IReadContext): string {
-    let dataType = context.tokens[context.pos].value.toLowerCase();
-    context.pos++;
+  private static getDataType(tokenReader: ITokenReader): string {
+    let dataType = tokenReader.tokenValue().toLowerCase();
 
     if (Keywords.DataTypes[dataType]) {
       dataType = Keywords.DataTypes[dataType];
@@ -79,26 +76,27 @@ export class VariableReader {
     return dataType;
   }
 
-  private static getWeight(context: IReadContext, dataType: string) {
+  private static getWeight(tokenReader: ITokenReader, dataType: string) {
     if (dataType.toLowerCase() !== "array") {
       return Keywords.DataTypeWeight[dataType] || 100;
     }
 
-    let pos = context.pos;
+    let pos = tokenReader.pos;
     pos = _.findIndex(
-      context.tokens,
+      tokenReader.tokens,
       (item) => item.value.toLowerCase() === "of",
       pos
     );
 
-    if (context.tokens[pos].value.toLowerCase() === "of") {
+    if (tokenReader.tokens[pos].value.toLowerCase() === "of") {
       pos++;
-      while (context.tokens[pos].type === "whitespace") pos++;
+      while (tokenReader.tokens[pos].type === "whitespace") pos++;
     }
 
-    const dataType2 = context.tokens[pos].value.toLowerCase();
-    if (Keywords.DataTypes[dataType2])
-      context.tokens[pos].value = Keywords.DataTypes[dataType2];
+    const dataType2 = tokenReader.tokens[pos].value.toLowerCase();
+    if (Keywords.DataTypes[dataType2]) {
+      tokenReader.tokens[pos].value = Keywords.DataTypes[dataType2];
+    }
 
     return Keywords.DataTypeWeight[dataType2] || 100;
   }

@@ -1,62 +1,47 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
+import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { ISchema } from "../models/ISchema";
 import { NodeReader } from "./node-reader";
 
 export class SchemaReader {
-  static read(context: IReadContext): ISchema {
+  static read(tokenReader: ITokenReader): ISchema {
     const schema: ISchema = {
       nodes: [],
       postLabelComments: [],
       comments: [],
     };
 
-    this.readLabel(context);
-
-    Helper.readWhiteSpaces(context, []);
-    schema.postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readBody(context, schema);
-    Helper.readWhiteSpaces(context, []);
+    this.readLabel(tokenReader);
+    schema.postLabelComments = tokenReader.readComments();
+    this.readBody(tokenReader, schema);
 
     return schema;
   }
 
-  private static readBody(context: IReadContext, schema: ISchema) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at schema body, '{' expected.`);
-    }
-    context.pos++;
+  private static readBody(tokenReader: ITokenReader, schema: ISchema) {
+    tokenReader.test("{", "Syntax error at schema body, '{' expected.");
 
-    schema.comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
+    schema.comments = tokenReader.readComments();
 
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (
       Keywords.XmlPortNodeTypes.indexOf(value) !== -1 ||
       Keywords.ExtensionKeywords.indexOf(value) !== -1
     ) {
-      const node = NodeReader.read(context);
+      const node = NodeReader.read(tokenReader);
       schema.nodes.push(node);
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error(`Syntax error at schema body, '}' expected.`);
-    }
-
-    context.pos++;
+    tokenReader.test("}", "Syntax error at schema body, '}' expected.");
   }
 
-  private static readLabel(context: IReadContext) {
-    let label = context.tokens[context.pos].value.toLowerCase();
+  private static readLabel(tokenReader: ITokenReader) {
+    let label = tokenReader.tokenValue().toLowerCase();
     if (label !== "schema") {
       throw new Error(`Invalid schema type '${label}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
   }
 }

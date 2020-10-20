@@ -1,7 +1,7 @@
 import { IAction } from "./IAction";
 
 export interface IActionContainer {
-  actions: Array<IAction>;
-  postLabelComments: string[];
+  actions: IAction[];
+  preBodyComments: string[];
   comments: string[];
 }

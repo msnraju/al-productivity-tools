@@ -1,62 +1,42 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
+import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { IDataSet } from "../models/IDataSet";
-import { IDataItem } from "../models/IDataItem";
 import { DataItemReader } from "./data-item-reader";
+import DataSet from "../dto/DataSet";
 
 export class DataSetReader {
-  static read(context: IReadContext): IDataSet {
-    const dataSet: IDataSet = this.getDataSetInstance();
-    this.readHeader(context);
-
-    Helper.readWhiteSpaces(context, []);
-    dataSet.postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readDataSetItems(context, dataSet);
-    Helper.readWhiteSpaces(context, []);
+  static read(tokenReader: ITokenReader): IDataSet {
+    const dataSet: IDataSet = new DataSet();
+    this.readHeader(tokenReader);
+    dataSet.postLabelComments = tokenReader.readComments();
+    this.readDataSetItems(tokenReader, dataSet);
 
     return dataSet;
   }
 
-  private static getDataSetInstance(): IDataSet {
-    return {
-      dataItems: [],
-      postLabelComments: [],
-      comments: [],
-    };
-  }
+  private static readDataSetItems(
+    tokenReader: ITokenReader,
+    dataSet: IDataSet
+  ) {
+    tokenReader.test("{", "Syntax error at DataSet declaration, '{' expected.");
 
-  private static readDataSetItems(context: IReadContext, dataSet: IDataSet) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at DataSet declaration, '{' expected.`);
-    }
-    context.pos++;
+    dataSet.comments = tokenReader.readComments();
 
-    dataSet.comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (Keywords.ReportDataItemTypes.indexOf(value) !== -1) {
-      const dataItem = DataItemReader.read(context);
-      dataSet.dataItems.push(dataItem);
-      value = context.tokens[context.pos].value.toLowerCase();
+      dataSet.dataItems.push(DataItemReader.read(tokenReader));
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error(`Syntax error at DataSet declaration, '}' expected.`);
-    }
-    context.pos++;
+    tokenReader.test("}", "Syntax error at DataSet declaration, '}' expected.");
   }
 
-  private static readHeader(context: IReadContext) {
-    const value = context.tokens[context.pos].value.toLowerCase();
-    if (value !== "dataset") {
+  private static readHeader(tokenReader: ITokenReader) {
+    const label = tokenReader.tokenValue().toLowerCase();
+    if (label !== "dataset") {
       throw new Error("Invalid DataSet declaration.");
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
   }
 }

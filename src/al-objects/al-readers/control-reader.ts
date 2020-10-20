@@ -1,4 +1,4 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { FunctionReader } from "./function-reader";
@@ -6,42 +6,29 @@ import { PropertyReader } from "./property-reader";
 import { ActionContainerReader } from "./action-container-reader";
 import { Keywords } from "../keywords";
 import { IControl } from "../models/IControl";
+import Control from "../dto/Control";
 
 export class ControlReader {
-  static read(context: IReadContext): IControl {
-    const control: IControl = this.getControlInstance();
+  static read(tokenReader: ITokenReader): IControl {
+    const control: IControl = new Control();
 
-    control.header = this.readControlHeader(context);
-    Helper.readWhiteSpaces(context, []);
-    control.comments = Helper.readComments(context);
-    this.readControlItems(context, control);
-    Helper.readWhiteSpaces(context, []);
+    control.header = this.readControlHeader(tokenReader);
+    control.comments = tokenReader.readComments();
+    this.readControlItems(tokenReader, control);
 
     return control;
   }
 
-  private static getControlInstance(): IControl {
-    return {
-      header: "",
-      controls: [],
-      triggers: [],
-      segments: [],
-      comments: [],
-      properties: [],
-    };
-  }
-
-  private static readControlItems(context: IReadContext, control: IControl) {
-    let value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error(`Syntax error at control declaration, '{' expected.`);
-    }
-    context.pos++;
+  private static readControlItems(
+    tokenReader: ITokenReader,
+    control: IControl
+  ) {
+    tokenReader.test("{", "Syntax error at control declaration, '{' expected.");
 
     let comments: string[] = [];
 
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value.toLowerCase();
+    tokenReader.readWhiteSpaces();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
       switch (value) {
         case "area":
@@ -55,52 +42,45 @@ export class ControlReader {
         case "usercontrol":
         case "field":
         case "label":
-          control.controls.push(this.read(context));
+          control.controls.push(this.read(tokenReader));
           break;
         case "actions":
-          control.container = ActionContainerReader.read(context);
+          control.container = ActionContainerReader.read(tokenReader);
           break;
         case "trigger":
-          control.triggers.push(FunctionReader.read(context, comments));
+          control.triggers.push(FunctionReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
-          if (context.tokens[context.pos].type === "comment") {
-            comments.push(context.tokens[context.pos].value);
-            context.pos++;
-            Helper.readWhiteSpaces(context, []);
+          if (tokenReader.tokenType() === "comment") {
+            comments.push(tokenReader.tokenValue());
+            tokenReader.readWhiteSpaces();
           } else {
             control.properties.push(...comments);
             comments = [];
-            control.properties.push(PropertyReader.read(context));
+            control.properties.push(PropertyReader.read(tokenReader));
           }
       }
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    if (value !== "}") {
-      throw new Error(`Syntax error at control declaration, '}' expected.`);
-    }
-    context.pos++;
+    tokenReader.test("}", "Syntax error at control declaration, '}' expected.");
   }
 
-  private static readControlHeader(context: IReadContext) {
-    const name = this.getControlType(context);
-    Helper.readWhiteSpaces(context, []);
+  private static readControlHeader(tokenReader: ITokenReader) {
+    const name = this.getControlType(tokenReader);
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-      throw new Error(`Syntax error at control declaration, '(' expected.`);
-    }
+    tokenReader.test("(", "Syntax error at control declaration, '(' expected.");
 
     let counter = 1;
     const tokens: Array<IToken> = [];
-    while (value !== ")" || counter !== 0) {
-      tokens.push(context.tokens[context.pos]);
-      context.pos++;
 
-      value = context.tokens[context.pos].value;
+    let value = tokenReader.peekTokenValue();
+    while (value !== ")" || counter !== 0) {
+      tokens.push(tokenReader.token());
+
+      value = tokenReader.peekTokenValue();
       if (value === "(") {
         counter++;
       } else if (value === ")") {
@@ -108,26 +88,23 @@ export class ControlReader {
       }
     }
 
-    if (value !== ")") {
-      throw new Error(`Syntax error at control declaration, ')' expected.`);
-    }
+    tokenReader.test(")", "Syntax error at control declaration, ')' expected.");
 
-    tokens.push(context.tokens[context.pos]);
-    context.pos++;
-    return `${name}${Helper.tokensToString(tokens, {})}`;
+    return `${name}(${Helper.tokensToString(tokens, {})})`;
   }
 
-  private static getControlType(context: IReadContext) {
-    const name = context.tokens[context.pos].value.toLowerCase();
+  private static getControlType(tokenReader: ITokenReader) {
+    const controlType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      Keywords.PageControlTypes.indexOf(name) === -1 &&
-      Keywords.ExtensionKeywords.indexOf(name) === -1
+      Keywords.PageControlTypes.indexOf(controlType) === -1 &&
+      Keywords.ExtensionKeywords.indexOf(controlType) === -1
     ) {
-      throw new Error(`Invalid control type '${name}'.`);
+      throw new Error(`Invalid control type '${controlType}'.`);
     }
 
-    context.pos++;
-    return name;
+    tokenReader.readWhiteSpaces();
+
+    return controlType;
   }
 }

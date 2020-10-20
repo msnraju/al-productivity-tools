@@ -1,49 +1,45 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 
 export class PropertyReader {
-  static read(context: IReadContext): string {
-    const name = this.readPropertyName(context);
-
-    Helper.readWhiteSpaces(context, []);
-    this.readEquals(context);
-    Helper.readWhiteSpaces(context, []);
-    const propertyValue = this.readValue(context);
-    Helper.readWhiteSpaces(context, []);
+  static read(tokenReader: ITokenReader): string {
+    const name = this.readPropertyName(tokenReader);
+    this.readEquals(tokenReader);
+    const propertyValue = this.readValue(tokenReader);
 
     return `${name} = ${propertyValue}`;
   }
 
-  private static readValue(context: IReadContext): string {
+  private static readValue(tokenReader: ITokenReader): string {
     const tokens: Array<IToken> = [];
-    while (context.tokens[context.pos].value !== ";") {
-      tokens.push(context.tokens[context.pos++]);
+    while (tokenReader.peekTokenValue() !== ";") {
+      tokens.push(tokenReader.token());
     }
 
-    if (context.tokens[context.pos].value !== ";") {
+    if (tokenReader.peekTokenValue() !== ";") {
       throw new Error("Syntax error at property, ';' expected.");
     }
 
-    tokens.push(context.tokens[context.pos]);
-    context.pos++;
+    tokens.push(tokenReader.token());
+    tokenReader.readWhiteSpaces();
 
     return Helper.tokensToString(tokens, Keywords.Properties);
   }
 
-  private static readEquals(context: IReadContext) {
-    const eq = context.tokens[context.pos].value;
+  private static readEquals(tokenReader: ITokenReader) {
+    const eq = tokenReader.tokenValue();
     if (eq !== "=") {
       throw new Error("Syntax error at property, '=' expected.");
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
   }
 
-  private static readPropertyName(context: IReadContext) {
-    const name = context.tokens[context.pos].value;
-    context.pos++;
+  private static readPropertyName(tokenReader: ITokenReader) {
+    const name = tokenReader.tokenValue();
+    tokenReader.readWhiteSpaces();
     return name;
   }
 }

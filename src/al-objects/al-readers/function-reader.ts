@@ -1,4 +1,4 @@
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
@@ -10,7 +10,7 @@ import { VariablesReader } from "./variables-reader";
 import { FunctionHeaderReader } from "./function-header-reader";
 
 export class FunctionReader {
-  static read(context: IReadContext, comments: string[]): IFunction {
+  static read(tokenReader: ITokenReader, comments: string[]): IFunction {
     const procedure = FunctionReader.getFunctionInstance(comments);
 
     const attributeType: IAttributeType = {
@@ -20,19 +20,19 @@ export class FunctionReader {
     };
 
     procedure.preFunction = this.readAttributesAndComments(
-      context,
+      tokenReader,
       attributeType
     );
 
-    procedure.header = FunctionHeaderReader.read(context);
+    procedure.header = FunctionHeaderReader.read(tokenReader);
     if (attributeType.eventSubscriber) procedure.header.local = true;
 
-    procedure.preVariableComments = Helper.readComments(context);
-    procedure.variables = this.readVariables(context);
-    procedure.postVariableComments = Helper.readComments(context);
-    procedure.body = this.readFunctionBody(context);
+    procedure.preVariableComments = tokenReader.readComments();
+    procedure.variables = this.readVariables(tokenReader);
+    procedure.postVariableComments = tokenReader.readComments();
+    procedure.body = this.readFunctionBody(tokenReader);
     procedure.weight = this.getWeight(procedure.header, attributeType);
-    
+
     return procedure;
   }
 
@@ -49,52 +49,56 @@ export class FunctionReader {
     };
   }
 
-  private static readVariables(context: IReadContext) {
+  private static readVariables(tokenReader: ITokenReader) {
     let variables: Array<IVariable> = [];
 
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     if (value === "var") {
-      variables = VariablesReader.read(context);
+      variables = VariablesReader.read(tokenReader);
     }
 
     return variables;
   }
 
-  private static readFunctionBody(context: IReadContext) {
+  private static readFunctionBody(tokenReader: ITokenReader) {
     const tokens: Array<IToken> = [];
 
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     if (value !== "begin") {
       throw new Error("read function, begin expected");
     }
 
     let counter = 1;
     while (value !== "end" || counter !== 0) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value.toLowerCase();
-      if (value === "begin" || value === "case") counter++;
-      else if (value === "end") counter--;
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue().toLowerCase();
+
+      if (value === "begin" || value === "case") {
+        counter++;
+      } else if (value === "end") {
+        counter--;
+      }
     }
 
     if (value !== "end" || counter !== 0) {
       throw new Error("trigger end error.");
     }
 
-    tokens.push(context.tokens[context.pos++]);
+    tokens.push(tokenReader.token());
 
-    value = context.tokens[context.pos].value;
+    value = tokenReader.peekTokenValue();
     if (value !== ";") {
       throw new Error(`trigger end error.`);
     }
 
-    tokens.push(context.tokens[context.pos++]);
+    tokens.push(tokenReader.token());
 
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.readWhiteSpaces();
     return Helper.tokensToString(tokens, Keywords.Symbols);
   }
 
   private static readAttributesAndComments(
-    context: IReadContext,
+    tokenReader: ITokenReader,
     attributeType: IAttributeType
   ): string[] {
     const lines: string[] = [];
@@ -102,10 +106,10 @@ export class FunctionReader {
     attributeType.businessEvent = false;
     attributeType.eventSubscriber = false;
 
-    let token = context.tokens[context.pos];
+    let token = tokenReader.peekToken();
     while (token.value === "[" || token.type === "comment") {
       if (token.value === "[") {
-        const attribute = Helper.readAttribute(context, Keywords.Variables);
+        const attribute = Helper.readAttribute(tokenReader, Keywords.Variables);
         if (attribute.toLowerCase().indexOf("integrationevent") !== -1) {
           attributeType.integrationEvent = true;
         }
@@ -119,18 +123,19 @@ export class FunctionReader {
         }
 
         lines.push(attribute);
-        token = context.tokens[context.pos];
+        token = tokenReader.peekToken();
         continue;
       }
 
       if (token.type === "comment") {
         lines.push(token.value);
-        Helper.readWhiteSpaces(context, []);
-        token = context.tokens[context.pos];
+        tokenReader.readWhiteSpaces();
+        token = tokenReader.peekToken();
         continue;
       }
 
-      token = context.tokens[++context.pos];
+      tokenReader.next();
+      token = tokenReader.peekToken();
     }
 
     return lines;

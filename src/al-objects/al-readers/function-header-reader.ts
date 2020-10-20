@@ -1,74 +1,55 @@
-import { Helper } from "../helper";
+import FunctionHeader from "../dto/FunctionHeader";
 import { IFunctionHeader } from "../models/IFunctionHeader";
 import { IParameter } from "../models/IParameter";
-import { IReadContext } from "../models/IReadContext";
+import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
 import { VariableReader } from "./variable-reader";
 
 export class FunctionHeaderReader {
-  static read(context: IReadContext): IFunctionHeader {
-    const header = this.getFunctionHeaderInstance();
+  static read(tokenReader: ITokenReader): IFunctionHeader {
+    const header: IFunctionHeader = new FunctionHeader();
 
-    this.readFunctionScope(context, header);
+    this.readFunctionScope(tokenReader, header);
+    header.type = this.getFunctionType(tokenReader);
+    this.readFunctionName(tokenReader, header);
+    header.parameters = this.readParameters(tokenReader);
+    header.returnType = this.readReturnType(tokenReader);
 
-    Helper.readWhiteSpaces(context, []);
-    header.type = this.getFunctionType(context);
-    Helper.readWhiteSpaces(context, []);
-    this.readFunctionName(context, header);
-
-    header.parameters = this.readParameters(context);
-    Helper.readWhiteSpaces(context, []);
-
-    header.returnType = this.readReturnType(context);
-
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     if (value === ";") {
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
+      tokenReader.next();
+      tokenReader.readWhiteSpaces();
     }
 
     return header;
   }
 
-  private static getFunctionHeaderInstance(): IFunctionHeader {
-    return {
-      local: false,
-      internal: false,
-      name: "",
-      variable: "",
-      event: false,
-      type: "",
-      parameters: [],
-      returnType: undefined,
-    };
-  }
-
   private static readFunctionName(
-    context: IReadContext,
+    tokenReader: ITokenReader,
     header: IFunctionHeader
   ) {
-    header.name = context.tokens[context.pos].value;
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
+    header.name = tokenReader.tokenValue();
+    tokenReader.readWhiteSpaces();
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "::") return;
+    let value = tokenReader.peekTokenValue();
+    if (value !== "::") {
+      return;
+    }
 
+    tokenReader.next();
+    tokenReader.readWhiteSpaces();
     header.event = true;
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
 
     header.variable = header.name;
-    header.name = context.tokens[context.pos].value;
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
+    header.name = tokenReader.tokenValue();
+    tokenReader.readWhiteSpaces();
   }
 
   private static readFunctionScope(
-    context: IReadContext,
+    tokenReader: ITokenReader,
     header: IFunctionHeader
   ) {
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
 
     if (
       value !== "local" &&
@@ -81,60 +62,64 @@ export class FunctionHeaderReader {
 
     if (value === "internal") {
       header.internal = true;
-      value = context.tokens[++context.pos].value.toLowerCase();
+      tokenReader.next();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
     if (value === "local") {
       header.local = true;
-      value = context.tokens[++context.pos].value.toLowerCase();
+      tokenReader.next();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
-    return value;
+
+    tokenReader.readWhiteSpaces();
   }
 
-  private static getFunctionType(context: IReadContext) {
-    let type = context.tokens[context.pos].value.toLowerCase();
+  private static getFunctionType(tokenReader: ITokenReader) {
+    let type = tokenReader.tokenValue().toLowerCase();
 
     if (type !== "trigger" && type !== "procedure") {
-        throw new Error(`Invalid type '${type}'.`);
+      throw new Error(`Invalid type '${type}'.`);
     }
 
-    context.pos++;
+    tokenReader.readWhiteSpaces();
+
     return type;
   }
 
-  private static readReturnType(context: IReadContext): IVariable | undefined {
+  private static readReturnType(
+    tokenReader: ITokenReader
+  ): IVariable | undefined {
     let returnType: IVariable | undefined;
-    let value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
 
     if (value !== "begin" && value !== "var" && value !== ";") {
-      returnType = VariableReader.read(context, true, context.pos);
+      returnType = VariableReader.read(tokenReader, true, tokenReader.pos);
     }
 
     return returnType;
   }
 
-  private static readParameters(context: IReadContext) {
+  private static readParameters(tokenReader: ITokenReader) {
     const parameters: Array<IParameter> = [];
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "(") {
-        throw new Error(`Syntax error at function declaration, '(' expected.`);
-    }
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.test(
+      "(",
+      "Syntax error at function declaration, '(' expected."
+    );
 
-    value = context.tokens[context.pos].value.toLowerCase();
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== ")") {
-      let resetIndex = context.pos;
-
+      let resetIndex = tokenReader.pos;
       let ref = false;
+
       if (value === "var") {
         ref = true;
-        context.pos++;
-        Helper.readWhiteSpaces(context, []);
+        tokenReader.next();
+        tokenReader.readWhiteSpaces();
       }
 
-      const variable = VariableReader.read(context, false, resetIndex);
+      const variable = VariableReader.read(tokenReader, false, resetIndex);
       if (!variable) {
         throw new Error("Syntax error at function parameters.");
       }
@@ -146,14 +131,14 @@ export class FunctionHeaderReader {
         ...variable,
       });
 
-      value = context.tokens[context.pos].value.toLowerCase();
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    if (value !== ")") {
-        throw new Error(`Syntax error at function declaration, ')' expected.`);
-    }
+    tokenReader.test(
+      ")",
+      "Syntax error at function declaration, ')' expected."
+    );
 
-    context.pos++;
     return parameters;
   }
 }

@@ -1,20 +1,14 @@
-import { IToken } from "./tokenizer";
-import { IReadContext } from "./models/IReadContext";
 import _ = require("lodash");
+import { IToken } from "./tokenizer";
+import { ITokenReader } from "./models/ITokenReader";
 
 export class Helper {
-  static indentLines(lines: string[], indentation: number): string[] {
-    if (!lines) return [];
-
-    const pad = Helper.pad(indentation);
-    const indentedLines: string[] = [];
-
-    lines.forEach((line) => indentedLines.push(`${pad}${line}`));
-    return indentedLines;
+  static removeBlankLine(lines: string[]) {
+    if (lines[lines.length - 1] === "") lines.pop();
   }
 
-  static pad(length: Number) {
-    return _.padStart("", 4);
+  static pad(length: number) {
+    return _.padStart("", length);
   }
 
   static tokensToString(tokens: Array<IToken>, keywords: any) {
@@ -28,44 +22,26 @@ export class Helper {
     return buffer.join("");
   }
 
-  static readWhiteSpaces(context: IReadContext, tokens: Array<IToken>) {
-    while (
-      context.pos < context.tokens.length &&
-      context.tokens[context.pos].type === "whitespace"
-    ) {
-      tokens.push(context.tokens[context.pos++]);
-    }
-  }
-
-  static readAttribute(context: IReadContext, keywords: any): string {
+  static readAttribute(tokenReader: ITokenReader, keywords: any): string {
     const tokens: Array<IToken> = [];
 
-    let value = context.tokens[context.pos].value;
-    if (value !== "[") return "";
+    let value = tokenReader.peekTokenValue();
+    if (value !== "[") {
+      return "";
+    }
 
     while (value !== "]") {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value;
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue();
     }
 
-    if (value !== "]") throw new Error("Invalid Attribute");
-    tokens.push(context.tokens[context.pos]);
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
+    if (value !== "]") {
+      throw new Error("Invalid Attribute");
+    }
+
+    tokens.push(tokenReader.token());
+    tokenReader.readWhiteSpaces();
 
     return Helper.tokensToString(tokens, keywords);
-  }
-
-  static readComments(context: IReadContext): string[] {
-    const comments: string[] = [];
-    while (context.tokens[context.pos].type === "comment") {
-      comments.push(context.tokens[context.pos].value);
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
-    }
-
-    Helper.readWhiteSpaces(context, []);
-
-    return comments;
   }
 }

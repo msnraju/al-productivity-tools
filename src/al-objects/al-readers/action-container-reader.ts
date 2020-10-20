@@ -1,53 +1,29 @@
-import { IReadContext } from "../models/IReadContext";
-import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IActionContainer } from "../models/IActionContainer";
-import { IAction } from "../models/IAction";
+import ActionContainer from "../dto/ActionContainer";
 import { ActionReader } from "./action-reader";
+import { ITokenReader } from "../models/ITokenReader";
 
 export class ActionContainerReader {
-  static read(context: IReadContext): IActionContainer {
-    const actions: Array<IAction> = [];
+  static read(tokenReader: ITokenReader): IActionContainer {
+    const container: IActionContainer = new ActionContainer();
 
-    let value = context.tokens[context.pos].value.toLowerCase();
-    if (value !== "actions") {
-      throw new Error("Invalid actions container position");
-    }
-    context.pos++;
+    tokenReader.test("actions", "Invalid actions container position");
+    container.preBodyComments = tokenReader.readComments();
+    tokenReader.test("{", "Invalid actions container position");
+    container.comments = tokenReader.readComments();
 
-    Helper.readWhiteSpaces(context, []);
-    const postLabelComments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-    value = context.tokens[context.pos].value;
-    if (value !== "{") {
-      throw new Error("Invalid actions container position");
-    }
-    context.pos++;
-
-    const comments = Helper.readComments(context);
-    Helper.readWhiteSpaces(context, []);
-
-    value = context.tokens[context.pos].value.toLowerCase();
+    let actionType = tokenReader.peekTokenValue().toLowerCase();
     while (
-      Keywords.PageActionTypes.indexOf(value) !== -1 ||
-      Keywords.ExtensionKeywords.indexOf(value) !== -1
+      Keywords.PageActionTypes.indexOf(actionType) !== -1 ||
+      Keywords.ExtensionKeywords.indexOf(actionType) !== -1
     ) {
-      const action = ActionReader.read(context);
-      actions.push(action);
-      value = context.tokens[context.pos].value.toLowerCase();
+      container.actions.push(ActionReader.read(tokenReader));
+      actionType = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    value = context.tokens[context.pos].value;
-    if (value !== "}") {
-      throw new Error("Invalid actions container position");
-    }
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.test("}", "Invalid actions container position");
 
-    return {
-      actions: actions,
-      postLabelComments: postLabelComments,
-      comments: comments,
-    };
+    return container;
   }
 }

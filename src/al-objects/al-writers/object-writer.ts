@@ -1,23 +1,23 @@
+import _ = require("lodash");
 import { Helper } from "../helper";
 import { ActionContainerWriter } from "./action-container-writer";
 import { DataSetWriter } from "./dataset-writer";
 import { FieldsWriter } from "./fields-writer";
-import { FunctionWriter } from "./function-writer";
 import { LayoutWriter } from "./layout-writer";
 import { IObjectContext } from "../models/IObjectContext";
 import { ViewContainerWriter } from "./view-container-writer";
 import { VariableWriter } from "./variable-writer";
 import { SchemaWriter } from "./schema-writer";
-import _ = require("lodash");
 import { IFieldsContainer } from "../models/IFieldsContainer";
 import { ILayout } from "../models/ILayout";
 import { ISegment } from "../models/ISegment";
-import { IFunction } from "../models/IFunction";
 import { IVariable } from "../models/IVariable";
 import { ISchema } from "../models/ISchema";
 import { IActionContainer } from "../models/IActionContainer";
 import { IViewContainer } from "../models/IViewContainer";
 import { IDataSet } from "../models/IDataSet";
+import PropertiesWriter from "./properties-writer";
+import FunctionsWriter from "./functions-writer";
 
 export class ObjectWriter {
   static write(context: IObjectContext): string {
@@ -25,7 +25,7 @@ export class ObjectWriter {
     const pad = Helper.pad(4);
 
     lines.push(context.header);
-    lines.push(...this.writeProperties(context.properties, 4));
+    lines.push(...PropertiesWriter.write(context.properties, 4));
     if (context.fields) {
       lines.push(...this.writeFields(context.fields));
     }
@@ -34,7 +34,7 @@ export class ObjectWriter {
     }
 
     if (context.actions) {
-      lines.push(...this.writeActions(context.actions, 4));
+      lines.push(...this.writeActionContainer(context.actions, 4));
     }
 
     if (context.views) {
@@ -50,11 +50,12 @@ export class ObjectWriter {
     }
 
     lines.push(...this.writeSegments(context.segments, 4));
-    lines.push(...this.writeProcedures(context.triggers, 4));
+    lines.push(...FunctionsWriter.write(context.triggers, 4));
     lines.push(...this.writeVariables(context.variables, 4));
-    lines.push(...this.writeProcedures(context.procedures, 4));
+    lines.push(...FunctionsWriter.write(context.procedures, 4));
 
-    if (lines[lines.length - 1] === "") lines.pop();
+    Helper.removeBlankLine(lines);
+
     lines.push(context.footer);
     return lines.join("\r\n");
   }
@@ -85,7 +86,7 @@ export class ObjectWriter {
     return lines;
   }
 
-  private static writeActions(
+  private static writeActionContainer(
     actions: IActionContainer,
     indentation: number
   ): string[] {
@@ -122,22 +123,6 @@ export class ObjectWriter {
     return lines;
   }
 
-  private static writeProcedures(
-    procedures: Array<IFunction>,
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-
-    if (!procedures || procedures.length === 0) return lines;
-
-    const procedures2 = _.sortBy(procedures, (item) => [item.weight]);
-    procedures2.forEach((procedure) => {
-      lines.push(...FunctionWriter.write(procedure, indentation));
-      lines.push("");
-    });
-
-    return lines;
-  }
 
   private static writeSegments(
     segments: Array<ISegment>,
@@ -191,22 +176,6 @@ export class ObjectWriter {
     if (!fields) return lines;
 
     lines.push(...FieldsWriter.write(fields));
-    lines.push("");
-
-    return lines;
-  }
-
-  private static writeProperties(
-    properties: string[],
-    indentation: number
-  ): string[] {
-    const lines: string[] = [];
-    if (!properties || properties.length == 0) return lines;
-
-    const pad = Helper.pad(indentation);
-    properties.forEach((property) => {
-      lines.push(`${pad}${property}`);
-    });
     lines.push("");
 
     return lines;
