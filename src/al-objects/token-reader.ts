@@ -42,7 +42,7 @@ export default class TokenReader implements ITokenReader {
     this.readWhiteSpaces();
   }
 
-  readWhiteSpaces(tokens: Array<IToken> = []) {
+  readWhiteSpaces(tokens: IToken[] = []) {
     while (
       this.pos < this.tokens.length &&
       this.tokens[this.pos].type === "whitespace"

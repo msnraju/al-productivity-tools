@@ -1,7 +1,7 @@
 import { Helper } from "../helper";
 import { IToken, Tokenizer } from "../tokenizer";
 import { VariablesReader } from "./variables-reader";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { Keywords } from "../keywords";
 import { FieldsReader } from "./fields-reader";
 import { PropertyReader } from "./property-reader";
@@ -13,11 +13,12 @@ import { ViewContainerReader } from "./view-container-reader";
 import { IObjectContext } from "../models/IObjectContext";
 import { ITokenReader } from "../models/ITokenReader";
 import TokenReader from "../token-reader";
+import ObjectContext from "../dto/object-context";
 
 export class ObjectReader {
   static read(content: string): IObjectContext {
     const context = this.getReadContext(content);
-    const appObject = this.getContextInstance();
+    const appObject = new ObjectContext();
 
     appObject.header = ObjectReader.readHeader(context);
     this.readBody(context, appObject);
@@ -43,11 +44,11 @@ export class ObjectReader {
         case "local":
         case "internal":
         case "procedure":
-          appObject.procedures.push(FunctionReader.read(tokenReader, comments));
+          appObject.procedures.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         case "trigger":
-          appObject.triggers.push(FunctionReader.read(tokenReader, comments));
+          appObject.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         // Table
@@ -89,9 +90,9 @@ export class ObjectReader {
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
+            comments.push(...tokenReader.readComments());
           } else {
-            comments.forEach((comment) => appObject.properties.push(comment));
+            appObject.properties.push(...comments);
             comments = [];
             appObject.properties.push(PropertyReader.read(tokenReader));
           }
@@ -107,20 +108,8 @@ export class ObjectReader {
     return new TokenReader(Tokenizer.tokenizer(content));
   }
 
-  private static getContextInstance(): IObjectContext {
-    return {
-      header: "",
-      footer: "",
-      variables: [],
-      procedures: [],
-      triggers: [],
-      segments: [],
-      properties: [],
-    };
-  }
-
   private static readHeader(tokenReader: ITokenReader): string {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     while (tokenReader.peekTokenValue() !== "{") {
       tokens.push(tokenReader.token());
     }
@@ -135,7 +124,7 @@ export class ObjectReader {
   }
 
   private static readFooter(tokenReader: ITokenReader): string {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     if (tokenReader.peekTokenValue() !== "}") {
       throw new Error("end body error");
     }
@@ -145,8 +134,8 @@ export class ObjectReader {
     return Helper.tokensToString(tokens, []);
   }
 
-  private static readBracesSegment(tokenReader: ITokenReader): Array<IToken> {
-    const tokens: Array<IToken> = [];
+  private static readBracesSegment(tokenReader: ITokenReader): IToken[] {
+    const tokens: IToken[] = [];
     let counter = 0;
     let value = tokenReader.peekTokenValue();
     while (value !== "}" || counter !== 0) {

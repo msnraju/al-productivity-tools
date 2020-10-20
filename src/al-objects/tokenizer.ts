@@ -9,7 +9,7 @@ let lineNo = 0;
 export class Tokenizer {
   static tokenizer(input: string) {
     let current = 0;
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
 
     while (current < input.length) {
       let char = input[current];
@@ -256,7 +256,7 @@ export class Tokenizer {
     return tokens;
   }
 
-  private static pushToken(tokens: Array<IToken>, type: string, value: string) {
+  private static pushToken(tokens: IToken[], type: string, value: string) {
     const token = {
       type: type,
       value: value,
@@ -271,7 +271,7 @@ export class Tokenizer {
     // console.log(token);
   }
 
-  private static isToken(tokens: Array<IToken>, char: string, type: string, value: string): boolean {
+  private static isToken(tokens: IToken[], char: string, type: string, value: string): boolean {
     if (char === value) {
       const token = {
         type: type,

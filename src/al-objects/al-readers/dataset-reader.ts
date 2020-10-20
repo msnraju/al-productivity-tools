@@ -2,7 +2,7 @@ import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { IDataSet } from "../models/IDataSet";
 import { DataItemReader } from "./data-item-reader";
-import DataSet from "../dto/DataSet";
+import DataSet from "../dto/data-set";
 
 export class DataSetReader {
   static read(tokenReader: ITokenReader): IDataSet {

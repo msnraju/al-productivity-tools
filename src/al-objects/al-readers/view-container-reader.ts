@@ -2,10 +2,11 @@ import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { IViewContainer } from "../models/IViewContainer";
 import { ViewReader } from "./view-reader";
+import ViewContainer from "../dto/view-container";
 
 export class ViewContainerReader {
   static read(tokenReader: ITokenReader): IViewContainer {
-    const container = this.getViewContainerInstance();
+    const container: IViewContainer = new ViewContainer();
 
     this.readLabel(tokenReader);
     container.postLabelComments = tokenReader.readComments();
@@ -29,14 +30,6 @@ export class ViewContainerReader {
     }
 
     tokenReader.test("}", `Syntax error at views body, '}' expected.`);
-  }
-
-  private static getViewContainerInstance(): IViewContainer {
-    return {
-      views: [],
-      postLabelComments: [],
-      comments: [],
-    };
   }
 
   private static readLabel(tokenReader: ITokenReader) {

@@ -1,12 +1,12 @@
 import { commands } from "vscode";
 import { Helper } from "../helper";
-import { IFunction } from "../models/IFunction";
-import { IFunctionHeader } from "../models/IFunctionHeader";
+import { IProcedure } from "../models/IProcedure";
+import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
 import CommentWriter from "./comment-writer";
 import { VariableWriter } from "./variable-writer";
 
-export class FunctionWriter {
-  static write(func: IFunction, indentation: number): string[] {
+export class ProcedureWriter {
+  static write(func: IProcedure, indentation: number): string[] {
     const lines: string[] = [];
     const pad = Helper.pad(indentation);
 
@@ -22,7 +22,7 @@ export class FunctionWriter {
   }
 
   private static writeHeader(
-    header: IFunctionHeader | null,
+    header: IProcedureDeclaration | null,
     indentation: number
   ): string {
     if (header === null) return "";

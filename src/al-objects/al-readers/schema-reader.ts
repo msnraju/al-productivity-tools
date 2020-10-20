@@ -2,14 +2,11 @@ import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { ISchema } from "../models/ISchema";
 import { NodeReader } from "./node-reader";
+import Schema from "../dto/schema";
 
 export class SchemaReader {
   static read(tokenReader: ITokenReader): ISchema {
-    const schema: ISchema = {
-      nodes: [],
-      postLabelComments: [],
-      comments: [],
-    };
+    const schema: ISchema = new Schema();
 
     this.readLabel(tokenReader);
     schema.postLabelComments = tokenReader.readComments();

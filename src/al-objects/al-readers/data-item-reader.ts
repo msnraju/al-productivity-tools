@@ -1,11 +1,11 @@
 import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 import { Keywords } from "../keywords";
 import { IDataItem } from "../models/IDataItem";
-import DataItem from "../dto/DataItem";
+import DataItem from "../dto/data-item";
 
 export class DataItemReader {
   static read(tokenReader: ITokenReader): IDataItem {
@@ -38,13 +38,12 @@ export class DataItemReader {
           dataItem.dataItems.push(this.read(tokenReader));
           break;
         case "trigger":
-          dataItem.triggers.push(FunctionReader.read(tokenReader, comments));
+          dataItem.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
-            tokenReader.readWhiteSpaces();
+            comments.push(...tokenReader.readComments());
           } else {
             dataItem.properties.push(...comments);
             comments = [];
@@ -70,7 +69,7 @@ export class DataItemReader {
       "Syntax error in DateItem declaration, '(' expected."
     );
 
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     let counter = 1;
     let value = tokenReader.peekTokenValue();
 

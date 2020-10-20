@@ -1,10 +1,10 @@
 import { IVariable } from "./IVariable";
-import { IFunctionHeader } from "./IFunctionHeader";
+import { IProcedureDeclaration } from "./IProcedureDeclaration";
 
-export interface IFunction {
+export interface IProcedure {
   preFunctionComments: string[];
   preFunction: string[];
-  header: IFunctionHeader | null;
+  header: IProcedureDeclaration | null;
   weight: number;
   preVariableComments: string[];
   variables: Array<IVariable>;

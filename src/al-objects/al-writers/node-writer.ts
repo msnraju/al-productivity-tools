@@ -1,7 +1,7 @@
 import { Helper } from "../helper";
 import { INode } from "../models/INode";
 import CommentWriter from "./comment-writer";
-import FunctionsWriter from "./functions-writer";
+import ProceduresWriter from "./procedures-writer";
 import PropertiesWriter from "./properties-writer";
 
 export class NodeWriter {
@@ -14,7 +14,7 @@ export class NodeWriter {
     lines.push(`${pad}{`);
     lines.push(...PropertiesWriter.write(node.properties, indentation + 4));
     lines.push(...this.writeNodes(node.nodes, indentation + 4));
-    lines.push(...FunctionsWriter.write(node.triggers, indentation + 4));
+    lines.push(...ProceduresWriter.write(node.triggers, indentation + 4));
     Helper.removeBlankLine(lines);
     lines.push(`${pad}}`);
 

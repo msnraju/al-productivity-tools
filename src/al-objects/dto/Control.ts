@@ -1,5 +1,5 @@
 import { ISegment } from "../models/ISegment";
-import { IFunction } from "../models/IFunction";
+import { IProcedure } from "../models/IProcedure";
 import { IActionContainer } from "../models/IActionContainer";
 import { IControl } from "../models/IControl";
 
@@ -8,7 +8,7 @@ export default class Control implements IControl {
   controls: IControl[];
   comments: string[];
   header: string;
-  triggers: IFunction[];
+  triggers: IProcedure[];
   segments: ISegment[];
   properties: string[];
 

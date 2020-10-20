@@ -1,10 +1,10 @@
-import Action from "../dto/Action";
+import Action from "../dto/action";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IAction } from "../models/IAction";
 import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 
 export class ActionReader {
@@ -13,7 +13,7 @@ export class ActionReader {
 
     action.header = this.readActionHeader(tokenReader);
     action.comments = tokenReader.readComments();
-    this.readActionItems(tokenReader, action);
+    this.readBody(tokenReader, action);
     tokenReader.readWhiteSpaces();
 
     return action;
@@ -34,7 +34,7 @@ export class ActionReader {
     return actionType;
   }
 
-  private static readActionItems(tokenReader: ITokenReader, action: IAction) {
+  private static readBody(tokenReader: ITokenReader, action: IAction) {
     let comments: string[] = [];
 
     tokenReader.test("{", "Syntax error at action declaration, '{' expected.");
@@ -50,13 +50,12 @@ export class ActionReader {
           action.childActions.push(this.read(tokenReader));
           break;
         case "trigger":
-          action.triggers.push(FunctionReader.read(tokenReader, comments));
+          action.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
-            tokenReader.readWhiteSpaces();
+            comments.push(...tokenReader.readComments());
           } else {
             action.properties.push(...comments);
             comments = [];
@@ -71,7 +70,7 @@ export class ActionReader {
   }
 
   private static readActionHeader(tokenReader: ITokenReader) {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     const name = this.getActionType(tokenReader);
 
     tokenReader.test("(", "Syntax error at action declaration, '(' expected.");

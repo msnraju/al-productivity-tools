@@ -1,7 +1,7 @@
 import { IVariable } from "./IVariable";
 import { IParameter } from "./IParameter";
 
-export interface IFunctionHeader {
+export interface IProcedureDeclaration {
   local: boolean;
   internal: boolean;
   type: string;

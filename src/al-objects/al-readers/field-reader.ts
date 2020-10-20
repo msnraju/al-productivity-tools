@@ -1,10 +1,10 @@
 import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 import { IField } from "../models/IField";
-import Field from "../dto/Field";
+import Field from "../dto/field";
 
 export class FieldReader {
   static read(tokenReader: ITokenReader): IField {
@@ -27,13 +27,12 @@ export class FieldReader {
     while (value !== "}") {
       switch (value) {
         case "trigger":
-          field.triggers.push(FunctionReader.read(tokenReader, comments));
+          field.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
-            tokenReader.readWhiteSpaces();
+            comments.push(...tokenReader.readComments());
           } else {
             field.properties.push(...comments);
             comments = [];
@@ -52,7 +51,7 @@ export class FieldReader {
 
     tokenReader.test("(", "Syntax error at Field declaration, '(' expected.");
 
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     while (tokenReader.peekTokenValue() !== ")") {
       tokens.push(tokenReader.token());
     }

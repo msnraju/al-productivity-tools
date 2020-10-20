@@ -1,9 +1,10 @@
+import _ = require("lodash");
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IToken } from "../tokenizer";
 import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
-import _ = require("lodash");
+import Variable from "../dto/variable";
 
 export class VariableReader {
   static read(
@@ -11,13 +12,7 @@ export class VariableReader {
     returnType: boolean,
     resetIndex: number
   ): IVariable | undefined {
-    const variable: IVariable = {
-      name: "",
-      dataType: "",
-      weight: 0,
-      preVariable: [],
-      value: "",
-    };
+    const variable: IVariable = new Variable();
 
     variable.name = tokenReader.peekTokenValue();
     if (returnType && variable.name === ":") {
@@ -46,7 +41,7 @@ export class VariableReader {
   }
 
   private static getSubType(tokenReader: ITokenReader) {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (
       value !== ";" &&

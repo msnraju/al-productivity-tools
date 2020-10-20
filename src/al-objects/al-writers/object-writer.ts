@@ -17,7 +17,7 @@ import { IActionContainer } from "../models/IActionContainer";
 import { IViewContainer } from "../models/IViewContainer";
 import { IDataSet } from "../models/IDataSet";
 import PropertiesWriter from "./properties-writer";
-import FunctionsWriter from "./functions-writer";
+import ProceduresWriter from "./procedures-writer";
 
 export class ObjectWriter {
   static write(context: IObjectContext): string {
@@ -50,9 +50,9 @@ export class ObjectWriter {
     }
 
     lines.push(...this.writeSegments(context.segments, 4));
-    lines.push(...FunctionsWriter.write(context.triggers, 4));
+    lines.push(...ProceduresWriter.write(context.triggers, 4));
     lines.push(...this.writeVariables(context.variables, 4));
-    lines.push(...FunctionsWriter.write(context.procedures, 4));
+    lines.push(...ProceduresWriter.write(context.procedures, 4));
 
     Helper.removeBlankLine(lines);
 

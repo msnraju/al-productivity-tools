@@ -1,6 +1,6 @@
 import { Keywords } from "../keywords";
 import { IActionContainer } from "../models/IActionContainer";
-import ActionContainer from "../dto/ActionContainer";
+import ActionContainer from "../dto/action-container";
 import { ActionReader } from "./action-reader";
 import { ITokenReader } from "../models/ITokenReader";
 

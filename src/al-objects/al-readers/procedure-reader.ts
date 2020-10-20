@@ -3,15 +3,17 @@ import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { IVariable } from "../models/IVariable";
-import { IFunctionHeader } from "../models/IFunctionHeader";
+import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
 import { IAttributeType } from "../models/IAttributeType";
-import { IFunction } from "../models/IFunction";
+import { IProcedure } from "../models/IProcedure";
 import { VariablesReader } from "./variables-reader";
-import { FunctionHeaderReader } from "./function-header-reader";
+import { ProcedureDeclarationReader } from "./procedure-declaration-reader";
+import Procedure from "../dto/procedure";
+import AttributeReader from "./attribute-reader";
 
-export class FunctionReader {
-  static read(tokenReader: ITokenReader, comments: string[]): IFunction {
-    const procedure = FunctionReader.getFunctionInstance(comments);
+export class ProcedureReader {
+  static read(tokenReader: ITokenReader, comments: string[]): IProcedure {
+    const procedure = new Procedure(comments);
 
     const attributeType: IAttributeType = {
       integrationEvent: false,
@@ -24,7 +26,7 @@ export class FunctionReader {
       attributeType
     );
 
-    procedure.header = FunctionHeaderReader.read(tokenReader);
+    procedure.header = ProcedureDeclarationReader.read(tokenReader);
     if (attributeType.eventSubscriber) procedure.header.local = true;
 
     procedure.preVariableComments = tokenReader.readComments();
@@ -34,19 +36,6 @@ export class FunctionReader {
     procedure.weight = this.getWeight(procedure.header, attributeType);
 
     return procedure;
-  }
-
-  private static getFunctionInstance(comments: string[]): IFunction {
-    return {
-      preFunctionComments: comments,
-      preFunction: [],
-      weight: 0,
-      header: null,
-      preVariableComments: [],
-      variables: [],
-      postVariableComments: [],
-      body: "",
-    };
   }
 
   private static readVariables(tokenReader: ITokenReader) {
@@ -61,7 +50,7 @@ export class FunctionReader {
   }
 
   private static readFunctionBody(tokenReader: ITokenReader) {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     if (value !== "begin") {
@@ -109,7 +98,7 @@ export class FunctionReader {
     let token = tokenReader.peekToken();
     while (token.value === "[" || token.type === "comment") {
       if (token.value === "[") {
-        const attribute = Helper.readAttribute(tokenReader, Keywords.Variables);
+        const attribute = AttributeReader.read(tokenReader, Keywords.Variables);
         if (attribute.toLowerCase().indexOf("integrationevent") !== -1) {
           attributeType.integrationEvent = true;
         }
@@ -123,26 +112,20 @@ export class FunctionReader {
         }
 
         lines.push(attribute);
-        token = tokenReader.peekToken();
-        continue;
+      } else if (token.type === "comment") {
+        lines.push(...tokenReader.readComments());
       }
 
-      if (token.type === "comment") {
-        lines.push(token.value);
-        tokenReader.readWhiteSpaces();
-        token = tokenReader.peekToken();
-        continue;
-      }
-
-      tokenReader.next();
+      tokenReader.readWhiteSpaces();
       token = tokenReader.peekToken();
     }
 
+    tokenReader.readWhiteSpaces();
     return lines;
   }
 
   private static getWeight(
-    header: IFunctionHeader,
+    header: IProcedureDeclaration,
     attributeType: IAttributeType
   ): number {
     let weight = 0;

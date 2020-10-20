@@ -1,14 +1,15 @@
 import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 import { Keywords } from "../keywords";
 import { INode } from "../models/INode";
+import Node from "../dto/node";
 
 export class NodeReader {
   static read(tokenReader: ITokenReader): INode {
-    const node = this.getNodeInstance();
+    const node: INode = new Node();
 
     node.header = this.readHeader(tokenReader);
     node.comments = tokenReader.readComments();
@@ -23,7 +24,7 @@ export class NodeReader {
 
     let counter = 1;
     let value = tokenReader.peekTokenValue();
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
 
     while (value !== ")" || counter !== 0) {
       tokens.push(tokenReader.token());
@@ -71,15 +72,14 @@ export class NodeReader {
           node.nodes.push(this.read(tokenReader));
           break;
         case "trigger":
-          node.triggers.push(FunctionReader.read(tokenReader, comments));
+          node.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
-            tokenReader.readWhiteSpaces();
+            comments.push(...tokenReader.readComments());
           } else {
-            comments.forEach((comment) => node.properties.push(comment));
+            node.properties.push(...comments);
             comments = [];
             node.properties.push(PropertyReader.read(tokenReader));
           }
@@ -90,16 +90,5 @@ export class NodeReader {
     }
 
     tokenReader.test("}", "Syntax error at node body, '}' expected.");
-  }
-
-  private static getNodeInstance(): INode {
-    return {
-      header: "",
-      nodes: [],
-      triggers: [],
-      segments: [],
-      comments: [],
-      properties: [],
-    };
   }
 }

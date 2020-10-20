@@ -4,13 +4,13 @@ import { Helper } from "../helper";
 import { PropertyReader } from "./property-reader";
 import { Keywords } from "../keywords";
 import { IView } from "../models/IView";
+import View from "../dto/view";
 
 export class ViewReader {
   static read(tokenReader: ITokenReader): IView {
-    const view = this.getViewInstance();
+    const view: IView = new View();
 
     view.header = this.readHeader(tokenReader, view);
-    tokenReader.readWhiteSpaces();
     view.comments = tokenReader.readComments();
     this.readBody(tokenReader, view);
 
@@ -24,8 +24,7 @@ export class ViewReader {
     let value = tokenReader.peekTokenValue();
     while (value !== "}") {
       if (tokenReader.tokenType() === "comment") {
-        view.properties.push(tokenReader.tokenValue());
-        tokenReader.readWhiteSpaces();
+        view.properties.push(...tokenReader.readComments());
       } else {
         view.properties.push(PropertyReader.read(tokenReader));
       }
@@ -40,7 +39,7 @@ export class ViewReader {
     const name = this.getViewName(tokenReader);
     tokenReader.test("(", "Syntax error at view declaration, '(' expected.");
 
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     let value = tokenReader.peekTokenValue();
     while (value !== ")") {
       tokens.push(tokenReader.token());
@@ -60,14 +59,5 @@ export class ViewReader {
     tokenReader.readWhiteSpaces();
 
     return name;
-  }
-
-  private static getViewInstance(): IView {
-    return {
-      header: "",
-      segments: [],
-      comments: [],
-      properties: [],
-    };
   }
 }

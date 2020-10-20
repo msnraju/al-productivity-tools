@@ -1,12 +1,12 @@
 import { ITokenReader } from "../models/ITokenReader";
 import { IToken } from "../tokenizer";
 import { Helper } from "../helper";
-import { FunctionReader } from "./function-reader";
+import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 import { ActionContainerReader } from "./action-container-reader";
 import { Keywords } from "../keywords";
 import { IControl } from "../models/IControl";
-import Control from "../dto/Control";
+import Control from "../dto/control";
 
 export class ControlReader {
   static read(tokenReader: ITokenReader): IControl {
@@ -48,13 +48,12 @@ export class ControlReader {
           control.container = ActionContainerReader.read(tokenReader);
           break;
         case "trigger":
-          control.triggers.push(FunctionReader.read(tokenReader, comments));
+          control.triggers.push(ProcedureReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
           if (tokenReader.tokenType() === "comment") {
-            comments.push(tokenReader.tokenValue());
-            tokenReader.readWhiteSpaces();
+            comments.push(...tokenReader.readComments());
           } else {
             control.properties.push(...comments);
             comments = [];
@@ -74,7 +73,7 @@ export class ControlReader {
     tokenReader.test("(", "Syntax error at control declaration, '(' expected.");
 
     let counter = 1;
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
 
     let value = tokenReader.peekTokenValue();
     while (value !== ")" || counter !== 0) {

@@ -1,13 +1,13 @@
-import FunctionHeader from "../dto/FunctionHeader";
-import { IFunctionHeader } from "../models/IFunctionHeader";
+import ProcedureDeclaration from "../dto/procedure-declaration";
+import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
 import { IParameter } from "../models/IParameter";
 import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
 import { VariableReader } from "./variable-reader";
 
-export class FunctionHeaderReader {
-  static read(tokenReader: ITokenReader): IFunctionHeader {
-    const header: IFunctionHeader = new FunctionHeader();
+export class ProcedureDeclarationReader {
+  static read(tokenReader: ITokenReader): IProcedureDeclaration {
+    const header: IProcedureDeclaration = new ProcedureDeclaration();
 
     this.readFunctionScope(tokenReader, header);
     header.type = this.getFunctionType(tokenReader);
@@ -26,7 +26,7 @@ export class FunctionHeaderReader {
 
   private static readFunctionName(
     tokenReader: ITokenReader,
-    header: IFunctionHeader
+    header: IProcedureDeclaration
   ) {
     header.name = tokenReader.tokenValue();
     tokenReader.readWhiteSpaces();
@@ -47,7 +47,7 @@ export class FunctionHeaderReader {
 
   private static readFunctionScope(
     tokenReader: ITokenReader,
-    header: IFunctionHeader
+    header: IProcedureDeclaration
   ) {
     let value = tokenReader.peekTokenValue().toLowerCase();
 

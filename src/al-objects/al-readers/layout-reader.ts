@@ -2,10 +2,11 @@ import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { ILayout } from "../models/ILayout";
 import { ControlReader } from "./control-reader";
+import Layout from "../models/Layout";
 
 export class LayoutReader {
   static read(tokenReader: ITokenReader): ILayout {
-    const layout = this.getLayoutInstance();
+    const layout = new Layout();
     this.readLabel(tokenReader);
     layout.postLabelComments = tokenReader.readComments();
     this.readLayoutBody(tokenReader, layout);
@@ -30,14 +31,6 @@ export class LayoutReader {
     }
 
     tokenReader.test("},", "Syntax error at layout body, '}' expected.");
-  }
-
-  private static getLayoutInstance(): ILayout {
-    return {
-      controls: [],
-      postLabelComments: [],
-      comments: [],
-    };
   }
 
   private static readLabel(tokenReader: ITokenReader) {

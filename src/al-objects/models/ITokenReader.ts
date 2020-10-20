@@ -1,7 +1,7 @@
 import { IToken } from "../tokenizer";
 
 export interface ITokenReader {
-  tokens: Array<IToken>;
+  tokens: IToken[];
   pos: number;
 
   peekTokenValue(): string;
@@ -11,7 +11,7 @@ export interface ITokenReader {
   tokenValue(): string;
   test(value: string, errMsg: string): void;
 
-  readWhiteSpaces(tokens?: Array<IToken>): void;
+  readWhiteSpaces(tokens?: IToken[]): void;
   readComments(): string[];
   next(): void;
 }

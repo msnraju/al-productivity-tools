@@ -13,7 +13,7 @@ export class PropertyReader {
   }
 
   private static readValue(tokenReader: ITokenReader): string {
-    const tokens: Array<IToken> = [];
+    const tokens: IToken[] = [];
     while (tokenReader.peekTokenValue() !== ";") {
       tokens.push(tokenReader.token());
     }

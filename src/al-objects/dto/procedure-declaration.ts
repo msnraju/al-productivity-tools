@@ -1,8 +1,8 @@
 import { IVariable } from "../models/IVariable";
 import { IParameter } from "../models/IParameter";
-import { IFunctionHeader } from "../models/IFunctionHeader";
+import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
 
-export default class FunctionHeader implements IFunctionHeader {
+export default class ProcedureDeclaration implements IProcedureDeclaration {
   local: boolean;
   internal: boolean;
   type: string;

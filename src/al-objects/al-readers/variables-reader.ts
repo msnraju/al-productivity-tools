@@ -1,29 +1,27 @@
-import { Helper } from "../helper";
 import { Keywords } from "../keywords";
 import { ITokenReader } from "../models/ITokenReader";
 import { IVariable } from "../models/IVariable";
+import AttributeReader from "./attribute-reader";
 import { VariableReader } from "./variable-reader";
 
 export class VariablesReader {
-  static read(tokenReader: ITokenReader): Array<IVariable> {
+  static read(tokenReader: ITokenReader): IVariable[] {
     if (!this.hasVariables(tokenReader)) {
       return [];
     }
 
-    tokenReader.readWhiteSpaces();
-    const variables = this.readVariables(tokenReader);
-    tokenReader.readWhiteSpaces();
-    return variables;
+    return this.readVariables(tokenReader);
   }
 
   private static hasVariables(tokenReader: ITokenReader) {
     let value = tokenReader.peekTokenValue();
-    if (value.toLowerCase() === "var") {
-      tokenReader.next();
-      return true;
+    if (value.toLowerCase() !== "var") {
+      return false;
     }
 
-    return false;
+    tokenReader.next();
+    tokenReader.readWhiteSpaces();
+    return true;
   }
 
   private static readVariables(tokenReader: ITokenReader): IVariable[] {
@@ -39,7 +37,7 @@ export class VariablesReader {
       }
 
       // Attributes
-      const attribute = Helper.readAttribute(tokenReader, Keywords.Variables);
+      const attribute = AttributeReader.read(tokenReader, Keywords.Variables);
       if (attribute.length > 0) {
         preBuffer.push(attribute);
         continue;
@@ -57,6 +55,8 @@ export class VariablesReader {
       preBuffer = [];
       resetIndex = tokenReader.pos;
     }
+
+    tokenReader.readWhiteSpaces();
 
     return variables;
   }
