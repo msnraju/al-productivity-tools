@@ -6,17 +6,25 @@ export class DataItemWriter {
   static write(dataItem: IDataItem, indentation: number): string {
     return new StringBuilder()
       .write(dataItem.header, indentation)
-      .write(dataItem.comments, indentation)
+      .append(dataItem.comments, indentation)
       .write("{", indentation)
-      .write(dataItem.properties, indentation + 4)
+      .write(this.writeBody(dataItem, indentation + 4))
+      .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(dataItem: IDataItem, indentation: number): string {
+    return new StringBuilder()
+      .write(dataItem.properties, indentation)
+      .emptyLine()
       .writeEach(dataItem.dataItems, (dataItem) =>
-        DataItemWriter.write(dataItem, indentation + 4)
+        DataItemWriter.write(dataItem, indentation)
       )
+      .emptyLine()
       .writeEach(dataItem.triggers, (trigger) =>
-        ProcedureWriter.write(trigger, indentation + 4)
+        ProcedureWriter.write(trigger, indentation)
       )
       .popEmpty()
-      .write("}", indentation)
       .toString();
   }
 }

@@ -6,14 +6,21 @@ export class FieldWriter {
   static write(field: IField, indentation: number): string {
     return new StringBuilder()
       .write(field.header, indentation)
-      .write(field.comments, indentation)
+      .append(field.comments, indentation)
       .write("{", indentation)
-      .write(field.properties, indentation + 4)
+      .write(this.writeBody(field, indentation + 4))
+      .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(field: IField, indentation: number): string {
+    return new StringBuilder()
+      .write(field.properties, indentation)
+      .emptyLine()
       .writeEach(field.triggers, (trigger) =>
-        ProcedureWriter.write(trigger, indentation + 4)
+        ProcedureWriter.write(trigger, indentation)
       )
       .popEmpty()
-      .write("}", indentation)
       .toString();
   }
 }

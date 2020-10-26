@@ -1,4 +1,4 @@
-import { IControl } from "./IControl";
+import IControl from "./IControl";
 import { ILayout } from "./ILayout";
 
 export default class Layout implements ILayout {

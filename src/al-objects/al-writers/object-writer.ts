@@ -9,16 +9,25 @@ import { ViewContainerWriter } from "./view-container-writer";
 import { VariableContainerWriter } from "./variable-container-writer";
 import { SchemaWriter } from "./schema-writer";
 import { ISegment } from "../models/ISegment";
-import { IVariable } from "../models/IVariable";
-import StringBuilder from "../models/string-builder";
 import { ProcedureWriter } from "./procedure-writer";
+import StringBuilder from "../models/string-builder";
 
 export class ObjectWriter {
   static write(context: IObjectContext): string {
-    const indentation = 4;
     return new StringBuilder()
       .write(context.header)
+      .write(this.writeBody(context, 4))
+      .write("}")
+      .toString();
+  }
+
+  private static writeBody(
+    context: IObjectContext,
+    indentation: number
+  ): string {
+    return new StringBuilder()
       .write(context.properties, indentation)
+      .emptyLine()
       .writeIfDefined(context.fields, (field) =>
         FieldsContainerWriter.write(field, indentation)
       )
@@ -63,7 +72,7 @@ export class ObjectWriter {
   private static writeSegments(
     segments: Array<ISegment>,
     indentation: number
-  ): string[] {
+  ): string {
     const segmentNames = [
       "keys",
       "fieldgroups",
@@ -75,24 +84,16 @@ export class ObjectWriter {
       "value",
     ];
 
-    const lines: string[] = [];
+    if (!segments || segments.length == 0) return "";
+    segments = _.sortBy(segments, (seg) => segmentNames.indexOf(seg.name));
 
-    if (!segments || segments.length == 0) return lines;
-
-    const pad = Helper.pad(indentation);
-    segmentNames.forEach((name) => {
-      const segments2 = _.filter(segments, (segment) => segment.name === name);
-
-      if (segments2.length > 0) {
-        segments2.forEach((segment) => {
-          const segmentBody = Helper.tokensToString(segment.tokens, {});
-          lines.push(`${pad}${segmentBody}`);
-        });
-
-        lines.push("");
-      }
+    const writer = new StringBuilder();
+    segments.forEach((segment) => {
+      writer.write(Helper.tokensToString(segment.tokens, {}), indentation);
+      writer.emptyLine();
     });
 
-    return lines;
+    writer.popEmpty();
+    return writer.toString();
   }
 }

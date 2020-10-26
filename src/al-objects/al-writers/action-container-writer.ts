@@ -8,11 +8,21 @@ export class ActionContainerWriter {
       .write("actions", indentation)
       .write(container.preBodyComments, indentation)
       .write("{", indentation)
-      .write(container.comments, indentation + 4)
-      .writeEach(container.actions, (action) =>
-        ActionWriter.write(action, indentation + 4)
-      )
+      .write(this.writeBody(container, indentation + 4))
       .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(
+    container: IActionContainer,
+    indentation: number
+  ): string {
+    return new StringBuilder()
+      .write(container.comments, indentation)
+      .writeEach(container.actions, (action) =>
+        ActionWriter.write(action, indentation)
+      )
+      .popEmpty()
       .toString();
   }
 }

@@ -1,7 +1,7 @@
 import { ITokenReader } from "../models/ITokenReader";
 import { Keywords } from "../keywords";
 import { ILayout } from "../models/ILayout";
-import { ControlReader } from "./control-reader";
+import ControlReader from "./control-reader";
 import Layout from "../models/Layout";
 
 export class LayoutReader {
@@ -9,12 +9,12 @@ export class LayoutReader {
     const layout = new Layout();
     this.readLabel(tokenReader);
     layout.postLabelComments = tokenReader.readComments();
-    this.readLayoutBody(tokenReader, layout);
+    this.readBody(tokenReader, layout);
 
     return layout;
   }
 
-  private static readLayoutBody(tokenReader: ITokenReader, layout: ILayout) {
+  private static readBody(tokenReader: ITokenReader, layout: ILayout) {
     tokenReader.test("{", "Syntax error at layout body, '{' expected.");
 
     layout.comments = tokenReader.readComments();
@@ -30,7 +30,7 @@ export class LayoutReader {
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    tokenReader.test("},", "Syntax error at layout body, '}' expected.");
+    tokenReader.test("}", "Syntax error at layout body, '}' expected.");
   }
 
   private static readLabel(tokenReader: ITokenReader) {

@@ -8,11 +8,18 @@ export class DataSetWriter {
       .write("dataset", indentation)
       .write(dataset.postLabelComments, indentation)
       .write("{", indentation)
-      .write(dataset.comments, indentation + 4)
-      .writeEach(dataset.dataItems, (dataItem) =>
-        DataItemWriter.write(dataItem, indentation + 4)
-      )
+      .write(this.writeBody(dataset, indentation + 4))
       .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(dataset: IDataSet, indentation: number): string {
+    return new StringBuilder()
+      .write(dataset.comments, indentation)
+      .writeEach(dataset.dataItems, (dataItem) =>
+        DataItemWriter.write(dataItem, indentation)
+      )
+      .popEmpty()
       .toString();
   }
 }

@@ -35,7 +35,8 @@ export default class TokenReader implements ITokenReader {
   }
 
   test(value: string, errMsg: string) {
-    if (this.tokenValue() !== value) {
+    const tokenValue = this.tokenValue();
+    if (tokenValue !== value) {
       throw new Error(errMsg);
     }
 

@@ -26,37 +26,65 @@ export class ProcedureWriter {
       return "";
     }
 
-    const pad2 = Helper.pad(indentation + 4);
+    const access = this.getAccess(header);
+    const name = this.getName(header);
+    const parameters = this.getParameters(header, indentation + 4);
+    const returns = this.getReturns(header);
 
-    let access = "";
-    if (header.local) {
-      access = "local ";
-    } else if (header.internal) {
-      access = "internal ";
+    const pad = Helper.pad(indentation);
+    const procDeclaration = `${pad}${access}${header.type} ${name}(${parameters.s})${returns}`;
+    if (procDeclaration.length > 145) {
+      return `${pad}${access}${header.type} ${name}(${parameters.m})${returns}`;
+    } else {
+      return procDeclaration;
+    }
+  }
+
+  private static getName(header: IProcedureDeclaration) {
+    if (header.event) {
+      return `${header.variable}::${header.name}`;
     }
 
-    let name = "";
-    if (header.event) name = `${header.variable}::${header.name}`;
-    else name = header.name;
+    return header.name;
+  }
 
+  private static getAccess(header: IProcedureDeclaration) {
+    if (header.local) {
+      return "local ";
+    } else if (header.internal) {
+      return "internal ";
+    }
+
+    return "";
+  }
+
+  private static getReturns(header: IProcedureDeclaration) {
+    if (!header.returnType) {
+      return "";
+    }
+
+    if (header.returnType.name) {
+      return ` ${header.returnType.value.trim()}`;
+    } else {
+      return header.returnType.value.trim();
+    }
+  }
+
+  private static getParameters(
+    header: IProcedureDeclaration,
+    indentation: number
+  ): { s: string; m: string } {
     const paramsBuffer: string[] = [];
+
     header.parameters.forEach((param) => {
       paramsBuffer.push(param.value);
     });
+
     let parameters = paramsBuffer.join(" ");
 
-    if (parameters.length > 80) {
-      parameters = `\r\n${pad2}${paramsBuffer.join(`\r\n${pad2}`)}`;
-    }
-
-    let returns = "";
-    if (header.returnType) {
-      if (header.returnType.name)
-        returns = ` ${header.returnType.value.trim()}`;
-      else returns = header.returnType.value.trim();
-    }
-
     const pad = Helper.pad(indentation);
-    return `${pad}${access}${header.type} ${header.name}(${parameters})${returns}`;
+    const multiLineParams = `\r\n${pad}${paramsBuffer.join(`\r\n${pad}`)}`;
+
+    return { s: parameters, m: multiLineParams };
   }
 }

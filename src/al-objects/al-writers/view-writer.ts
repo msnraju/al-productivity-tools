@@ -5,7 +5,7 @@ export class ViewWriter {
   static write(view: IView, indentation: number): string {
     return new StringBuilder()
       .write(view.header, indentation)
-      .write(view.comments, indentation)
+      .append(view.comments, indentation)
       .write("{", indentation)
       .write(view.properties, indentation + 4)
       .popEmpty()

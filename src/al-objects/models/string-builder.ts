@@ -21,9 +21,21 @@ export default class StringBuilder {
     callbackfn: (item: T) => string | string[]
   ): StringBuilder {
     if (item) {
-      this.write(callbackfn(item));
+      const content = callbackfn(item);
+      if (content) {
+        this.write(content);
+      }
     }
 
+    return this;
+  }
+
+  append(lines: string[] | string, indentation: number = 0): StringBuilder {
+    if (lines.length !== 1 || this.buffer.length == 0) {
+      return this.write(lines, indentation);
+    }
+
+    this.buffer[this.buffer.length - 1] += " " + lines[0];
     return this;
   }
 
@@ -32,7 +44,7 @@ export default class StringBuilder {
     if (isArray(lines)) {
       const newLines: string[] = lines;
       newLines.forEach((newLine) => this.buffer.push(`${pad}${newLine}`));
-    } else {
+    } else if (lines) {
       this.buffer.push(`${pad}${lines}`);
     }
 
@@ -40,16 +52,28 @@ export default class StringBuilder {
   }
 
   emptyLine(): StringBuilder {
-    if (this.buffer[this.buffer.length - 1] !== "") {
+    if (this.buffer.length === 0) {
+      return this;
+    }
+
+    let line = this.buffer[this.buffer.length - 1];
+    if (line !== "" && !line.endsWith("\r\n")) {
       this.buffer.push("");
     }
-    
+
     return this;
   }
 
   popEmpty(): StringBuilder {
-    if (this.buffer[this.buffer.length - 1] === "") {
+    let line = this.buffer[this.buffer.length - 1];
+    while (line === "" || line.endsWith("\r\n")) {
       this.buffer.pop();
+      if (line.endsWith("\r\n")) {
+        line = line.substring(0, line.length - 2);
+        this.buffer.push(line);
+      }
+
+      line = this.buffer[this.buffer.length - 1];
     }
 
     return this;

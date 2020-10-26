@@ -2,7 +2,7 @@ import { ISegment } from "./ISegment";
 import { IProcedure } from "./IProcedure";
 import { IActionContainer } from "./IActionContainer";
 
-export interface IControl {
+export default interface IControl {
   container?: IActionContainer;
   controls: Array<IControl>;
   comments: string[];

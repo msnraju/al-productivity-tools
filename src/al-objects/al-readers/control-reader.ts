@@ -5,10 +5,10 @@ import { ProcedureReader } from "./procedure-reader";
 import { PropertyReader } from "./property-reader";
 import { ActionContainerReader } from "./action-container-reader";
 import { Keywords } from "../keywords";
-import { IControl } from "../models/IControl";
+import IControl from "../models/IControl";
 import Control from "../dto/control";
 
-export class ControlReader {
+export default class ControlReader {
   static read(tokenReader: ITokenReader): IControl {
     const control: IControl = new Control();
 

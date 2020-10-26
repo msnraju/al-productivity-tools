@@ -8,12 +8,19 @@ export class ViewContainerWriter {
       .write("views", indentation)
       .write(container.postLabelComments, indentation)
       .write("{", indentation)
-      .write(container.comments, indentation + 4)
-      .writeEach(container.views, (view) =>
-        ViewWriter.write(view, indentation + 4)
-      )
-      .popEmpty()
+      .write(this.writeBody(container, indentation + 4))
       .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(
+    container: IViewContainer,
+    indentation: number
+  ): string {
+    return new StringBuilder()
+      .write(container.comments, indentation)
+      .writeEach(container.views, (view) => ViewWriter.write(view, indentation))
+      .popEmpty()
       .toString();
   }
 }

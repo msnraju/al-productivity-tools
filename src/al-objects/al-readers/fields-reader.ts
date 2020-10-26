@@ -7,14 +7,14 @@ export class FieldsReader {
   static read(tokenReader: ITokenReader): IFieldsContainer {
     const container: IFieldsContainer = new FieldsContainer();
 
-    this.readFieldsDeclaration(tokenReader);
+    this.readDeclaration(tokenReader);
     container.postLabelComments = tokenReader.readComments();
-    this.readFieldsBody(tokenReader, container);
+    this.readBody(tokenReader, container);
 
     return container;
   }
 
-  private static readFieldsBody(
+  private static readBody(
     tokenReader: ITokenReader,
     container: IFieldsContainer
   ) {
@@ -32,7 +32,7 @@ export class FieldsReader {
     tokenReader.test("}", "Syntax error at Fields declaration, '}' expected.");
   }
 
-  private static readFieldsDeclaration(tokenReader: ITokenReader) {
+  private static readDeclaration(tokenReader: ITokenReader) {
     let name = tokenReader.tokenValue().toLowerCase();
     if (name !== "fields") {
       throw new Error(`Invalid fields label '${name}'.`);

@@ -8,11 +8,18 @@ export class LayoutWriter {
       .write("layout", indentation)
       .write(layout.postLabelComments, indentation)
       .write("{", indentation)
-      .write(layout.comments, indentation + 4)
-      .writeEach(layout.controls, (control) =>
-        ControlWriter.write(control, indentation + 4)
-      )
+      .write(this.writeBody(layout, indentation + 4))
       .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(layout: ILayout, indentation: number): string {
+    return new StringBuilder()
+      .write(layout.comments, indentation)
+      .writeEach(layout.controls, (control) =>
+        ControlWriter.write(control, indentation)
+      )
+      .popEmpty()
       .toString();
   }
 }

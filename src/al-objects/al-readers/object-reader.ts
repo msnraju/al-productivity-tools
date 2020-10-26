@@ -74,7 +74,7 @@ export class ObjectReader {
           appObject.schema = SchemaReader.read(tokenReader);
           break;
         // Table
-        case "keys":
+        case "keys": // TODO:: to be implemented
         case "fieldgroups":
         // Report
         case "requestpage":

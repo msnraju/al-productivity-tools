@@ -8,11 +8,16 @@ export class SchemaWriter {
       .write("schema", indentation)
       .write(schema.postLabelComments, indentation)
       .write("{", indentation)
-      .write(schema.comments, indentation + 4)
-      .writeEach(schema.nodes, (node) =>
-        NodeWriter.write(node, indentation + 4)
-      )
+      .write(this.writeBody(schema, indentation + 4))
       .write("}", indentation)
+      .toString();
+  }
+
+  private static writeBody(schema: ISchema, indentation: number): string {
+    return new StringBuilder()
+      .write(schema.comments, indentation)
+      .writeEach(schema.nodes, (node) => NodeWriter.write(node, indentation))
+      .popEmpty()
       .toString();
   }
 }
