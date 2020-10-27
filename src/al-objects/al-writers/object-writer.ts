@@ -1,16 +1,16 @@
 import _ = require("lodash");
-import { Helper } from "../helper";
-import { ActionContainerWriter } from "./action-container-writer";
-import { DataSetWriter } from "./dataset-writer";
+import StringHelper from "../string-helper";
+import ActionContainerWriter from "./action-container-writer";
+import DataSetWriter from "./dataset-writer";
 import FieldsContainerWriter from "./fields-container-writer";
 import KeysContainerWriter from "./keys-container-writer";
-import { LayoutWriter } from "./layout-writer";
-import { IObjectContext } from "../models/IObjectContext";
-import { ViewContainerWriter } from "./view-container-writer";
-import { VariableContainerWriter } from "./variable-container-writer";
-import { SchemaWriter } from "./schema-writer";
-import { ISegment } from "../models/ISegment";
-import { ProcedureWriter } from "./procedure-writer";
+import LayoutWriter from "./layout-writer";
+import IObjectContext from "../models/IObjectContext";
+import ViewContainerWriter from "./view-container-writer";
+import VariableContainerWriter from "./variable-container-writer";
+import SchemaWriter from "./schema-writer";
+import ISegment from "../models/ISegment";
+import ProcedureWriter from "./procedure-writer";
 import StringBuilder from "../models/string-builder";
 import FieldGroupContainerWriter from "./field-group-container-writer";
 
@@ -99,7 +99,7 @@ export default class ObjectWriter {
 
     const writer = new StringBuilder();
     segments.forEach((segment) => {
-      writer.write(Helper.tokensToString(segment.tokens, {}), indentation);
+      writer.write(StringHelper.tokensToString(segment.tokens, {}), indentation);
       writer.emptyLine();
     });
 

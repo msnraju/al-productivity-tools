@@ -1,6 +1,6 @@
-import { IProcedure } from "../models/IProcedure";
-import { ISegment } from "../models/ISegment";
-import { IDataItem } from "../models/IDataItem";
+import IProcedure from "../models/IProcedure";
+import ISegment from "../models/ISegment";
+import IDataItem from "../models/IDataItem";
 
 export default class DataItem implements IDataItem {
   dataItems: IDataItem[];

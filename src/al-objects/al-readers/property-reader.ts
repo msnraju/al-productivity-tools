@@ -1,9 +1,9 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { Keywords } from "../keywords";
+import PROPERTY_KEYWORDS from "../maps/property-keywords";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
 
-export class PropertyReader {
+export default class PropertyReader {
   static read(tokenReader: ITokenReader): string {
     const name = this.readPropertyName(tokenReader);
     this.readEquals(tokenReader);
@@ -25,7 +25,7 @@ export class PropertyReader {
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
 
-    return Helper.tokensToString(tokens, Keywords.Properties);
+    return StringHelper.tokensToString(tokens, PROPERTY_KEYWORDS);
   }
 
   private static readEquals(tokenReader: ITokenReader) {

@@ -1,8 +1,8 @@
-import { IActionContainer } from "../models/IActionContainer";
+import IActionContainer from "../models/IActionContainer";
 import StringBuilder from "../models/string-builder";
-import { ActionWriter } from "./action-writer";
+import ActionWriter from "./action-writer";
 
-export class ActionContainerWriter {
+export default class ActionContainerWriter {
   static write(container: IActionContainer, indentation: number): string {
     return new StringBuilder()
       .write("actions", indentation)

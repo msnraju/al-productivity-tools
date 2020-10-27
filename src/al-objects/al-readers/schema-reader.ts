@@ -1,14 +1,14 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { Keywords } from "../keywords";
-import { ISchema } from "../models/ISchema";
-import { NodeReader } from "./node-reader";
+import { EXTENSION_KEYWORDS, XMLPORT_NODE_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import ISchema from "../models/ISchema";
+import NodeReader from "./node-reader";
 import Schema from "../dto/schema";
 
-export class SchemaReader {
+export default class SchemaReader {
   static read(tokenReader: ITokenReader): ISchema {
     const schema: ISchema = new Schema();
 
-    this.readLabel(tokenReader);
+    this.getLabel(tokenReader);
     schema.postLabelComments = tokenReader.readComments();
     this.readBody(tokenReader, schema);
 
@@ -22,8 +22,8 @@ export class SchemaReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (
-      Keywords.XmlPortNodeTypes.indexOf(value) !== -1 ||
-      Keywords.ExtensionKeywords.indexOf(value) !== -1
+      XMLPORT_NODE_TYPES.indexOf(value) !== -1 ||
+      EXTENSION_KEYWORDS.indexOf(value) !== -1
     ) {
       const node = NodeReader.read(tokenReader);
       schema.nodes.push(node);
@@ -33,7 +33,7 @@ export class SchemaReader {
     tokenReader.test("}", "Syntax error at schema body, '}' expected.");
   }
 
-  private static readLabel(tokenReader: ITokenReader) {
+  private static getLabel(tokenReader: ITokenReader) {
     let label = tokenReader.tokenValue().toLowerCase();
     if (label !== "schema") {
       throw new Error(`Invalid schema type '${label}'.`);

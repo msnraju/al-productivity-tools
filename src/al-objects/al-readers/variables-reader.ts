@@ -1,10 +1,9 @@
-import { Keywords } from "../keywords";
-import { ITokenReader } from "../models/ITokenReader";
-import { IVariable } from "../models/IVariable";
+import ITokenReader from "../models/ITokenReader";
+import IVariable from "../models/IVariable";
 import AttributeReader from "./attribute-reader";
-import { VariableReader } from "./variable-reader";
+import VariableReader from "./variable-reader";
 
-export class VariablesReader {
+export default class VariablesReader {
   static read(tokenReader: ITokenReader): IVariable[] {
     if (!this.hasVariables(tokenReader)) {
       return [];
@@ -37,7 +36,7 @@ export class VariablesReader {
       }
 
       // Attributes
-      const attribute = AttributeReader.read(tokenReader, Keywords.Variables);
+      const attribute = AttributeReader.read(tokenReader);
       if (attribute.length > 0) {
         preBuffer.push(attribute);
         continue;

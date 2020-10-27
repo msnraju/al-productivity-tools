@@ -1,5 +1,5 @@
-import { IVariable } from "./IVariable";
+import IVariable from "./IVariable";
 
-export interface IParameter extends IVariable {
+export default interface IParameter extends IVariable {
   ref: boolean;
 }

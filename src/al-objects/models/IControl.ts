@@ -1,6 +1,6 @@
-import { ISegment } from "./ISegment";
-import { IProcedure } from "./IProcedure";
-import { IActionContainer } from "./IActionContainer";
+import ISegment from "./ISegment";
+import IProcedure from "./IProcedure";
+import IActionContainer from "./IActionContainer";
 
 export default interface IControl {
   container?: IActionContainer;

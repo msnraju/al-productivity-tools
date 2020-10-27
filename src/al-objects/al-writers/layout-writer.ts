@@ -1,8 +1,8 @@
-import { ILayout } from "../models/ILayout";
+import ILayout from "../models/ILayout";
 import StringBuilder from "../models/string-builder";
-import { ControlWriter } from "./control-writer";
+import ControlWriter from "./control-writer";
 
-export class LayoutWriter {
+export default class LayoutWriter {
   static write(layout: ILayout, indentation: number): string {
     return new StringBuilder()
       .write("layout", indentation)

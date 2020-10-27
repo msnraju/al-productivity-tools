@@ -1,12 +1,11 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { PropertyReader } from "./property-reader";
-import { Keywords } from "../keywords";
-import { IView } from "../models/IView";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import PropertyReader from "./property-reader";
+import IView from "../models/IView";
 import View from "../dto/view";
 
-export class ViewReader {
+export default class ViewReader {
   static read(tokenReader: ITokenReader): IView {
     const view: IView = new View();
 
@@ -36,7 +35,7 @@ export class ViewReader {
   }
 
   private static readHeader(tokenReader: ITokenReader, view: IView): string {
-    const name = this.getViewName(tokenReader);
+    const name = this.getLabel(tokenReader);
     tokenReader.test("(", "Syntax error at view declaration, '(' expected.");
 
     const tokens: IToken[] = [];
@@ -47,12 +46,12 @@ export class ViewReader {
     }
 
     tokenReader.test(")", "Syntax error at view declaration, ')' expected.");
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
-  private static getViewName(tokenReader: ITokenReader) {
+  private static getLabel(tokenReader: ITokenReader) {
     const name = tokenReader.tokenValue().toLowerCase();
-    if (Keywords.PageViewTypes.indexOf(name) === -1) {
+    if (name !== "view") {
       throw Error("Invalid view position");
     }
 

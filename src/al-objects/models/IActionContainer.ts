@@ -1,6 +1,6 @@
-import { IAction } from "./IAction";
+import IAction from "./IAction";
 
-export interface IActionContainer {
+export default interface IActionContainer {
   actions: IAction[];
   preBodyComments: string[];
   comments: string[];

@@ -1,14 +1,13 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { Keywords } from "../keywords";
-import { IViewContainer } from "../models/IViewContainer";
-import { ViewReader } from "./view-reader";
+import ITokenReader from "../models/ITokenReader";
+import IViewContainer from "../models/IViewContainer";
+import ViewReader from "./view-reader";
 import ViewContainer from "../dto/view-container";
 
-export class ViewContainerReader {
+export default class ViewContainerReader {
   static read(tokenReader: ITokenReader): IViewContainer {
     const container: IViewContainer = new ViewContainer();
 
-    this.readLabel(tokenReader);
+    this.getLabel(tokenReader);
     container.postLabelComments = tokenReader.readComments();
     this.readBody(tokenReader, container);
 
@@ -24,7 +23,7 @@ export class ViewContainerReader {
     container.comments = tokenReader.readComments();
 
     let value = tokenReader.peekTokenValue().toLowerCase();
-    while (Keywords.PageViewTypes.indexOf(value) !== -1) {
+    while (value === "view") {
       container.views.push(ViewReader.read(tokenReader));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
@@ -32,7 +31,7 @@ export class ViewContainerReader {
     tokenReader.test("}", `Syntax error at views body, '}' expected.`);
   }
 
-  private static readLabel(tokenReader: ITokenReader) {
+  private static getLabel(tokenReader: ITokenReader) {
     let label = tokenReader.tokenValue();
     if (label.toLowerCase() !== "views") {
       throw new Error(`Invalid view container type '${label}'.`);

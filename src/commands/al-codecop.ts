@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { ALFormatter } from "../al-objects/al-formatter";
-import { ObjectFormatter } from "../al-objects/object-formatter";
+import ALFormatter from "../al-objects/al-formatter";
+import ObjectFormatter from "../al-objects/object-formatter";
 
 export default class ALCodeCop {
   static fixALCodeCopIssues() {

@@ -1,5 +1,5 @@
-import { IFieldsContainer } from "../models/IFieldsContainer";
-import { FieldWriter } from "./field-writer";
+import IFieldsContainer from "../models/IFieldsContainer";
+import FieldWriter from "./field-writer";
 import StringBuilder from "../models/string-builder";
 
 export default class FieldsContainerWriter {

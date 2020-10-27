@@ -1,10 +1,10 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { Keywords } from "../keywords";
-import { ILayout } from "../models/ILayout";
+import { EXTENSION_KEYWORDS, PAGE_CONTROL_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import ILayout from "../models/ILayout";
 import ControlReader from "./control-reader";
-import Layout from "../models/Layout";
+import Layout from "../dto/layout";
 
-export class LayoutReader {
+export default class LayoutReader {
   static read(tokenReader: ITokenReader): ILayout {
     const layout = new Layout();
     this.readLabel(tokenReader);
@@ -22,11 +22,10 @@ export class LayoutReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (
-      Keywords.PageControlTypes.indexOf(value) !== -1 ||
-      Keywords.ExtensionKeywords.indexOf(value) !== -1
+      PAGE_CONTROL_TYPES.indexOf(value) !== -1 ||
+      EXTENSION_KEYWORDS.indexOf(value) !== -1
     ) {
-      const control = ControlReader.read(tokenReader);
-      layout.controls.push(control);
+      layout.controls.push(ControlReader.read(tokenReader));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 

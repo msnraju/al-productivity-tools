@@ -1,6 +1,6 @@
-import { IToken } from "../tokenizer";
+import IToken from "./IToken";
 
-export interface ISegment {
+export default interface ISegment {
   name: string;
   tokens: IToken[];
 }

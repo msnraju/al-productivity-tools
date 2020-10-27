@@ -1,5 +1,5 @@
-import { IField } from "../models/IField";
-import { IFieldsContainer } from "../models/IFieldsContainer";
+import IField from "../models/IField";
+import IFieldsContainer from "../models/IFieldsContainer";
 
 export default class FieldsContainer implements IFieldsContainer {
   fields: IField[];

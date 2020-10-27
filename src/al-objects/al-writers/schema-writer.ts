@@ -1,8 +1,8 @@
-import { ISchema } from "../models/ISchema";
+import ISchema from "../models/ISchema";
 import StringBuilder from "../models/string-builder";
-import { NodeWriter } from "./node-writer";
+import NodeWriter from "./node-writer";
 
-export class SchemaWriter {
+export default class SchemaWriter {
   static write(schema: ISchema, indentation: number): string {
     return new StringBuilder()
       .write("schema", indentation)

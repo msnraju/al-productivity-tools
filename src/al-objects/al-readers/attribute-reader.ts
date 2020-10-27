@@ -1,9 +1,10 @@
-import { Helper } from "../helper";
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
+import StringHelper from "../string-helper";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import VARIABLE_KEYWORDS from "../maps/variable-keywords";
 
 export default class AttributeReader {
-  static read(tokenReader: ITokenReader, keywords: any): string {
+  static read(tokenReader: ITokenReader): string {
     const tokens: IToken[] = [];
 
     let value = tokenReader.peekTokenValue();
@@ -23,6 +24,6 @@ export default class AttributeReader {
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
 
-    return Helper.tokensToString(tokens, keywords);
+    return StringHelper.tokensToString(tokens, VARIABLE_KEYWORDS);
   }
 }

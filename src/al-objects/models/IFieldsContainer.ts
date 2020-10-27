@@ -1,6 +1,6 @@
-import { IField } from "./IField";
+import IField from "./IField";
 
-export interface IFieldsContainer {
+export default interface IFieldsContainer {
   fields: IField[];
   postLabelComments: string[];
   comments: string[];

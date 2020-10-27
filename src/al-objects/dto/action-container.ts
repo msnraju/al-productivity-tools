@@ -1,5 +1,5 @@
-import { IAction } from "../models/IAction";
-import { IActionContainer } from "../models/IActionContainer";
+import IAction from "../models/IAction";
+import IActionContainer from "../models/IActionContainer";
 
 export default class ActionContainer implements IActionContainer {
   actions: IAction[];

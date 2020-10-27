@@ -1,8 +1,8 @@
-import { INode } from "../models/INode";
+import INode from "../models/INode";
 import StringBuilder from "../models/string-builder";
-import { ProcedureWriter } from "./procedure-writer";
+import ProcedureWriter from "./procedure-writer";
 
-export class NodeWriter {
+export default class NodeWriter {
   static write(node: INode, indentation: number): string {
     return new StringBuilder()
       .write(node.header, indentation)

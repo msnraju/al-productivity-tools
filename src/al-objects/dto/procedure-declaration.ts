@@ -1,6 +1,6 @@
-import { IVariable } from "../models/IVariable";
-import { IParameter } from "../models/IParameter";
-import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
+import IVariable from "../models/IVariable";
+import IParameter from "../models/IParameter";
+import IProcedureDeclaration from "../models/IProcedureDeclaration";
 
 export default class ProcedureDeclaration implements IProcedureDeclaration {
   local: boolean;

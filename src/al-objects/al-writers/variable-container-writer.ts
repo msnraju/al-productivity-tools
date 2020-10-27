@@ -1,9 +1,9 @@
 import _ = require("lodash");
-import { IVariable } from "../models/IVariable";
+import IVariable from "../models/IVariable";
 import StringBuilder from "../models/string-builder";
 import VariableWriter from "./variable-writer";
 
-export class VariableContainerWriter {
+export default class VariableContainerWriter {
   static write(variables: Array<IVariable>, indentation: number): string {
     if (!variables || variables.length === 0) return "";
 

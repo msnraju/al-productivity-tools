@@ -1,6 +1,6 @@
-import { IVariable } from "../models/IVariable";
-import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
-import { IProcedure } from "../models/IProcedure";
+import IVariable from "../models/IVariable";
+import IProcedureDeclaration from "../models/IProcedureDeclaration";
+import IProcedure from "../models/IProcedure";
 
 export default class Procedure implements IProcedure {
   preFunctionComments: string[];

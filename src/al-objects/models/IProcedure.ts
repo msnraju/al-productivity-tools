@@ -1,7 +1,7 @@
-import { IVariable } from "./IVariable";
-import { IProcedureDeclaration } from "./IProcedureDeclaration";
+import IVariable from "./IVariable";
+import IProcedureDeclaration from "./IProcedureDeclaration";
 
-export interface IProcedure {
+export default interface IProcedure {
   preFunctionComments: string[];
   preFunction: string[];
   header: IProcedureDeclaration | null;

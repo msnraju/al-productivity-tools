@@ -1,6 +1,6 @@
-import { IToken } from "../tokenizer";
+import IToken from "./IToken";
 
-export interface ITokenReader {
+export default interface ITokenReader {
   tokens: IToken[];
   pos: number;
 

@@ -3,7 +3,6 @@ import * as fs from "fs";
 import * as path from "path";
 import ALFileNameHelper from "./al-file-name-helper";
 import simpleGit from "simple-git";
-import { exit } from "process";
 import { v4 as uuidv4 } from "uuid";
 
 export default class ALFileNameCommands {
@@ -100,7 +99,9 @@ export default class ALFileNameCommands {
     gitPath: string,
     openNewFile: ((newFile: string) => void) | undefined = undefined
   ) {
-    if (oldFile === newFile) exit;
+    if (oldFile === newFile) {
+      return;
+    }
 
     if (git)
       simpleGit(gitPath).mv(oldFile, newFile, () => {

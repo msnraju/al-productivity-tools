@@ -1,6 +1,6 @@
-import { ISegment } from "./ISegment";
+import ISegment from "./ISegment";
 
-export interface IView {
+export default interface IView {
   comments: string[];
   header: string;
   segments: Array<ISegment>;

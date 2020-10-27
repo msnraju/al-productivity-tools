@@ -1,5 +1,5 @@
-import { ITokenReader } from "./models/ITokenReader";
-import { IToken } from "./tokenizer";
+import ITokenReader from "./models/ITokenReader";
+import IToken from "./models/IToken";
 
 export default class TokenReader implements ITokenReader {
   tokens: IToken[];

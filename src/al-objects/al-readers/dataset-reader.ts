@@ -1,10 +1,10 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { Keywords } from "../keywords";
-import { IDataSet } from "../models/IDataSet";
-import { DataItemReader } from "./data-item-reader";
+import { REPORT_DATAITEM_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import IDataSet from "../models/IDataSet";
+import DataItemReader from "./data-item-reader";
 import DataSet from "../dto/data-set";
 
-export class DataSetReader {
+export default class DataSetReader {
   static read(tokenReader: ITokenReader): IDataSet {
     const dataSet: IDataSet = new DataSet();
     this.readHeader(tokenReader);
@@ -23,7 +23,7 @@ export class DataSetReader {
     dataSet.comments = tokenReader.readComments();
 
     let value = tokenReader.peekTokenValue().toLowerCase();
-    while (Keywords.ReportDataItemTypes.indexOf(value) !== -1) {
+    while (REPORT_DATAITEM_TYPES.indexOf(value) !== -1) {
       dataSet.dataItems.push(DataItemReader.read(tokenReader));
       value = tokenReader.peekTokenValue().toLowerCase();
     }

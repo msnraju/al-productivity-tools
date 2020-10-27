@@ -1,7 +1,7 @@
-import { ISegment } from "./ISegment";
-import { IProcedure } from "./IProcedure";
+import ISegment from "./ISegment";
+import IProcedure from "./IProcedure";
 
-export interface INode {
+export default interface INode {
   nodes: Array<INode>;
   comments: string[];
   header: string;

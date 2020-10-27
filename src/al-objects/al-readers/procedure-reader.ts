@@ -1,17 +1,18 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { Keywords } from "../keywords";
-import { IVariable } from "../models/IVariable";
-import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
-import { IAttributeType } from "../models/IAttributeType";
-import { IProcedure } from "../models/IProcedure";
-import { VariablesReader } from "./variables-reader";
-import { ProcedureDeclarationReader } from "./procedure-declaration-reader";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import IVariable from "../models/IVariable";
+import IProcedureDeclaration from "../models/IProcedureDeclaration";
+import IAttributeType from "../models/IAttributeType";
+import IProcedure from "../models/IProcedure";
+import VariablesReader from "./variables-reader";
+import ProcedureDeclarationReader from "./procedure-declaration-reader";
 import Procedure from "../dto/procedure";
 import AttributeReader from "./attribute-reader";
+import SYMBOLS from "../maps/symbols-map";
+import VARIABLE_KEYWORDS from "../maps/variable-keywords";
 
-export class ProcedureReader {
+export default class ProcedureReader {
   static read(tokenReader: ITokenReader, comments: string[]): IProcedure {
     const procedure = new Procedure(comments);
 
@@ -83,7 +84,7 @@ export class ProcedureReader {
     tokens.push(tokenReader.token());
 
     tokenReader.readWhiteSpaces();
-    return Helper.tokensToString(tokens, Keywords.Symbols);
+    return StringHelper.tokensToString(tokens, SYMBOLS);
   }
 
   private static readAttributesAndComments(
@@ -98,7 +99,7 @@ export class ProcedureReader {
     let token = tokenReader.peekToken();
     while (token.value === "[" || token.type === "comment") {
       if (token.value === "[") {
-        const attribute = AttributeReader.read(tokenReader, Keywords.Variables);
+        const attribute = AttributeReader.read(tokenReader);
         if (attribute.toLowerCase().indexOf("integrationevent") !== -1) {
           attributeType.integrationEvent = true;
         }

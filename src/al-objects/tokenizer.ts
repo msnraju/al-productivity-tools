@@ -1,191 +1,188 @@
-export interface IToken {
-  type: string;
-  value: string;
-  line: number;
-}
+import IToken from "./models/IToken";
 
-let lineNo = 0;
+export default class Tokenizer {
+  private static lineNo: number;
 
-export class Tokenizer {
   static tokenizer(input: string) {
     let current = 0;
+    this.lineNo = 0;
     const tokens: IToken[] = [];
 
     while (current < input.length) {
       let char = input[current];
-      let char2 = current + 1 < input.length ? input[current + 1] : '';
+      let char2 = current + 1 < input.length ? input[current + 1] : "";
 
       // WHITESPACE
       let WHITESPACE = /\s/;
       if (WHITESPACE.test(char)) {
-        let value = '';
+        let value = "";
 
-        while(WHITESPACE.test(char)) {
+        while (WHITESPACE.test(char)) {
           value += char;
           char = input[++current];
         }
 
-        this.pushToken(tokens, 'whitespace', value);
+        this.pushToken(tokens, "whitespace", value);
         continue;
       }
 
       // COMMENTS
-      if (char === '/' && char2 === '/') {
-        let value = '';
-        while (current < input.length && char !== '\n' && char !== '\r') {
+      if (char === "/" && char2 === "/") {
+        let value = "";
+        while (current < input.length && char !== "\n" && char !== "\r") {
           value += char;
           char = input[++current];
         }
 
-        this.pushToken(tokens, 'comment', value);
+        this.pushToken(tokens, "comment", value);
         continue;
       }
 
-      if (char === '<' && char2 === '=') {
-        this.pushToken(tokens, 'lte', '<=');
+      if (char === "<" && char2 === "=") {
+        this.pushToken(tokens, "lte", "<=");
         current += 2;
         continue;
       }
 
-      if (char === '<' && char2 === '>') {
-        this.pushToken(tokens, 'ne', '<>');
+      if (char === "<" && char2 === ">") {
+        this.pushToken(tokens, "ne", "<>");
         current += 2;
         continue;
       }
 
-      if (char === '>' && char2 === '=') {
-        this.pushToken(tokens, 'gte', '>=');
+      if (char === ">" && char2 === "=") {
+        this.pushToken(tokens, "gte", ">=");
         current += 2;
         continue;
       }
 
-      if (char === ':' && char2 === ':') {
-        this.pushToken(tokens, 'enum', '::');
+      if (char === ":" && char2 === ":") {
+        this.pushToken(tokens, "enum", "::");
         current += 2;
         continue;
       }
 
-      if (char === ':' && char2 === '=') {
-        this.pushToken(tokens, 'assign', ':=');
+      if (char === ":" && char2 === "=") {
+        this.pushToken(tokens, "assign", ":=");
         current += 2;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'braces', '{')) {
+      if (this.isToken(tokens, char, "braces", "{")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'braces', '}')) {
+      if (this.isToken(tokens, char, "braces", "}")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'paren', '(')) {
+      if (this.isToken(tokens, char, "paren", "(")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'paren', ')')) {
+      if (this.isToken(tokens, char, "paren", ")")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'bracket', '[')) {
+      if (this.isToken(tokens, char, "bracket", "[")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'bracket', ']')) {
+      if (this.isToken(tokens, char, "bracket", "]")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'colon', ':')) {
+      if (this.isToken(tokens, char, "colon", ":")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'pipe', '|')) {
+      if (this.isToken(tokens, char, "pipe", "|")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'ampersand', '&')) {
+      if (this.isToken(tokens, char, "ampersand", "&")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'period', '.')) {
+      if (this.isToken(tokens, char, "period", ".")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'plus', '+')) {
+      if (this.isToken(tokens, char, "plus", "+")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'minus', '-')) {
+      if (this.isToken(tokens, char, "minus", "-")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'multiply', '*')) {
+      if (this.isToken(tokens, char, "multiply", "*")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'slash', '/')) {
+      if (this.isToken(tokens, char, "slash", "/")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'percent', '%')) {
+      if (this.isToken(tokens, char, "percent", "%")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'equal', '=')) {
+      if (this.isToken(tokens, char, "equal", "=")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'semicolon', ';')) {
+      if (this.isToken(tokens, char, "semicolon", ";")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'coma', ',')) {
+      if (this.isToken(tokens, char, "coma", ",")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'lt', '<')) {
+      if (this.isToken(tokens, char, "lt", "<")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'gt', '>')) {
+      if (this.isToken(tokens, char, "gt", ">")) {
         current++;
         continue;
       }
 
-      if (this.isToken(tokens, char, 'newline', '\n')) {
-        lineNo++;
+      if (this.isToken(tokens, char, "newline", "\n")) {
+        this.lineNo++;
         continue;
       }
 
       let NUMBERS = /[0-9]/;
       if (NUMBERS.test(char)) {
-        let value = '';
+        let value = "";
 
         while (NUMBERS.test(char)) {
           value += char;
           char = input[++current];
         }
 
-        this.pushToken(tokens, 'number', value);
+        this.pushToken(tokens, "number", value);
         continue;
       }
 
@@ -197,19 +194,19 @@ export class Tokenizer {
         while (char !== "'") {
           value += char;
           char = input[++current];
-          char2 = current + 1 < input.length ? input[current + 1] : '';
+          char2 = current + 1 < input.length ? input[current + 1] : "";
 
           while (char === "'" && char2 === "'") {
             value += char + char2;
             current += 1;
             char = input[++current];
-            char2 = current + 1 < input.length ? input[current + 1] : '';
+            char2 = current + 1 < input.length ? input[current + 1] : "";
           }
         }
 
         value += char;
         char = input[++current];
-        this.pushToken(tokens, 'constant', value);
+        this.pushToken(tokens, "constant", value);
         continue;
       }
 
@@ -221,32 +218,32 @@ export class Tokenizer {
         while (char !== '"') {
           value += char;
           char = input[++current];
-          char2 = current + 1 < input.length ? input[current + 1] : '';
+          char2 = current + 1 < input.length ? input[current + 1] : "";
 
           while (char === '"' && char2 === '"') {
             value += char + char2;
             current += 1;
             char = input[++current];
-            char2 = current + 1 < input.length ? input[current + 1] : '';
+            char2 = current + 1 < input.length ? input[current + 1] : "";
           }
         }
 
         value += char;
         char = input[++current];
-        this.pushToken(tokens, 'string', value);
+        this.pushToken(tokens, "string", value);
         continue;
       }
 
       let LETTERS = /[a-z_]/i;
       if (LETTERS.test(char)) {
-        let value = '';
+        let value = "";
         LETTERS = /[a-z_0-9]/i;
         while (LETTERS.test(char)) {
           value += char;
           char = input[++current];
         }
 
-        this.pushToken(tokens, 'name', value);
+        this.pushToken(tokens, "name", value);
         continue;
       }
 
@@ -260,7 +257,7 @@ export class Tokenizer {
     const token = {
       type: type,
       value: value,
-      line: lineNo + 1,
+      line: this.lineNo + 1,
     };
 
     tokens.push(token);
@@ -271,12 +268,17 @@ export class Tokenizer {
     // console.log(token);
   }
 
-  private static isToken(tokens: IToken[], char: string, type: string, value: string): boolean {
+  private static isToken(
+    tokens: IToken[],
+    char: string,
+    type: string,
+    value: string
+  ): boolean {
     if (char === value) {
       const token = {
         type: type,
         value: value,
-        line: lineNo + 1,
+        line: this.lineNo + 1,
       };
 
       tokens.push(token);

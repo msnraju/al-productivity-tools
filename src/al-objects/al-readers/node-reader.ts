@@ -1,13 +1,13 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { ProcedureReader } from "./procedure-reader";
-import { PropertyReader } from "./property-reader";
-import { Keywords } from "../keywords";
-import { INode } from "../models/INode";
+import { EXTENSION_KEYWORDS, XMLPORT_NODE_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import ProcedureReader from "./procedure-reader";
+import PropertyReader from "./property-reader";
+import INode from "../models/INode";
 import Node from "../dto/node";
 
-export class NodeReader {
+export default class NodeReader {
   static read(tokenReader: ITokenReader): INode {
     const node: INode = new Node();
 
@@ -39,14 +39,14 @@ export class NodeReader {
 
     tokenReader.test(")", "Syntax error at node declaration, ')' expected.");
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static readNodeLabel(tokenReader: ITokenReader) {
     const name = tokenReader.tokenValue().toLowerCase();
     if (
-      Keywords.XmlPortNodeTypes.indexOf(name) === -1 &&
-      Keywords.ExtensionKeywords.indexOf(name) === -1
+      XMLPORT_NODE_TYPES.indexOf(name) === -1 &&
+      EXTENSION_KEYWORDS.indexOf(name) === -1
     ) {
       throw Error("Invalid node position");
     }

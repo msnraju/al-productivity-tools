@@ -1,12 +1,14 @@
 import _ = require("lodash");
-import { Helper } from "../helper";
-import { Keywords } from "../keywords";
-import { IToken } from "../tokenizer";
-import { ITokenReader } from "../models/ITokenReader";
-import { IVariable } from "../models/IVariable";
+import DATATYPE_KEYWORDS from "../maps/data-type-keywords";
+import StringHelper from "../string-helper";
+import IToken from "../models/IToken";
+import ITokenReader from "../models/ITokenReader";
+import IVariable from "../models/IVariable";
 import Variable from "../dto/variable";
+import VARIABLE_KEYWORDS from "../maps/variable-keywords";
+import DATATYPE_WEIGHT from "../maps/data-type-weights";
 
-export class VariableReader {
+export default class VariableReader {
   static read(
     tokenReader: ITokenReader,
     returnType: boolean,
@@ -58,22 +60,25 @@ export class VariableReader {
       tokenReader.readWhiteSpaces();
     }
 
-    return Helper.tokensToString(tokens, Keywords.Variables);
+    return StringHelper.tokensToString(tokens, VARIABLE_KEYWORDS);
   }
 
   private static getDataType(tokenReader: ITokenReader): string {
     let dataType = tokenReader.tokenValue().toLowerCase();
 
-    if (Keywords.DataTypes[dataType]) {
-      dataType = Keywords.DataTypes[dataType];
+    if (DATATYPE_KEYWORDS[dataType]) {
+      dataType = DATATYPE_KEYWORDS[dataType];
     }
 
     return dataType;
   }
 
-  private static getWeight(tokenReader: ITokenReader, dataType: string) {
+  private static getWeight(
+    tokenReader: ITokenReader,
+    dataType: string
+  ): number {
     if (dataType.toLowerCase() !== "array") {
-      return Keywords.DataTypeWeight[dataType] || 100;
+      return DATATYPE_WEIGHT[dataType] || 100;
     }
 
     let pos = tokenReader.pos;
@@ -85,14 +90,14 @@ export class VariableReader {
 
     if (tokenReader.tokens[pos].value.toLowerCase() === "of") {
       pos++;
-      while (tokenReader.tokens[pos].type === "whitespace") pos++;
+      tokenReader.readWhiteSpaces();
     }
 
     const dataType2 = tokenReader.tokens[pos].value.toLowerCase();
-    if (Keywords.DataTypes[dataType2]) {
-      tokenReader.tokens[pos].value = Keywords.DataTypes[dataType2];
+    if (DATATYPE_KEYWORDS[dataType2]) {
+      tokenReader.tokens[pos].value = DATATYPE_KEYWORDS[dataType2];
     }
 
-    return Keywords.DataTypeWeight[dataType2] || 100;
+    return DATATYPE_WEIGHT[dataType2] || 100;
   }
 }

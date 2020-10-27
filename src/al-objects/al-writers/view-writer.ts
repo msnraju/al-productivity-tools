@@ -1,7 +1,7 @@
-import { IView } from "../models/IView";
+import IView from "../models/IView";
 import StringBuilder from "../models/string-builder";
 
-export class ViewWriter {
+export default class ViewWriter {
   static write(view: IView, indentation: number): string {
     return new StringBuilder()
       .write(view.header, indentation)

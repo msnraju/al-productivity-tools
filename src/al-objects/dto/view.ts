@@ -1,5 +1,5 @@
-import { ISegment } from "../models/ISegment";
-import { IView } from "../models/IView";
+import ISegment from "../models/ISegment";
+import IView from "../models/IView";
 
 export default class View implements IView {
   comments: string[];

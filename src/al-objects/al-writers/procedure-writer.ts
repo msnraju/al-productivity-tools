@@ -1,10 +1,10 @@
-import { Helper } from "../helper";
-import { IProcedure } from "../models/IProcedure";
-import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
+import StringHelper from "../string-helper";
+import IProcedure from "../models/IProcedure";
+import IProcedureDeclaration from "../models/IProcedureDeclaration";
 import StringBuilder from "../models/string-builder";
-import { VariableContainerWriter } from "./variable-container-writer";
+import VariableContainerWriter from "./variable-container-writer";
 
-export class ProcedureWriter {
+export default class ProcedureWriter {
   static write(func: IProcedure, indentation: number): string {
     return new StringBuilder()
       .write(func.preFunctionComments, indentation)
@@ -31,7 +31,7 @@ export class ProcedureWriter {
     const parameters = this.getParameters(header, indentation + 4);
     const returns = this.getReturns(header);
 
-    const pad = Helper.pad(indentation);
+    const pad = StringHelper.pad(indentation);
     const procDeclaration = `${pad}${access}${header.type} ${name}(${parameters.s})${returns}`;
     if (procDeclaration.length > 145) {
       return `${pad}${access}${header.type} ${name}(${parameters.m})${returns}`;
@@ -82,7 +82,7 @@ export class ProcedureWriter {
 
     let parameters = paramsBuffer.join(" ");
 
-    const pad = Helper.pad(indentation);
+    const pad = StringHelper.pad(indentation);
     const multiLineParams = `\r\n${pad}${paramsBuffer.join(`\r\n${pad}`)}`;
 
     return { s: parameters, m: multiLineParams };

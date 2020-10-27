@@ -1,6 +1,6 @@
-import { ISegment } from "../models/ISegment";
-import { IProcedure } from "../models/IProcedure";
-import { IField } from "../models/IField";
+import ISegment from "../models/ISegment";
+import IProcedure from "../models/IProcedure";
+import IField from "../models/IField";
 
 export default class Field implements IField {
   comments: string[];

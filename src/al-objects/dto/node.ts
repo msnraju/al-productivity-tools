@@ -1,6 +1,6 @@
-import { ISegment } from "../models/ISegment";
-import { IProcedure } from "../models/IProcedure";
-import { INode } from "../models/INode";
+import ISegment from "../models/ISegment";
+import IProcedure from "../models/IProcedure";
+import INode from "../models/INode";
 
 export default class Node implements INode {
   nodes: INode[];

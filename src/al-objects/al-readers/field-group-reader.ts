@@ -1,7 +1,7 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { PropertyReader } from "./property-reader";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import PropertyReader from "./property-reader";
 import IFieldGroup from "../models/IFieldGroup";
 import FieldGroup from "../dto/field-group";
 
@@ -18,7 +18,10 @@ export default class FieldGroupReader {
   }
 
   private static readBody(tokenReader: ITokenReader, fieldGroup: IFieldGroup) {
-    tokenReader.test("{", "Syntax error at FieldGroup declaration, '{' expected.");
+    tokenReader.test(
+      "{",
+      "Syntax error at FieldGroup declaration, '{' expected."
+    );
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
@@ -31,22 +34,31 @@ export default class FieldGroupReader {
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    tokenReader.test("}", "Syntax error at FieldGroup declaration, '}' expected.");
+    tokenReader.test(
+      "}",
+      "Syntax error at FieldGroup declaration, '}' expected."
+    );
   }
 
   private static readHeader(tokenReader: ITokenReader): string {
     let name = this.getLabel(tokenReader);
 
-    tokenReader.test("(", "Syntax error at FieldGroup declaration, '(' expected.");
+    tokenReader.test(
+      "(",
+      "Syntax error at FieldGroup declaration, '(' expected."
+    );
 
     const tokens: IToken[] = [];
     while (tokenReader.peekTokenValue() !== ")") {
       tokens.push(tokenReader.token());
     }
 
-    tokenReader.test(")", "Syntax error at FieldGroup declaration, ')' expected.");
+    tokenReader.test(
+      ")",
+      "Syntax error at FieldGroup declaration, ')' expected."
+    );
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static getLabel(tokenReader: ITokenReader) {

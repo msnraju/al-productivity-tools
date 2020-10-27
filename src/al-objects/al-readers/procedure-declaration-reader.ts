@@ -1,11 +1,11 @@
 import ProcedureDeclaration from "../dto/procedure-declaration";
-import { IProcedureDeclaration } from "../models/IProcedureDeclaration";
-import { IParameter } from "../models/IParameter";
-import { ITokenReader } from "../models/ITokenReader";
-import { IVariable } from "../models/IVariable";
-import { VariableReader } from "./variable-reader";
+import IProcedureDeclaration from "../models/IProcedureDeclaration";
+import IParameter from "../models/IParameter";
+import ITokenReader from "../models/ITokenReader";
+import IVariable from "../models/IVariable";
+import VariableReader from "./variable-reader";
 
-export class ProcedureDeclarationReader {
+export default class ProcedureDeclarationReader {
   static read(tokenReader: ITokenReader): IProcedureDeclaration {
     const header: IProcedureDeclaration = new ProcedureDeclaration();
 

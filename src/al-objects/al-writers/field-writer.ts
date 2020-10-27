@@ -1,8 +1,8 @@
-import { IField } from "../models/IField";
+import IField from "../models/IField";
 import StringBuilder from "../models/string-builder";
-import { ProcedureWriter } from "./procedure-writer";
+import ProcedureWriter from "./procedure-writer";
 
-export class FieldWriter {
+export default class FieldWriter {
   static write(field: IField, indentation: number): string {
     return new StringBuilder()
       .write(field.header, indentation)

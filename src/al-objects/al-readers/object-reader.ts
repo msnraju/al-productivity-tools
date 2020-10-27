@@ -1,21 +1,22 @@
-import { Helper } from "../helper";
-import { IToken, Tokenizer } from "../tokenizer";
-import { VariablesReader } from "./variables-reader";
-import { ProcedureReader } from "./procedure-reader";
-import { Keywords } from "../keywords";
-import { FieldsReader } from "./fields-reader";
-import { PropertyReader } from "./property-reader";
-import { LayoutReader } from "./layout-reader";
-import { ActionContainerReader } from "./action-container-reader";
-import { DataSetReader } from "./dataset-reader";
-import { SchemaReader } from "./schema-reader";
-import { ViewContainerReader } from "./view-container-reader";
-import { IObjectContext } from "../models/IObjectContext";
-import { ITokenReader } from "../models/ITokenReader";
+import OBJECT_TYPE_KEYWORDS from "../maps/object-type-keywords";
+import StringHelper from "../string-helper";
+import Tokenizer from "../tokenizer";
+import IToken from "../models/IToken";
+import VariablesReader from "./variables-reader";
+import ProcedureReader from "./procedure-reader";
+import FieldsReader from "./fields-reader";
+import PropertyReader from "./property-reader";
+import LayoutReader from "./layout-reader";
+import ActionContainerReader from "./action-container-reader";
+import DataSetReader from "./dataset-reader";
+import SchemaReader from "./schema-reader";
+import ViewContainerReader from "./view-container-reader";
+import IObjectContext from "../models/IObjectContext";
+import ITokenReader from "../models/ITokenReader";
 import TokenReader from "../token-reader";
 import ObjectContext from "../dto/object-context";
 import KeysReader from "./keys-reader";
-import { FieldGroupsReader } from "./field-groups-reader";
+import FieldGroupsReader from "./field-groups-reader";
 
 export default class ObjectReader {
   static read(content: string): IObjectContext {
@@ -127,7 +128,7 @@ export default class ObjectReader {
 
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
-    return Helper.tokensToString(tokens, Keywords.ObjectTypes);
+    return StringHelper.tokensToString(tokens, OBJECT_TYPE_KEYWORDS);
   }
 
   private static readFooter(tokenReader: ITokenReader): string {
@@ -138,7 +139,7 @@ export default class ObjectReader {
 
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
-    return Helper.tokensToString(tokens, []);
+    return StringHelper.tokensToString(tokens);
   }
 
   private static readBracesSegment(tokenReader: ITokenReader): IToken[] {

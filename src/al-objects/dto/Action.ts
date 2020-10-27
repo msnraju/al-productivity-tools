@@ -1,6 +1,6 @@
-import { ISegment } from "../models/ISegment";
-import { IProcedure } from "../models/IProcedure";
-import { IAction } from "../models/IAction";
+import ISegment from "../models/ISegment";
+import IProcedure from "../models/IProcedure";
+import IAction from "../models/IAction";
 
 export default class Action implements IAction {
   childActions: IAction[];

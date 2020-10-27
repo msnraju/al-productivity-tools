@@ -1,4 +1,4 @@
-import { IVariable } from "../models/IVariable";
+import IVariable from "../models/IVariable";
 
 export default class Variable implements IVariable {
   name: string;

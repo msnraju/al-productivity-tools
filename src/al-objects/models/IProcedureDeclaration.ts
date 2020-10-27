@@ -1,7 +1,7 @@
-import { IVariable } from "./IVariable";
-import { IParameter } from "./IParameter";
+import IVariable from "./IVariable";
+import IParameter from "./IParameter";
 
-export interface IProcedureDeclaration {
+export default interface IProcedureDeclaration {
   local: boolean;
   internal: boolean;
   type: string;

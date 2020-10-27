@@ -1,6 +1,6 @@
-import { IDataItem } from "./IDataItem";
+import IDataItem from "./IDataItem";
 
-export interface IDataSet {
+export default interface IDataSet {
   dataItems: Array<IDataItem>;
   postLabelComments: string[];
   comments: string[];

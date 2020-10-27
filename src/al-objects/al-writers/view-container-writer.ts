@@ -1,8 +1,8 @@
-import { IViewContainer } from "../models/IViewContainer";
+import IViewContainer from "../models/IViewContainer";
 import StringBuilder from "../models/string-builder";
-import { ViewWriter } from "./view-writer";
+import ViewWriter from "./view-writer";
 
-export class ViewContainerWriter {
+export default class ViewContainerWriter {
   static write(container: IViewContainer, indentation: number): string {
     return new StringBuilder()
       .write("views", indentation)

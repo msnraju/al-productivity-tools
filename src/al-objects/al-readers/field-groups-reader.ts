@@ -1,9 +1,9 @@
-import { ITokenReader } from "../models/ITokenReader";
+import ITokenReader from "../models/ITokenReader";
 import IFieldGroupContainer from "../models/IFieldGroupContainer";
 import FieldGroupContainer from "../dto/field-group-container";
 import FieldGroupReader from "./field-group-reader";
 
-export class FieldGroupsReader {
+export default class FieldGroupsReader {
   static read(tokenReader: ITokenReader): IFieldGroupContainer {
     const container: IFieldGroupContainer = new FieldGroupContainer();
 

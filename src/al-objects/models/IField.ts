@@ -1,10 +1,10 @@
-import { ISegment } from "./ISegment";
-import { IProcedure } from "./IProcedure";
+import ISegment from "./ISegment";
+import IProcedure from "./IProcedure";
 
-export interface IField {
+export default interface IField {
   comments: string[];
   header: string;
-  triggers: Array<IProcedure>;
-  segments: Array<ISegment>;
+  triggers: IProcedure[];
+  segments: ISegment[];
   properties: string[];
 }

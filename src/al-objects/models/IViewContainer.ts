@@ -1,6 +1,6 @@
-import { IView } from "./IView";
+import IView from "./IView";
 
-export interface IViewContainer {
+export default interface IViewContainer {
   views: Array<IView>;
   postLabelComments: string[];
   comments: string[];

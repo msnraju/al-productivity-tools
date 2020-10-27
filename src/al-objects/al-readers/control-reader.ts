@@ -1,10 +1,10 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { ProcedureReader } from "./procedure-reader";
-import { PropertyReader } from "./property-reader";
-import { ActionContainerReader } from "./action-container-reader";
-import { Keywords } from "../keywords";
+import { EXTENSION_KEYWORDS, PAGE_CONTROL_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import ProcedureReader from "./procedure-reader";
+import PropertyReader from "./property-reader";
+import ActionContainerReader from "./action-container-reader";
 import IControl from "../models/IControl";
 import Control from "../dto/control";
 
@@ -19,10 +19,7 @@ export default class ControlReader {
     return control;
   }
 
-  private static readBody(
-    tokenReader: ITokenReader,
-    control: IControl
-  ) {
+  private static readBody(tokenReader: ITokenReader, control: IControl) {
     tokenReader.test("{", "Syntax error at control declaration, '{' expected.");
 
     let comments: string[] = [];
@@ -89,15 +86,15 @@ export default class ControlReader {
 
     tokenReader.test(")", "Syntax error at control declaration, ')' expected.");
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static getControlType(tokenReader: ITokenReader) {
     const controlType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      Keywords.PageControlTypes.indexOf(controlType) === -1 &&
-      Keywords.ExtensionKeywords.indexOf(controlType) === -1
+      PAGE_CONTROL_TYPES.indexOf(controlType) === -1 &&
+      EXTENSION_KEYWORDS.indexOf(controlType) === -1
     ) {
       throw new Error(`Invalid control type '${controlType}'.`);
     }

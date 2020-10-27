@@ -1,8 +1,8 @@
-import { IDataSet } from "../models/IDataSet";
-import { DataItemWriter } from "./data-item-writer";
+import IDataSet from "../models/IDataSet";
+import DataItemWriter from "./data-item-writer";
 import StringBuilder from "../models/string-builder";
 
-export class DataSetWriter {
+export default class DataSetWriter {
   static write(dataset: IDataSet, indentation: number): string {
     return new StringBuilder()
       .write("dataset", indentation)

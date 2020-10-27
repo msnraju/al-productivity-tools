@@ -1,9 +1,9 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IFieldsContainer } from "../models/IFieldsContainer";
-import { FieldReader } from "./field-reader";
+import ITokenReader from "../models/ITokenReader";
+import IFieldsContainer from "../models/IFieldsContainer";
+import FieldReader from "./field-reader";
 import FieldsContainer from "../dto/fields-container";
 
-export class FieldsReader {
+export default class FieldsReader {
   static read(tokenReader: ITokenReader): IFieldsContainer {
     const container: IFieldsContainer = new FieldsContainer();
 

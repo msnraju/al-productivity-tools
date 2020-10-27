@@ -1,4 +1,4 @@
-export interface IVariable {
+export default interface IVariable {
   name: string;
   dataType: string;
   weight: number;

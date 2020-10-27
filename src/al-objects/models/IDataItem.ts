@@ -1,7 +1,7 @@
-import { IProcedure } from "./IProcedure";
-import { ISegment } from "./ISegment";
+import IProcedure from "./IProcedure";
+import ISegment from "./ISegment";
 
-export interface IDataItem {
+export default interface IDataItem {
   dataItems: Array<IDataItem>;
   comments: string[];
   header: string;

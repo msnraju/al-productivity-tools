@@ -1,12 +1,12 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { ProcedureReader } from "./procedure-reader";
-import { PropertyReader } from "./property-reader";
-import { IField } from "../models/IField";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import ProcedureReader from "./procedure-reader";
+import PropertyReader from "./property-reader";
+import IField from "../models/IField";
 import Field from "../dto/field";
 
-export class FieldReader {
+export default class FieldReader {
   static read(tokenReader: ITokenReader): IField {
     const field: IField = new Field();
 
@@ -58,7 +58,7 @@ export class FieldReader {
 
     tokenReader.test(")", "Syntax error at Field declaration, ')' expected.");
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static getFieldType(tokenReader: ITokenReader) {

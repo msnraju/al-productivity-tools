@@ -1,13 +1,13 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { ProcedureReader } from "./procedure-reader";
-import { PropertyReader } from "./property-reader";
-import { Keywords } from "../keywords";
-import { IDataItem } from "../models/IDataItem";
+import { REPORT_DATAITEM_TYPES } from "../constants";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import ProcedureReader from "./procedure-reader";
+import PropertyReader from "./property-reader";
+import IDataItem from "../models/IDataItem";
 import DataItem from "../dto/data-item";
 
-export class DataItemReader {
+export default class DataItemReader {
   static read(tokenReader: ITokenReader): IDataItem {
     const dataItem: IDataItem = new DataItem();
 
@@ -89,12 +89,12 @@ export class DataItemReader {
       "Syntax error in DateItem declaration, ')' expected."
     );
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static getDataItemType(tokenReader: ITokenReader) {
     const name = tokenReader.tokenValue().toLowerCase();
-    if (Keywords.ReportDataItemTypes.indexOf(name) === -1) {
+    if (REPORT_DATAITEM_TYPES.indexOf(name) === -1) {
       throw new Error(`Invalid DataItem type '${name}'.`);
     }
 

@@ -1,7 +1,7 @@
-import { ISegment } from "./ISegment";
-import { IProcedure } from "./IProcedure";
+import ISegment from "./ISegment";
+import IProcedure from "./IProcedure";
 
-export interface IAction {
+export default interface IAction {
   childActions: Array<IAction>;
   comments: string[];
   header: string;

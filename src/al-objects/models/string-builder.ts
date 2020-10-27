@@ -1,5 +1,5 @@
 import { isArray } from "lodash";
-import { Helper } from "../helper";
+import StringHelper from "../string-helper";
 
 export default class StringBuilder {
   private buffer: string[];
@@ -40,7 +40,7 @@ export default class StringBuilder {
   }
 
   write(lines: string[] | string, indentation: number = 0): StringBuilder {
-    const pad = Helper.pad(indentation);
+    const pad = StringHelper.pad(indentation);
     if (isArray(lines)) {
       const newLines: string[] = lines;
       newLines.forEach((newLine) => this.buffer.push(`${pad}${newLine}`));

@@ -1,8 +1,8 @@
 import fs = require("fs");
 import path = require("path");
-import { ObjectFormatter } from "./object-formatter";
+import ObjectFormatter from "./object-formatter";
 
-export class ALFormatter {
+export default class ALFormatter {
   static readALFiles(folderPath: string) {
     folderPath = path.resolve(folderPath);
 

@@ -1,4 +1,4 @@
-import IKeyValue from "../helpers/key-value";
+import IKeyValue from "../../helpers/key-value";
 
 export default class ALObjectTypes {
   private static ALFileSuffix: IKeyValue = {

@@ -1,13 +1,13 @@
+import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
 import Action from "../dto/action";
-import { Helper } from "../helper";
-import { Keywords } from "../keywords";
-import { IAction } from "../models/IAction";
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { ProcedureReader } from "./procedure-reader";
-import { PropertyReader } from "./property-reader";
+import StringHelper from "../string-helper";
+import IAction from "../models/IAction";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import ProcedureReader from "./procedure-reader";
+import PropertyReader from "./property-reader";
 
-export class ActionReader {
+export default class ActionReader {
   static read(tokenReader: ITokenReader): IAction {
     const action: IAction = new Action();
 
@@ -23,8 +23,8 @@ export class ActionReader {
     const actionType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      Keywords.PageActionTypes.indexOf(actionType) === -1 &&
-      Keywords.ExtensionKeywords.indexOf(actionType) === -1
+      PAGE_ACTION_TYPES.indexOf(actionType) === -1 &&
+      EXTENSION_KEYWORDS.indexOf(actionType) === -1
     ) {
       throw new Error(`Invalid action type '${actionType}'.`);
     }
@@ -80,6 +80,6 @@ export class ActionReader {
     }
 
     tokenReader.test(")", "Syntax error at action declaration, ')' expected.");
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 }

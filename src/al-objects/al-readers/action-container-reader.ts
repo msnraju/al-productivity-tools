@@ -1,10 +1,10 @@
-import { Keywords } from "../keywords";
-import { IActionContainer } from "../models/IActionContainer";
+import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
+import IActionContainer from "../models/IActionContainer";
 import ActionContainer from "../dto/action-container";
-import { ActionReader } from "./action-reader";
-import { ITokenReader } from "../models/ITokenReader";
+import ActionReader from "./action-reader";
+import ITokenReader from "../models/ITokenReader";
 
-export class ActionContainerReader {
+export default class ActionContainerReader {
   static read(tokenReader: ITokenReader): IActionContainer {
     const container: IActionContainer = new ActionContainer();
 
@@ -15,8 +15,8 @@ export class ActionContainerReader {
 
     let actionType = tokenReader.peekTokenValue().toLowerCase();
     while (
-      Keywords.PageActionTypes.indexOf(actionType) !== -1 ||
-      Keywords.ExtensionKeywords.indexOf(actionType) !== -1
+      PAGE_ACTION_TYPES.indexOf(actionType) !== -1 ||
+      EXTENSION_KEYWORDS.indexOf(actionType) !== -1
     ) {
       container.actions.push(ActionReader.read(tokenReader));
       actionType = tokenReader.peekTokenValue().toLowerCase();

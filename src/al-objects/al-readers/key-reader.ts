@@ -1,7 +1,7 @@
-import { ITokenReader } from "../models/ITokenReader";
-import { IToken } from "../tokenizer";
-import { Helper } from "../helper";
-import { PropertyReader } from "./property-reader";
+import ITokenReader from "../models/ITokenReader";
+import IToken from "../models/IToken";
+import StringHelper from "../string-helper";
+import PropertyReader from "./property-reader";
 import IKey from "../models/IKey";
 import Key from "../dto/key";
 
@@ -46,7 +46,7 @@ export default class KeyReader {
 
     tokenReader.test(")", "Syntax error at Key declaration, ')' expected.");
 
-    return `${name}(${Helper.tokensToString(tokens, {})})`;
+    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
   }
 
   private static getLabel(tokenReader: ITokenReader) {

@@ -1,4 +1,4 @@
-import { ITokenReader } from "../models/ITokenReader";
+import ITokenReader from "../models/ITokenReader";
 import KeyReader from "./key-reader";
 import IKeysContainer from "../models/IKeysContainer";
 import KeysContainer from "../dto/keys-container";
