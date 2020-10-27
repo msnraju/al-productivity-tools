@@ -7,8 +7,12 @@ import { IDataSet } from "./IDataSet";
 import { ISchema } from "./ISchema";
 import { IViewContainer } from "./IViewContainer";
 import { ISegment } from "./ISegment";
+import IKeysContainer from "./IKeysContainer";
+import IFieldGroupContainer from "./IFieldGroupContainer";
 
 export interface IObjectContext {
+  keys?: IKeysContainer;
+  fieldGroups?: IFieldGroupContainer;
   views?: IViewContainer;
   schema?: ISchema;
   dataSet?: IDataSet;

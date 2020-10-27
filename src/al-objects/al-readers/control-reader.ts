@@ -14,12 +14,12 @@ export default class ControlReader {
 
     control.header = this.readControlHeader(tokenReader);
     control.comments = tokenReader.readComments();
-    this.readControlItems(tokenReader, control);
+    this.readBody(tokenReader, control);
 
     return control;
   }
 
-  private static readControlItems(
+  private static readBody(
     tokenReader: ITokenReader,
     control: IControl
   ) {

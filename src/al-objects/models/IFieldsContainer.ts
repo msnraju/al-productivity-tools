@@ -1,7 +1,7 @@
 import { IField } from "./IField";
 
 export interface IFieldsContainer {
-  fields: Array<IField>;
+  fields: IField[];
   postLabelComments: string[];
   comments: string[];
 }

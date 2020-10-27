@@ -1,7 +1,7 @@
 import IControl from "./IControl";
 
 export interface ILayout {
-  controls: Array<IControl>;
+  controls: IControl[];
   postLabelComments: string[];
   comments: string[];
 }

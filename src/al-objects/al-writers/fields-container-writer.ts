@@ -2,7 +2,7 @@ import { IFieldsContainer } from "../models/IFieldsContainer";
 import { FieldWriter } from "./field-writer";
 import StringBuilder from "../models/string-builder";
 
-export class FieldsContainerWriter {
+export default class FieldsContainerWriter {
   static write(fields: IFieldsContainer, indentation: number): string {
     return new StringBuilder()
       .write("fields", indentation)

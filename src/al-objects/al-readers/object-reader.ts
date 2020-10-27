@@ -14,8 +14,10 @@ import { IObjectContext } from "../models/IObjectContext";
 import { ITokenReader } from "../models/ITokenReader";
 import TokenReader from "../token-reader";
 import ObjectContext from "../dto/object-context";
+import KeysReader from "./keys-reader";
+import { FieldGroupsReader } from "./field-groups-reader";
 
-export class ObjectReader {
+export default class ObjectReader {
   static read(content: string): IObjectContext {
     const context = this.getReadContext(content);
     const appObject = new ObjectContext();
@@ -44,7 +46,9 @@ export class ObjectReader {
         case "local":
         case "internal":
         case "procedure":
-          appObject.procedures.push(ProcedureReader.read(tokenReader, comments));
+          appObject.procedures.push(
+            ProcedureReader.read(tokenReader, comments)
+          );
           comments = [];
           break;
         case "trigger":
@@ -54,6 +58,12 @@ export class ObjectReader {
         // Table
         case "fields":
           appObject.fields = FieldsReader.read(tokenReader);
+          break;
+        case "keys":
+          appObject.keys = KeysReader.read(tokenReader);
+          break;
+        case "fieldgroups":
+          appObject.fieldGroups = FieldGroupsReader.read(tokenReader);
           break;
         // Page
         case "layout":
@@ -73,9 +83,6 @@ export class ObjectReader {
         case "schema":
           appObject.schema = SchemaReader.read(tokenReader);
           break;
-        // Table
-        case "keys": // TODO:: to be implemented
-        case "fieldgroups":
         // Report
         case "requestpage":
         case "labels":

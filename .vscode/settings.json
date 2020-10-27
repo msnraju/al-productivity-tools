@@ -197,6 +197,7 @@
         "fieldelement",
         "fielderror",
         "fieldexist",
+        "fieldgroup",
         "fieldgroups",
         "fieldindex",
         "fieldname",

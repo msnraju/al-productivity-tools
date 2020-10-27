@@ -12,13 +12,13 @@ export class FieldReader {
 
     field.header = this.readHeader(tokenReader);
     field.comments = tokenReader.readComments();
-    this.readFieldBody(tokenReader, field);
+    this.readBody(tokenReader, field);
     tokenReader.readWhiteSpaces();
 
     return field;
   }
 
-  private static readFieldBody(tokenReader: ITokenReader, field: IField) {
+  private static readBody(tokenReader: ITokenReader, field: IField) {
     tokenReader.test("{", "Syntax error at Field declaration, '{' expected.");
 
     let comments: string[] = [];

@@ -2,7 +2,8 @@ import _ = require("lodash");
 import { Helper } from "../helper";
 import { ActionContainerWriter } from "./action-container-writer";
 import { DataSetWriter } from "./dataset-writer";
-import { FieldsContainerWriter } from "./fields-container-writer";
+import FieldsContainerWriter from "./fields-container-writer";
+import KeysContainerWriter from "./keys-container-writer";
 import { LayoutWriter } from "./layout-writer";
 import { IObjectContext } from "../models/IObjectContext";
 import { ViewContainerWriter } from "./view-container-writer";
@@ -11,8 +12,9 @@ import { SchemaWriter } from "./schema-writer";
 import { ISegment } from "../models/ISegment";
 import { ProcedureWriter } from "./procedure-writer";
 import StringBuilder from "../models/string-builder";
+import FieldGroupContainerWriter from "./field-group-container-writer";
 
-export class ObjectWriter {
+export default class ObjectWriter {
   static write(context: IObjectContext): string {
     return new StringBuilder()
       .write(context.header)
@@ -28,8 +30,16 @@ export class ObjectWriter {
     return new StringBuilder()
       .write(context.properties, indentation)
       .emptyLine()
-      .writeIfDefined(context.fields, (field) =>
-        FieldsContainerWriter.write(field, indentation)
+      .writeIfDefined(context.fields, (container) =>
+        FieldsContainerWriter.write(container, indentation)
+      )
+      .emptyLine()
+      .writeIfDefined(context.keys, (container) =>
+        KeysContainerWriter.write(container, indentation)
+      )
+      .emptyLine()
+      .writeIfDefined(context.fieldGroups, (container) =>
+        FieldGroupContainerWriter.write(container, indentation)
       )
       .emptyLine()
       .writeIfDefined(context.layout, (layout) =>
