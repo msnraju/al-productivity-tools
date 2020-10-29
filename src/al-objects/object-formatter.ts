@@ -1,4 +1,4 @@
-import ObjectWriter from "./al-writers/object-writer";
+import ObjectWriter from "./formatters/object-writer";
 import ObjectReader from "./al-readers/object-reader";
 
 export default class ObjectFormatter {

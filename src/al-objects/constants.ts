@@ -18,6 +18,8 @@ export const XMLPORT_NODE_TYPES = [
   "textattribute",
 ];
 
+export const PAGE_LAYOUT = "layout";
+
 export const PAGE_CONTROL_TYPES = [
   "area",
   "group",

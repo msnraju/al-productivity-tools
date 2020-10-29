@@ -1,10 +1,10 @@
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
-import ProcedureReader from "./procedure-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
-import IField from "../models/IField";
-import Field from "../dto/field";
+import IField from "../components/models/IField";
+import Field from "../components/field";
 
 export default class FieldReader {
   static read(tokenReader: ITokenReader): IField {
@@ -27,7 +27,7 @@ export default class FieldReader {
     while (value !== "}") {
       switch (value) {
         case "trigger":
-          field.triggers.push(ProcedureReader.read(tokenReader, comments));
+          field.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         default:

@@ -1,6 +1,6 @@
 import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
-import IActionContainer from "../models/IActionContainer";
-import ActionContainer from "../dto/action-container";
+import IActionContainer from "../components/models/IActionContainer";
+import ActionContainer from "../components/action-container";
 import ActionReader from "./action-reader";
 import ITokenReader from "../models/ITokenReader";
 

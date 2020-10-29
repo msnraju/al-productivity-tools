@@ -1,8 +1,8 @@
 import { REPORT_DATAITEM_TYPES } from "../constants";
 import ITokenReader from "../models/ITokenReader";
-import IDataSet from "../models/IDataSet";
+import IDataSet from "../components/models/IDataSet";
 import DataItemReader from "./data-item-reader";
-import DataSet from "../dto/data-set";
+import DataSet from "../components/data-set";
 
 export default class DataSetReader {
   static read(tokenReader: ITokenReader): IDataSet {

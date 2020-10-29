@@ -2,8 +2,8 @@ import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
 import PropertyReader from "./property-reader";
-import IKey from "../models/IKey";
-import Key from "../dto/key";
+import IKey from "../components/models/IKey";
+import Key from "../components/key";
 
 export default class KeyReader {
   static read(tokenReader: ITokenReader): IKey {

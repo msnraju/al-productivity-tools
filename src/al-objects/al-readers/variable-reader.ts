@@ -4,9 +4,9 @@ import StringHelper from "../string-helper";
 import IToken from "../models/IToken";
 import ITokenReader from "../models/ITokenReader";
 import IVariable from "../models/IVariable";
-import Variable from "../dto/variable";
 import VARIABLE_KEYWORDS from "../maps/variable-keywords";
 import DATATYPE_WEIGHT from "../maps/data-type-weights";
+import Variable from "../components/variable";
 
 export default class VariableReader {
   static read(

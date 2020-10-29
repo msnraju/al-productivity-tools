@@ -2,10 +2,10 @@ import { EXTENSION_KEYWORDS, XMLPORT_NODE_TYPES } from "../constants";
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
-import ProcedureReader from "./procedure-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
-import INode from "../models/INode";
-import Node from "../dto/node";
+import INode from "../components/models/INode";
+import Node from "../components/node";
 
 export default class NodeReader {
   static read(tokenReader: ITokenReader): INode {
@@ -72,7 +72,7 @@ export default class NodeReader {
           node.nodes.push(this.read(tokenReader));
           break;
         case "trigger":
-          node.triggers.push(ProcedureReader.read(tokenReader, comments));
+          node.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         default:

@@ -1,19 +1,18 @@
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
 import PropertyReader from "./property-reader";
-import IFieldGroup from "../models/IFieldGroup";
-import FieldGroup from "../dto/field-group";
+import IFieldGroup from "../components/models/field-group.model";
+import FieldGroup from "../components/field-group";
 
 export default class FieldGroupReader {
   static read(tokenReader: ITokenReader): IFieldGroup {
     const fieldGroup: IFieldGroup = new FieldGroup();
 
-    fieldGroup.header = this.readHeader(tokenReader);
+    fieldGroup.keyword = this.getLabel(tokenReader);
+    fieldGroup.declaration = this.getDeclaration(tokenReader);
     fieldGroup.comments = tokenReader.readComments();
     this.readBody(tokenReader, fieldGroup);
-    tokenReader.readWhiteSpaces();
-
+    
     return fieldGroup;
   }
 
@@ -40,9 +39,7 @@ export default class FieldGroupReader {
     );
   }
 
-  private static readHeader(tokenReader: ITokenReader): string {
-    let name = this.getLabel(tokenReader);
-
+  private static getDeclaration(tokenReader: ITokenReader): IToken[] {
     tokenReader.test(
       "(",
       "Syntax error at FieldGroup declaration, '(' expected."
@@ -58,7 +55,7 @@ export default class FieldGroupReader {
       "Syntax error at FieldGroup declaration, ')' expected."
     );
 
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return tokens;
   }
 
   private static getLabel(tokenReader: ITokenReader) {

@@ -2,19 +2,19 @@ import OBJECT_TYPE_KEYWORDS from "../maps/object-type-keywords";
 import StringHelper from "../string-helper";
 import Tokenizer from "../tokenizer";
 import IToken from "../models/IToken";
-import VariablesReader from "./variables-reader";
-import ProcedureReader from "./procedure-reader";
+import VarSectionReader from "./var-section-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import FieldsReader from "./fields-reader";
 import PropertyReader from "./property-reader";
-import LayoutReader from "./layout-reader";
+import PageLayoutReader from "./page-layout-reader";
 import ActionContainerReader from "./action-container-reader";
 import DataSetReader from "./dataset-reader";
 import SchemaReader from "./schema-reader";
 import ViewContainerReader from "./view-container-reader";
-import IObjectContext from "../models/IObjectContext";
+import IObjectContext from "../components/models/IObjectContext";
 import ITokenReader from "../models/ITokenReader";
 import TokenReader from "../token-reader";
-import ObjectContext from "../dto/object-context";
+import ObjectContext from "../components/object-context";
 import KeysReader from "./keys-reader";
 import FieldGroupsReader from "./field-groups-reader";
 
@@ -41,19 +41,19 @@ export default class ObjectReader {
     while (value !== "}") {
       switch (value) {
         case "var":
-          appObject.variables = VariablesReader.read(tokenReader);
+          appObject.variables = VarSectionReader.read(tokenReader);
           break;
         case "[":
         case "local":
         case "internal":
         case "procedure":
           appObject.procedures.push(
-            ProcedureReader.read(tokenReader, comments)
+            MethodDeclarationReader.read(tokenReader, comments)
           );
           comments = [];
           break;
         case "trigger":
-          appObject.triggers.push(ProcedureReader.read(tokenReader, comments));
+          appObject.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         // Table
@@ -68,7 +68,7 @@ export default class ObjectReader {
           break;
         // Page
         case "layout":
-          appObject.layout = LayoutReader.read(tokenReader);
+          appObject.layout = PageLayoutReader.read(tokenReader);
           break;
         case "views":
           appObject.views = ViewContainerReader.read(tokenReader);

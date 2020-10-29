@@ -1,13 +1,13 @@
 import ITokenReader from "../models/ITokenReader";
-import IFieldGroupContainer from "../models/IFieldGroupContainer";
-import FieldGroupContainer from "../dto/field-group-container";
+import IFieldGroupList from "../components/models/field-group-list.model";
 import FieldGroupReader from "./field-group-reader";
+import FieldGroupContainer from "../components/field-group-container";
 
 export default class FieldGroupsReader {
-  static read(tokenReader: ITokenReader): IFieldGroupContainer {
-    const container: IFieldGroupContainer = new FieldGroupContainer();
+  static read(tokenReader: ITokenReader): IFieldGroupList {
+    const container: IFieldGroupList = new FieldGroupContainer();
 
-    this.readDeclaration(tokenReader);
+    container.keyword = this.getLabel(tokenReader);
     container.postLabelComments = tokenReader.readComments();
     this.readBody(tokenReader, container);
 
@@ -16,7 +16,7 @@ export default class FieldGroupsReader {
 
   private static readBody(
     tokenReader: ITokenReader,
-    container: IFieldGroupContainer
+    container: IFieldGroupList
   ) {
     tokenReader.test(
       "{",
@@ -38,7 +38,7 @@ export default class FieldGroupsReader {
     );
   }
 
-  private static readDeclaration(tokenReader: ITokenReader) {
+  private static getLabel(tokenReader: ITokenReader) {
     let name = tokenReader.tokenValue().toLowerCase();
     if (name !== "fieldgroups") {
       throw new Error(`Invalid FieldGroups label '${name}'.`);

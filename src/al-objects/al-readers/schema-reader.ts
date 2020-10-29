@@ -1,8 +1,8 @@
 import { EXTENSION_KEYWORDS, XMLPORT_NODE_TYPES } from "../constants";
 import ITokenReader from "../models/ITokenReader";
-import ISchema from "../models/ISchema";
+import ISchema from "../components/models/ISchema";
 import NodeReader from "./node-reader";
-import Schema from "../dto/schema";
+import Schema from "../components/schema";
 
 export default class SchemaReader {
   static read(tokenReader: ITokenReader): ISchema {

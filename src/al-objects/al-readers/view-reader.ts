@@ -2,8 +2,8 @@ import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
 import PropertyReader from "./property-reader";
-import IView from "../models/IView";
-import View from "../dto/view";
+import IView from "../components/models/IView";
+import View from "../components/view";
 
 export default class ViewReader {
   static read(tokenReader: ITokenReader): IView {

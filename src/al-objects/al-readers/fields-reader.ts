@@ -1,7 +1,7 @@
 import ITokenReader from "../models/ITokenReader";
-import IFieldsContainer from "../models/IFieldsContainer";
+import IFieldsContainer from "../components/models/IFieldsContainer";
 import FieldReader from "./field-reader";
-import FieldsContainer from "../dto/fields-container";
+import FieldsContainer from "../components/fields-container";
 
 export default class FieldsReader {
   static read(tokenReader: ITokenReader): IFieldsContainer {

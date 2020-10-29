@@ -1,7 +1,7 @@
 import ITokenReader from "../models/ITokenReader";
 import KeyReader from "./key-reader";
-import IKeysContainer from "../models/IKeysContainer";
-import KeysContainer from "../dto/keys-container";
+import IKeysContainer from "../components/models/IKeysContainer";
+import KeysContainer from "../components/keys-container";
 
 export default class KeysReader {
   static read(tokenReader: ITokenReader): IKeysContainer {

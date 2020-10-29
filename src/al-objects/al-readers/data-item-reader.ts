@@ -2,10 +2,10 @@ import { REPORT_DATAITEM_TYPES } from "../constants";
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
-import ProcedureReader from "./procedure-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
-import IDataItem from "../models/IDataItem";
-import DataItem from "../dto/data-item";
+import IDataItem from "../components/models/IDataItem";
+import DataItem from "../components/data-item";
 
 export default class DataItemReader {
   static read(tokenReader: ITokenReader): IDataItem {
@@ -38,7 +38,7 @@ export default class DataItemReader {
           dataItem.dataItems.push(this.read(tokenReader));
           break;
         case "trigger":
-          dataItem.triggers.push(ProcedureReader.read(tokenReader, comments));
+          dataItem.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         default:

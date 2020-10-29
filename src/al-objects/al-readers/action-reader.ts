@@ -1,11 +1,11 @@
 import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
-import Action from "../dto/action";
 import StringHelper from "../string-helper";
-import IAction from "../models/IAction";
+import IAction from "../components/models/IAction";
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
-import ProcedureReader from "./procedure-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
+import Action from "../components/action";
 
 export default class ActionReader {
   static read(tokenReader: ITokenReader): IAction {
@@ -50,7 +50,7 @@ export default class ActionReader {
           action.childActions.push(this.read(tokenReader));
           break;
         case "trigger":
-          action.triggers.push(ProcedureReader.read(tokenReader, comments));
+          action.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         default:

@@ -2,11 +2,11 @@ import { EXTENSION_KEYWORDS, PAGE_CONTROL_TYPES } from "../constants";
 import ITokenReader from "../models/ITokenReader";
 import IToken from "../models/IToken";
 import StringHelper from "../string-helper";
-import ProcedureReader from "./procedure-reader";
+import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
 import ActionContainerReader from "./action-container-reader";
-import IControl from "../models/IControl";
-import Control from "../dto/control";
+import IControl from "../components/models/IControl";
+import Control from "../components/control";
 
 export default class ControlReader {
   static read(tokenReader: ITokenReader): IControl {
@@ -45,7 +45,7 @@ export default class ControlReader {
           control.container = ActionContainerReader.read(tokenReader);
           break;
         case "trigger":
-          control.triggers.push(ProcedureReader.read(tokenReader, comments));
+          control.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
           comments = [];
           break;
         default:
