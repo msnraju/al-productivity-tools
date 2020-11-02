@@ -84,13 +84,13 @@ export default class ObjectWriter {
     indentation: number
   ): string {
     const segmentNames = [
-      "keys",
-      "fieldgroups",
-      "actions",
+      // "keys",
+      // "fieldgroups",
+      // "actions",
+      // "schema",
       "requestpage",
       "labels",
       "elements",
-      "schema",
       "value",
     ];
 
