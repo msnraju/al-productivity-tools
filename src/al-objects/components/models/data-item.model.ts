@@ -1,10 +1,8 @@
-import ISegment from "./ISegment";
 import IMethodDeclaration from "./method-declaration.model";
-import IActionContainer from "./IActionContainer";
+import ISegment from "./segment.model";
 
-export default interface IControl {
-  container?: IActionContainer;
-  controls: Array<IControl>;
+export default interface IDataItem {
+  dataItems: Array<IDataItem>;
   comments: string[];
   header: string;
   triggers: Array<IMethodDeclaration>;

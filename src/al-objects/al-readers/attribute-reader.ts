@@ -1,7 +1,7 @@
-import StringHelper from "../string-helper";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import VARIABLE_KEYWORDS from "../maps/variable-keywords";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class AttributeReader {
   static read(tokenReader: ITokenReader): string {
@@ -24,6 +24,6 @@ export default class AttributeReader {
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
 
-    return StringHelper.tokensToString(tokens, VARIABLE_KEYWORDS);
+    return TokenReader.tokensToString(tokens, VARIABLE_KEYWORDS);
   }
 }

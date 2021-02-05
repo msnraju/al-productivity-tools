@@ -1,6 +1,6 @@
-import IFieldsContainer from "../components/models/IFieldsContainer";
+import IFieldsContainer from "../components/models/fields-container.model";
 import FieldWriter from "./field-writer";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class FieldsContainerWriter {
   static write(fields: IFieldsContainer, indentation: number): string {

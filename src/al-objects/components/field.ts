@@ -1,6 +1,6 @@
-import ISegment from "./models/ISegment";
+import ISegment from "./models/segment.model";
 import IMethodDeclaration from "./models/method-declaration.model";
-import IField from "./models/IField";
+import IField from "./models/field.model";
 
 export default class Field implements IField {
   comments: string[];

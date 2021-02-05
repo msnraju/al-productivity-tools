@@ -1,6 +1,6 @@
-import IKeysContainer from "../components/models/IKeysContainer";
+import IKeysContainer from "../components/models/keys-container.model";
 import KeyWriter from "./key-writer";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class KeysContainerWriter {
   static write(container: IKeysContainer, indentation: number): string {

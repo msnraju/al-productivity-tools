@@ -1,4 +1,4 @@
-import IDataItem from "./IDataItem";
+import IDataItem from "./data-item.model";
 
 export default interface IDataSet {
   dataItems: Array<IDataItem>;

@@ -1,12 +1,12 @@
 import _ = require("lodash");
 import DATATYPE_KEYWORDS from "../maps/data-type-keywords";
-import StringHelper from "../string-helper";
-import IToken from "../models/IToken";
-import ITokenReader from "../models/ITokenReader";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IVariable from "../models/IVariable";
 import VARIABLE_KEYWORDS from "../maps/variable-keywords";
 import DATATYPE_WEIGHT from "../maps/data-type-weights";
 import Variable from "../components/variable";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class VariableReader {
   static read(
@@ -60,7 +60,7 @@ export default class VariableReader {
       tokenReader.readWhiteSpaces();
     }
 
-    return StringHelper.tokensToString(tokens, VARIABLE_KEYWORDS);
+    return TokenReader.tokensToString(tokens, VARIABLE_KEYWORDS);
   }
 
   private static getDataType(tokenReader: ITokenReader): string {

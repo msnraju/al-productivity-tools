@@ -1,7 +1,7 @@
-import ISegment from "./models/ISegment";
+import ISegment from "./models/segment.model";
 import IMethodDeclaration from "./models/method-declaration.model";
-import IActionContainer from "./models/IActionContainer";
-import IControl from "./models/IControl";
+import IActionContainer from "./models/action-container.model";
+import IControl from "./models/control.model";
 
 export default class Control implements IControl {
   container?: IActionContainer | undefined;

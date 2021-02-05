@@ -1,12 +1,12 @@
 import {
-  EXTENSION_KEYWORDS,
-  PAGE_CONTROL_TYPES,
   PAGE_LAYOUT,
 } from "../constants";
-import ITokenReader from "../models/ITokenReader";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IPageLayout from "../components/models/page-layout.model";
 import ControlReader from "./control-reader";
 import PageLayout from "../components/page-layout";
+import EXTENSION_KEYWORDS from "../maps/extension-keywords";
+import PAGE_CONTROL_TYPES from "../maps/page-control-types";
 
 export default class PageLayoutReader {
   static read(tokenReader: ITokenReader): IPageLayout {
@@ -26,8 +26,8 @@ export default class PageLayoutReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (
-      PAGE_CONTROL_TYPES.indexOf(value) !== -1 ||
-      EXTENSION_KEYWORDS.indexOf(value) !== -1
+      PAGE_CONTROL_TYPES.hasItem(value) ||
+      EXTENSION_KEYWORDS.hasItem(value)
     ) {
       layout.controls.push(ControlReader.read(tokenReader));
       value = tokenReader.peekTokenValue().toLowerCase();

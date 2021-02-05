@@ -1,4 +1,4 @@
-export default interface IKey {
+export default interface ITableKey {
   comments: string[];
   header: string;
   properties: string[];

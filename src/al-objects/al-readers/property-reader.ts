@@ -1,7 +1,7 @@
 import PROPERTY_KEYWORDS from "../maps/property-keywords";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class PropertyReader {
   static read(tokenReader: ITokenReader): string {
@@ -25,7 +25,7 @@ export default class PropertyReader {
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
 
-    return StringHelper.tokensToString(tokens, PROPERTY_KEYWORDS);
+    return TokenReader.tokensToString(tokens, PROPERTY_KEYWORDS);
   }
 
   private static readEquals(tokenReader: ITokenReader) {

@@ -1,8 +1,8 @@
-import IKey from "./models/IKey";
-import IKeysContainer from "./models/IKeysContainer";
+import ITableKey from "./models/table-key.model";
+import IKeysContainer from "./models/keys-container.model";
 
 export default class KeysContainer implements IKeysContainer {
-  keys: IKey[];
+  keys: ITableKey[];
   postLabelComments: string[];
   comments: string[];
 

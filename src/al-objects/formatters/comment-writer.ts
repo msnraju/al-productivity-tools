@@ -1,4 +1,4 @@
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class CommentWriter {
   static write(comments: string[], indentation: number): string {

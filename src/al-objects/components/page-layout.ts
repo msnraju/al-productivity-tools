@@ -1,4 +1,4 @@
-import IControl from "./models/IControl";
+import IControl from "./models/control.model";
 import IPageLayout from "./models/page-layout.model";
 
 export default class PageLayout implements IPageLayout {

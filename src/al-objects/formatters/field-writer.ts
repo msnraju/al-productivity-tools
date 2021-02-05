@@ -1,5 +1,5 @@
-import IField from "../components/models/IField";
-import StringBuilder from "../models/string-builder";
+import IField from "../components/models/field.model";
+import StringBuilder from "../../helpers/string-builder";
 import MethodDeclarationWriter from "./method-declaration-writer";
 
 export default class FieldWriter {

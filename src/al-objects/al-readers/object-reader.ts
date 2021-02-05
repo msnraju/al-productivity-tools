@@ -1,7 +1,5 @@
 import OBJECT_TYPE_KEYWORDS from "../maps/object-type-keywords";
-import StringHelper from "../string-helper";
-import Tokenizer from "../tokenizer";
-import IToken from "../models/IToken";
+import Tokenizer from "../../tokenizers/tokenizer";
 import VarSectionReader from "./var-section-reader";
 import MethodDeclarationReader from "./method-declaration-reader";
 import FieldsReader from "./fields-reader";
@@ -11,12 +9,13 @@ import ActionContainerReader from "./action-container-reader";
 import DataSetReader from "./dataset-reader";
 import SchemaReader from "./schema-reader";
 import ViewContainerReader from "./view-container-reader";
-import IObjectContext from "../components/models/IObjectContext";
-import ITokenReader from "../models/ITokenReader";
-import TokenReader from "../token-reader";
+import IObjectContext from "../components/models/object-context.model";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import ObjectContext from "../components/object-context";
 import KeysReader from "./keys-reader";
 import FieldGroupsReader from "./field-groups-reader";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class ObjectReader {
   static read(content: string): IObjectContext {
@@ -35,7 +34,6 @@ export default class ObjectReader {
     appObject: IObjectContext
   ) {
     let comments: string[] = [];
-
     let value = tokenReader.peekTokenValue().toLowerCase();
 
     while (value !== "}") {
@@ -93,7 +91,7 @@ export default class ObjectReader {
         case "value":
           appObject.segments.push({
             name: value,
-            tokens: this.readBracesSegment(tokenReader),
+            tokens: tokenReader.readBracesSegment(),
           });
           break;
         default:
@@ -128,7 +126,7 @@ export default class ObjectReader {
 
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
-    return StringHelper.tokensToString(tokens, OBJECT_TYPE_KEYWORDS);
+    return TokenReader.tokensToString(tokens, OBJECT_TYPE_KEYWORDS);
   }
 
   private static readFooter(tokenReader: ITokenReader): string {
@@ -139,30 +137,6 @@ export default class ObjectReader {
 
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
-    return StringHelper.tokensToString(tokens);
-  }
-
-  private static readBracesSegment(tokenReader: ITokenReader): IToken[] {
-    const tokens: IToken[] = [];
-    let counter = 0;
-    let value = tokenReader.peekTokenValue();
-    while (value !== "}" || counter !== 0) {
-      tokens.push(tokenReader.token());
-
-      value = tokenReader.peekTokenValue();
-      if (value === "{") {
-        counter++;
-      } else if (value === "}") {
-        counter--;
-      }
-    }
-
-    if (tokenReader.peekTokenValue() !== "}" || counter !== 0) {
-      throw new Error("segment end error.");
-    }
-
-    tokens.push(tokenReader.token());
-    tokenReader.readWhiteSpaces();
-    return tokens;
+    return TokenReader.tokensToString(tokens);
   }
 }

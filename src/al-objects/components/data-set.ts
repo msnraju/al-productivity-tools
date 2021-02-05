@@ -1,5 +1,5 @@
-import IDataItem from "./models/IDataItem";
-import IDataSet from "./models/IDataSet";
+import IDataItem from "./models/data-item.model";
+import IDataSet from "./models/data-set.model";
 
 export default class DataSet implements IDataSet {
   dataItems: IDataItem[];

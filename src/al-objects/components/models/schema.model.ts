@@ -1,4 +1,4 @@
-import INode from "./INode";
+import INode from "./node.model";
 
 export default interface ISchema {
   nodes: Array<INode>;

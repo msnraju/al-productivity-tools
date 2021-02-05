@@ -1,8 +1,8 @@
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import PropertyReader from "./property-reader";
 import IFieldGroup from "../components/models/field-group.model";
 import FieldGroup from "../components/field-group";
+import IToken from "../../tokenizers/models/token.model";
 
 export default class FieldGroupReader {
   static read(tokenReader: ITokenReader): IFieldGroup {

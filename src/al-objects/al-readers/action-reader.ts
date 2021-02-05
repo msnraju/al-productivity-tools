@@ -1,11 +1,12 @@
-import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
-import StringHelper from "../string-helper";
-import IAction from "../components/models/IAction";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
+import IAction from "../components/models/action.model";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
 import Action from "../components/action";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
+import EXTENSION_KEYWORDS from "../maps/extension-keywords";
+import PAGE_ACTION_TYPES from "../maps/page-action-types";
 
 export default class ActionReader {
   static read(tokenReader: ITokenReader): IAction {
@@ -23,8 +24,8 @@ export default class ActionReader {
     const actionType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      PAGE_ACTION_TYPES.indexOf(actionType) === -1 &&
-      EXTENSION_KEYWORDS.indexOf(actionType) === -1
+      !PAGE_ACTION_TYPES.hasItem(actionType) &&
+      !EXTENSION_KEYWORDS.hasItem(actionType)
     ) {
       throw new Error(`Invalid action type '${actionType}'.`);
     }
@@ -50,7 +51,9 @@ export default class ActionReader {
           action.childActions.push(this.read(tokenReader));
           break;
         case "trigger":
-          action.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
+          action.triggers.push(
+            MethodDeclarationReader.read(tokenReader, comments)
+          );
           comments = [];
           break;
         default:
@@ -80,6 +83,6 @@ export default class ActionReader {
     }
 
     tokenReader.test(")", "Syntax error at action declaration, ')' expected.");
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
 }

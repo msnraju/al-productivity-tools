@@ -1,4 +1,4 @@
-import ITokenReader from "../models/ITokenReader";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IFieldGroupList from "../components/models/field-group-list.model";
 import FieldGroupReader from "./field-group-reader";
 import FieldGroupContainer from "../components/field-group-container";

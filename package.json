@@ -51,11 +51,83 @@
     "configuration": {
       "title": "AL Productivity Tool Configuration Parameters",
       "properties": {
-        "msn.fixALFileNameOnSave": {
+        "msn.renameFileNameOnSave": {
           "type": "boolean",
           "default": false,
           "scope": "resource",
           "description": "Auto fix the AL file name on save"
+        },
+        "msn.wrapProcedure": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Wrap procedure declaration"
+        },
+        "msn.sortLocalVariables": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Sort local variables"
+        },
+        "msn.sortGlobalVariables": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Sort global variables"
+        },
+        "msn.sortProcedures": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Sort procedures"
+        },
+        "msn.convertKeywordsToAL": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Convert CAL to AL Keywords"
+        },
+        "msn.appendParenthesisAfterProcedures": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Append parenthesis after keywords"
+        },
+        "msn.removeUnusedLocalProcedures": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Remove unused local procedures"
+        },
+        "msn.removeUnusedLocalVariables": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Remove unused local variables"
+        },
+        "msn.removeUnusedGlobalVariables": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Remove unused global variables"
+        },
+        "msn.removeUnusedParameters": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Remove unused parameters"
+        },
+        "msn.autoCorrectVariableNames": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Auto correct variable names"
+        },
+        "msn.setDefaultDataClassification": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Set Default DataClassification"
         }
       }
     }

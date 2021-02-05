@@ -1,6 +1,6 @@
-import IKey from "./models/IKey";
+import ITableKey from "./models/table-key.model";
 
-export default class Key implements IKey {
+export default class Key implements ITableKey {
   comments: string[];
   header: string;
   properties: string[];

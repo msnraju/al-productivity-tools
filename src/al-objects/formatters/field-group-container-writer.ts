@@ -1,4 +1,4 @@
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import IFieldGroupList from "../components/models/field-group-list.model";
 import FieldGroupWriter from "./field-group-writer";
 

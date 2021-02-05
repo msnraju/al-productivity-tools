@@ -1,4 +1,4 @@
-import ISegment from "./ISegment";
+import ISegment from "./segment.model";
 import IMethodDeclaration from "./method-declaration.model";
 
 export default interface IField {

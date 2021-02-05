@@ -1,8 +1,8 @@
-import { REPORT_DATAITEM_TYPES } from "../constants";
-import ITokenReader from "../models/ITokenReader";
-import IDataSet from "../components/models/IDataSet";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IDataSet from "../components/models/data-set.model";
 import DataItemReader from "./data-item-reader";
 import DataSet from "../components/data-set";
+import REPORT_DATAITEM_TYPES from "../maps/report-dataitem-types";
 
 export default class DataSetReader {
   static read(tokenReader: ITokenReader): IDataSet {
@@ -22,10 +22,10 @@ export default class DataSetReader {
 
     dataSet.comments = tokenReader.readComments();
 
-    let value = tokenReader.peekTokenValue().toLowerCase();
-    while (REPORT_DATAITEM_TYPES.indexOf(value) !== -1) {
+    let dataItemType = tokenReader.peekTokenValue().toLowerCase();
+    while (REPORT_DATAITEM_TYPES.hasItem(dataItemType)) {
       dataSet.dataItems.push(DataItemReader.read(tokenReader));
-      value = tokenReader.peekTokenValue().toLowerCase();
+      dataItemType = tokenReader.peekTokenValue().toLowerCase();
     }
 
     tokenReader.test("}", "Syntax error at DataSet declaration, '}' expected.");

@@ -1,7 +1,7 @@
-import IKey from "./IKey";
+import ITableKey from "./table-key.model";
 
 export default interface IKeysContainer {
-  keys: IKey[];
+  keys: ITableKey[];
   postLabelComments: string[];
   comments: string[];
 }

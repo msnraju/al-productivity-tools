@@ -1,18 +1,18 @@
 import _ = require("lodash");
-import StringHelper from "../string-helper";
 import ActionContainerWriter from "./action-container-writer";
 import DataSetWriter from "./dataset-writer";
 import FieldsContainerWriter from "./fields-container-writer";
 import KeysContainerWriter from "./keys-container-writer";
 import PageLayoutWriter from "./page-layout-writer";
-import IObjectContext from "../components/models/IObjectContext";
+import IObjectContext from "../components/models/object-context.model";
 import ViewContainerWriter from "./view-container-writer";
 import VarSectionWriter from "./var-section-writer";
 import SchemaWriter from "./schema-writer";
-import ISegment from "../components/models/ISegment";
+import ISegment from "../components/models/segment.model";
 import MethodDeclarationWriter from "./method-declaration-writer";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import FieldGroupContainerWriter from "./field-group-container-writer";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class ObjectWriter {
   static write(context: IObjectContext): string {
@@ -99,7 +99,7 @@ export default class ObjectWriter {
 
     const writer = new StringBuilder();
     segments.forEach((segment) => {
-      writer.write(StringHelper.tokensToString(segment.tokens, {}), indentation);
+      writer.write(TokenReader.tokensToString(segment.tokens, {}), indentation);
       writer.emptyLine();
     });
 

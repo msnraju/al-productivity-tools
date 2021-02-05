@@ -1,5 +1,5 @@
-import INode from "./models/INode";
-import ISchema from "./models/ISchema";
+import INode from "./models/node.model";
+import ISchema from "./models/schema.model";
 
 export default class Schema implements ISchema {
   nodes: INode[];

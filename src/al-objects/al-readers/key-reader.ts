@@ -1,13 +1,13 @@
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import PropertyReader from "./property-reader";
-import IKey from "../components/models/IKey";
+import ITableKey from "../components/models/table-key.model";
 import Key from "../components/key";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class KeyReader {
-  static read(tokenReader: ITokenReader): IKey {
-    const key: IKey = new Key();
+  static read(tokenReader: ITokenReader): ITableKey {
+    const key: ITableKey = new Key();
 
     key.header = this.readHeader(tokenReader);
     key.comments = tokenReader.readComments();
@@ -17,7 +17,7 @@ export default class KeyReader {
     return key;
   }
 
-  private static readBody(tokenReader: ITokenReader, key: IKey) {
+  private static readBody(tokenReader: ITokenReader, key: ITableKey) {
     tokenReader.test("{", "Syntax error at Key declaration, '{' expected.");
 
     let value = tokenReader.peekTokenValue().toLowerCase();
@@ -46,7 +46,7 @@ export default class KeyReader {
 
     tokenReader.test(")", "Syntax error at Key declaration, ')' expected.");
 
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
 
   private static getLabel(tokenReader: ITokenReader) {

@@ -1,12 +1,12 @@
 import IMethodDeclaration from "./models/method-declaration.model";
-import IFieldsContainer from "./models/IFieldsContainer";
+import IFieldsContainer from "./models/fields-container.model";
 import IPageLayout from "./models/page-layout.model";
-import IActionContainer from "./models/IActionContainer";
-import IDataSet from "./models/IDataSet";
-import ISchema from "./models/ISchema";
-import IViewContainer from "./models/IViewContainer";
-import ISegment from "./models/ISegment";
-import IObjectContext from "./models/IObjectContext";
+import IActionContainer from "./models/action-container.model";
+import IDataSet from "./models/data-set.model";
+import ISchema from "./models/schema.model";
+import IViewContainer from "./models/view-container.model";
+import ISegment from "./models/segment.model";
+import IObjectContext from "./models/object-context.model";
 import IVarSection from "./models/var-section.model";
 
 export default class ObjectContext implements IObjectContext {

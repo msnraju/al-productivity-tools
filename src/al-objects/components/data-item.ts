@@ -1,6 +1,6 @@
 import IMethodDeclaration from "./models/method-declaration.model";
-import ISegment from "./models/ISegment";
-import IDataItem from "./models/IDataItem";
+import ISegment from "./models/segment.model";
+import IDataItem from "./models/data-item.model";
 
 export default class DataItem implements IDataItem {
   dataItems: IDataItem[];

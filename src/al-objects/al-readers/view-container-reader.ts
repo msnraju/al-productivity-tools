@@ -1,6 +1,6 @@
 import ViewContainer from "../components/view-container";
-import ITokenReader from "../models/ITokenReader";
-import IViewContainer from "../components/models/IViewContainer";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IViewContainer from "../components/models/view-container.model";
 import ViewReader from "./view-reader";
 
 export default class ViewContainerReader {

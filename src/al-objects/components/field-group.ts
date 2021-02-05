@@ -1,4 +1,4 @@
-import IToken from "../models/IToken";
+import IToken from "../../tokenizers/models/token.model";
 import IFieldGroup from "./models/field-group.model";
 
 export default class FieldGroup implements IFieldGroup {

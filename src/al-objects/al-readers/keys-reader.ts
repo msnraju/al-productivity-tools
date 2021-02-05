@@ -1,6 +1,6 @@
-import ITokenReader from "../models/ITokenReader";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import KeyReader from "./key-reader";
-import IKeysContainer from "../components/models/IKeysContainer";
+import IKeysContainer from "../components/models/keys-container.model";
 import KeysContainer from "../components/keys-container";
 
 export default class KeysReader {

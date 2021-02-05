@@ -3,7 +3,7 @@ import * as path from "path";
 import ALObjectTypes from "../al-objects/maps/al-object-types";
 import IObjectDefinition from "../al-objects/models/object-definition";
 
-export default class ALFileNameHelper {
+export default class ALFileHelper {
   static async getALFileName(file: string) {
     return new Promise<string>(async (resolve, reject) => {
       fs.readFile(file, async (err, data) => {

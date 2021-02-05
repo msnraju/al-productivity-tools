@@ -1,9 +1,9 @@
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import PropertyReader from "./property-reader";
-import IView from "../components/models/IView";
+import IView from "../components/models/view.model";
 import View from "../components/view";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class ViewReader {
   static read(tokenReader: ITokenReader): IView {
@@ -46,7 +46,7 @@ export default class ViewReader {
     }
 
     tokenReader.test(")", "Syntax error at view declaration, ')' expected.");
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
 
   private static getLabel(tokenReader: ITokenReader) {

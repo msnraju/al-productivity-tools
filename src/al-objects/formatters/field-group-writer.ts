@@ -1,12 +1,12 @@
 import IFieldGroup from "../components/models/field-group.model";
-import StringBuilder from "../models/string-builder";
-import StringHelper from "../string-helper";
+import StringBuilder from "../../helpers/string-builder";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class FieldGroupWriter {
   static write(fieldGroup: IFieldGroup, indentation: number): string {
     return new StringBuilder()
       .write(
-        `${fieldGroup.keyword}(${StringHelper.tokensToString(
+        `${fieldGroup.keyword}(${TokenReader.tokensToString(
           fieldGroup.declaration
         )})`,
         indentation

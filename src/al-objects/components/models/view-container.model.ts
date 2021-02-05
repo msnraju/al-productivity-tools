@@ -1,4 +1,4 @@
-import IView from "./IView";
+import IView from "./view.model";
 
 export default interface IViewContainer {
   views: Array<IView>;

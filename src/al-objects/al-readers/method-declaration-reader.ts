@@ -1,8 +1,6 @@
 import SYMBOLS from "../maps/symbols-map";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
-import IAttributeType from "../components/models/IAttributeType";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IAttributeType from "../components/models/attribute-type.model";
 import IMethodDeclaration from "../components/models/method-declaration.model";
 import VarSectionReader from "./var-section-reader";
 import AttributeReader from "./attribute-reader";
@@ -10,7 +8,9 @@ import MethodDeclaration from "../components/method-declaration";
 import IVarSection from "../components/models/var-section.model";
 import IVariable from "../models/IVariable";
 import VariableReader from "./variable-reader";
-import IParameter from "../components/models/IParameter";
+import IParameter from "../components/models/parameter.model";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
 export default class MethodDeclarationReader {
   static read(
@@ -217,7 +217,7 @@ export default class MethodDeclarationReader {
     tokens.push(tokenReader.token());
 
     tokenReader.readWhiteSpaces();
-    return StringHelper.tokensToString(tokens, SYMBOLS);
+    return TokenReader.tokensToString(tokens, SYMBOLS);
   }
 
   private static readAttributesAndComments(

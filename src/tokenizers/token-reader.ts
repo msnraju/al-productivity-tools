@@ -1,5 +1,6 @@
-import ITokenReader from "./models/ITokenReader";
-import IToken from "./models/IToken";
+import ITokenReader from "./models/token-reader.model";
+import IToken from "./models/token.model";
+import IKeyValue from "../helpers/models/key-value.model";
 
 export default class TokenReader implements ITokenReader {
   tokens: IToken[];
@@ -64,5 +65,45 @@ export default class TokenReader implements ITokenReader {
     this.readWhiteSpaces();
 
     return comments;
+  }
+
+  readBracesSegment(): IToken[] {
+    const tokens: IToken[] = [];
+    let counter = 0;
+    let value = this.peekTokenValue();
+    while (value !== "}" || counter !== 0) {
+      tokens.push(this.token());
+
+      value = this.peekTokenValue();
+      if (value === "{") {
+        counter++;
+      } else if (value === "}") {
+        counter--;
+      }
+    }
+
+    if (this.peekTokenValue() !== "}" || counter !== 0) {
+      throw new Error("segment end error.");
+    }
+
+    tokens.push(this.token());
+    this.readWhiteSpaces();
+    return tokens;
+  }
+
+  static tokensToString(
+    tokens: IToken[],
+    keywords: IKeyValue | null = null
+  ): string {
+    const buffer: string[] = [];
+    tokens.forEach((token) => {
+      if (keywords !== null && keywords[token.value.toLowerCase()]) {
+        buffer.push(keywords[token.value.toLowerCase()]);
+      } else {
+        buffer.push(token.value);
+      }
+    });
+
+    return buffer.join("");
   }
 }

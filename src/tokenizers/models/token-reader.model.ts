@@ -1,4 +1,4 @@
-import IToken from "./IToken";
+import IToken from "./token.model";
 
 export default interface ITokenReader {
   tokens: IToken[];
@@ -13,5 +13,6 @@ export default interface ITokenReader {
 
   readWhiteSpaces(tokens?: IToken[]): void;
   readComments(): string[];
+  readBracesSegment(): IToken[];
   next(): void;
 }

@@ -1,8 +1,8 @@
-import IKey from "../components/models/IKey";
-import StringBuilder from "../models/string-builder";
+import ITableKey from "../components/models/table-key.model";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class KeyWriter {
-  static write(key: IKey, indentation: number): string {
+  static write(key: ITableKey, indentation: number): string {
     return new StringBuilder()
       .write(key.header, indentation)
       .append(key.comments, indentation)
@@ -12,7 +12,7 @@ export default class KeyWriter {
       .toString();
   }
 
-  private static writeBody(key: IKey, indentation: number): string {
+  private static writeBody(key: ITableKey, indentation: number): string {
     return new StringBuilder()
       .write(key.properties, indentation)
       .popEmpty()

@@ -1,5 +1,5 @@
-import IAction from "../components/models/IAction";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
+import IAction from "../components/models/action.model";
 import MethodDeclarationWriter from "./method-declaration-writer";
 
 export default class ActionWriter {

@@ -1,5 +1,5 @@
 import { isArray } from "lodash";
-import StringHelper from "../string-helper";
+import StringHelper from "./string-helper";
 
 export default class StringBuilder {
   private buffer: string[];

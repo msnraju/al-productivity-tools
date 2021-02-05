@@ -1,5 +1,5 @@
-import IViewContainer from "../components/models/IViewContainer";
-import StringBuilder from "../models/string-builder";
+import IViewContainer from "../components/models/view-container.model";
+import StringBuilder from "../../helpers/string-builder";
 import ViewWriter from "./view-writer";
 
 export default class ViewContainerWriter {

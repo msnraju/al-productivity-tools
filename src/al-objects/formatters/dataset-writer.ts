@@ -1,6 +1,6 @@
-import IDataSet from "../components/models/IDataSet";
+import IDataSet from "../components/models/data-set.model";
 import DataItemWriter from "./data-item-writer";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class DataSetWriter {
   static write(dataset: IDataSet, indentation: number): string {

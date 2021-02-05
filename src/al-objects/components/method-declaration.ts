@@ -1,5 +1,5 @@
 import IVariable from "../models/IVariable";
-import IParameter from "./models/IParameter";
+import IParameter from "./models/parameter.model";
 import IMethodDeclaration from "./models/method-declaration.model";
 import IVarSection from "./models/var-section.model";
 

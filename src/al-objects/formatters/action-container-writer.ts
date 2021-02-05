@@ -1,5 +1,5 @@
-import IActionContainer from "../components/models/IActionContainer";
-import StringBuilder from "../models/string-builder";
+import IActionContainer from "../components/models/action-container.model";
+import StringBuilder from "../../helpers/string-builder";
 import ActionWriter from "./action-writer";
 
 export default class ActionContainerWriter {

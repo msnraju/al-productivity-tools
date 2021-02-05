@@ -1,6 +1,6 @@
-import ISegment from "./models/ISegment";
+import ISegment from "./models/segment.model";
 import IMethodDeclaration from "./models/method-declaration.model";
-import INode from "./models/INode";
+import INode from "./models/node.model";
 
 export default class Node implements INode {
   nodes: INode[];

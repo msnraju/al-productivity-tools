@@ -1,4 +1,4 @@
-import IToken from "../../models/IToken";
+import IToken from "../../../tokenizers/models/token.model";
 
 export default interface ISegment {
   name: string;

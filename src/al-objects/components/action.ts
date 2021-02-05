@@ -1,6 +1,6 @@
-import ISegment from "./models/ISegment";
+import IAction from "./models/action.model";
+import ISegment from "./models/segment.model";
 import IMethodDeclaration from "./models/method-declaration.model";
-import IAction from "../components/models/IAction";
 
 export default class Action implements IAction {
   childActions: IAction[];

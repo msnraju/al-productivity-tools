@@ -1,5 +1,5 @@
-import ITokenReader from "../models/ITokenReader";
-import IFieldsContainer from "../components/models/IFieldsContainer";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IFieldsContainer from "../components/models/fields-container.model";
 import FieldReader from "./field-reader";
 import FieldsContainer from "../components/fields-container";
 

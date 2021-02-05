@@ -1,5 +1,5 @@
 import IPageLayout from "../components/models/page-layout.model";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import ControlWriter from "./control-writer";
 
 export default class PageLayoutWriter {

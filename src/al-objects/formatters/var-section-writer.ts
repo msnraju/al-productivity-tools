@@ -1,6 +1,6 @@
 import _ = require("lodash");
 import IVarSection from "../components/models/var-section.model";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import VariableWriter from "./variable-writer";
 
 export default class VarSectionWriter {

@@ -1,6 +1,6 @@
 import _ = require("lodash");
 import IMethodDeclaration from "../components/models/method-declaration.model";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import MethodDeclarationWriter from "./method-declaration-writer";
 
 export default class MethodsWriter {

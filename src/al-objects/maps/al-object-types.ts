@@ -1,4 +1,5 @@
-import IKeyValue from "../../helpers/key-value";
+import { Collection } from "../../helpers/collection";
+import IKeyValue from "../../helpers/models/key-value.model";
 
 export default class ALObjectTypes {
   private static ALFileSuffix: IKeyValue = {
@@ -17,7 +18,7 @@ export default class ALObjectTypes {
   };
 
   static isALObjectType(type: string): boolean {
-    const objectTypes = [
+    const objectTypes = new Collection([
       "record",
       "codeunit",
       "report",
@@ -26,9 +27,9 @@ export default class ALObjectTypes {
       "query",
       "xmlport",
       "enum",
-    ];
+    ]);
 
-    return objectTypes.indexOf(type.toLowerCase()) !== -1;
+    return objectTypes.hasItem(type.toLowerCase());
   }
 
   static getALFileSuffix(name: string): string {

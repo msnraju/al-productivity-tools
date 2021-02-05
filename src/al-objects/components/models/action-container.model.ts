@@ -1,4 +1,4 @@
-import IAction from "./IAction";
+import IAction from "./action.model";
 
 export default interface IActionContainer {
   actions: IAction[];

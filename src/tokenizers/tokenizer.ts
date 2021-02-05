@@ -1,9 +1,9 @@
-import IToken from "./models/IToken";
+import IToken from "./models/token.model";
 
 export default class Tokenizer {
   private static lineNo: number;
 
-  static tokenizer(input: string) {
+  static tokenizer(input: string): IToken[] {
     let current = 0;
     this.lineNo = 0;
     const tokens: IToken[] = [];

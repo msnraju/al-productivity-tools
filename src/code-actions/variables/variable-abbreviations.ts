@@ -1,4 +1,4 @@
-import IKeyValue from "../../helpers/key-value";
+import IKeyValue from "../../helpers/models/key-value.model";
 import StringHelper from "../../helpers/string-helper";
 
 export default class VariableAbbreviations {

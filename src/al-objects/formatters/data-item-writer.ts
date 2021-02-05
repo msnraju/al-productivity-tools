@@ -1,5 +1,5 @@
-import IDataItem from "../components/models/IDataItem";
-import StringBuilder from "../models/string-builder";
+import IDataItem from "../components/models/data-item.model";
+import StringBuilder from "../../helpers/string-builder";
 import MethodDeclarationWriter from "./method-declaration-writer";
 
 export default class DataItemWriter {

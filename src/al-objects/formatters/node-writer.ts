@@ -1,5 +1,5 @@
-import INode from "../components/models/INode";
-import StringBuilder from "../models/string-builder";
+import INode from "../components/models/node.model";
+import StringBuilder from "../../helpers/string-builder";
 import MethodDeclarationWriter from "./method-declaration-writer";
 
 export default class NodeWriter {

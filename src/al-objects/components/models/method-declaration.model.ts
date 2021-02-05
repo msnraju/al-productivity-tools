@@ -1,5 +1,5 @@
 import IVariable from "../../models/IVariable";
-import IParameter from "./IParameter";
+import IParameter from "./parameter.model";
 import IVarSection from "./var-section.model";
 
 export default interface IMethodDeclaration {

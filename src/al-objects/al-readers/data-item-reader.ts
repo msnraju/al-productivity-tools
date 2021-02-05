@@ -1,11 +1,11 @@
-import { REPORT_DATAITEM_TYPES } from "../constants";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
-import IDataItem from "../components/models/IDataItem";
+import IDataItem from "../components/models/data-item.model";
 import DataItem from "../components/data-item";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
+import REPORT_DATAITEM_TYPES from "../maps/report-dataitem-types";
 
 export default class DataItemReader {
   static read(tokenReader: ITokenReader): IDataItem {
@@ -89,16 +89,16 @@ export default class DataItemReader {
       "Syntax error in DateItem declaration, ')' expected."
     );
 
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
 
   private static getDataItemType(tokenReader: ITokenReader) {
-    const name = tokenReader.tokenValue().toLowerCase();
-    if (REPORT_DATAITEM_TYPES.indexOf(name) === -1) {
-      throw new Error(`Invalid DataItem type '${name}'.`);
+    const dataItemType = tokenReader.tokenValue().toLowerCase();
+    if (!REPORT_DATAITEM_TYPES.hasItem(dataItemType)) {
+      throw new Error(`Invalid DataItem type '${dataItemType}'.`);
     }
 
     tokenReader.readWhiteSpaces();
-    return name;
+    return dataItemType;
   }
 }

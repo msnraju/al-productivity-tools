@@ -1,12 +1,13 @@
-import { EXTENSION_KEYWORDS, PAGE_CONTROL_TYPES } from "../constants";
-import ITokenReader from "../models/ITokenReader";
-import IToken from "../models/IToken";
-import StringHelper from "../string-helper";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
 import MethodDeclarationReader from "./method-declaration-reader";
 import PropertyReader from "./property-reader";
 import ActionContainerReader from "./action-container-reader";
-import IControl from "../components/models/IControl";
+import IControl from "../components/models/control.model";
 import Control from "../components/control";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
+import EXTENSION_KEYWORDS from "../maps/extension-keywords";
+import PAGE_CONTROL_TYPES from "../maps/page-control-types";
 
 export default class ControlReader {
   static read(tokenReader: ITokenReader): IControl {
@@ -86,15 +87,15 @@ export default class ControlReader {
 
     tokenReader.test(")", "Syntax error at control declaration, ')' expected.");
 
-    return `${name}(${StringHelper.tokensToString(tokens, {})})`;
+    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
 
   private static getControlType(tokenReader: ITokenReader) {
     const controlType = tokenReader.tokenValue().toLowerCase();
 
     if (
-      PAGE_CONTROL_TYPES.indexOf(controlType) === -1 &&
-      EXTENSION_KEYWORDS.indexOf(controlType) === -1
+      !PAGE_CONTROL_TYPES.hasItem(controlType) &&
+      !EXTENSION_KEYWORDS.hasItem(controlType) 
     ) {
       throw new Error(`Invalid control type '${controlType}'.`);
     }

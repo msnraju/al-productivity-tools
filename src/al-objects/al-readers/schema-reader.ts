@@ -1,8 +1,9 @@
-import { EXTENSION_KEYWORDS, XMLPORT_NODE_TYPES } from "../constants";
-import ITokenReader from "../models/ITokenReader";
-import ISchema from "../components/models/ISchema";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import ISchema from "../components/models/schema.model";
 import NodeReader from "./node-reader";
 import Schema from "../components/schema";
+import EXTENSION_KEYWORDS from "../maps/extension-keywords";
+import XMLPORT_NODE_TYPES from "../maps/xmlport-node-types";
 
 export default class SchemaReader {
   static read(tokenReader: ITokenReader): ISchema {
@@ -22,8 +23,8 @@ export default class SchemaReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (
-      XMLPORT_NODE_TYPES.indexOf(value) !== -1 ||
-      EXTENSION_KEYWORDS.indexOf(value) !== -1
+      XMLPORT_NODE_TYPES.hasItem(value) ||
+      EXTENSION_KEYWORDS.hasItem(value)
     ) {
       const node = NodeReader.read(tokenReader);
       schema.nodes.push(node);

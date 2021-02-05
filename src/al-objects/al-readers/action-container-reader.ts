@@ -1,8 +1,9 @@
-import { EXTENSION_KEYWORDS, PAGE_ACTION_TYPES } from "../constants";
-import IActionContainer from "../components/models/IActionContainer";
+import IActionContainer from "../components/models/action-container.model";
 import ActionContainer from "../components/action-container";
 import ActionReader from "./action-reader";
-import ITokenReader from "../models/ITokenReader";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import EXTENSION_KEYWORDS from "../maps/extension-keywords";
+import PAGE_ACTION_TYPES from "../maps/page-action-types";
 
 export default class ActionContainerReader {
   static read(tokenReader: ITokenReader): IActionContainer {
@@ -15,8 +16,8 @@ export default class ActionContainerReader {
 
     let actionType = tokenReader.peekTokenValue().toLowerCase();
     while (
-      PAGE_ACTION_TYPES.indexOf(actionType) !== -1 ||
-      EXTENSION_KEYWORDS.indexOf(actionType) !== -1
+      PAGE_ACTION_TYPES.hasItem(actionType) ||
+      EXTENSION_KEYWORDS.hasItem(actionType)
     ) {
       container.actions.push(ActionReader.read(tokenReader));
       actionType = tokenReader.peekTokenValue().toLowerCase();

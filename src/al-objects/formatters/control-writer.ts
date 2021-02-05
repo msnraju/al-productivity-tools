@@ -1,5 +1,5 @@
-import IControl from "../components/models/IControl";
-import StringBuilder from "../models/string-builder";
+import IControl from "../components/models/control.model";
+import StringBuilder from "../../helpers/string-builder";
 import ActionContainerWriter from "./action-container-writer";
 import MethodDeclarationWriter from "./method-declaration-writer";
 

@@ -1,5 +1,5 @@
-import ISchema from "../components/models/ISchema";
-import StringBuilder from "../models/string-builder";
+import ISchema from "../components/models/schema.model";
+import StringBuilder from "../../helpers/string-builder";
 import NodeWriter from "./node-writer";
 
 export default class SchemaWriter {

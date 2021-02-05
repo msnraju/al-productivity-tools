@@ -1,5 +1,5 @@
-import IView from "../components/models/IView";
-import StringBuilder from "../models/string-builder";
+import IView from "../components/models/view.model";
+import StringBuilder from "../../helpers/string-builder";
 
 export default class ViewWriter {
   static write(view: IView, indentation: number): string {

@@ -1,7 +1,7 @@
-import StringHelper from "../string-helper";
 import IMethodDeclaration from "../components/models/method-declaration.model";
-import StringBuilder from "../models/string-builder";
+import StringBuilder from "../../helpers/string-builder";
 import VarSectionWriter from "./var-section-writer";
+import StringHelper from "../../helpers/string-helper";
 
 export default class MethodDeclarationWriter {
   static write(method: IMethodDeclaration, indentation: number): string {

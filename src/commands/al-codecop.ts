@@ -32,7 +32,9 @@ export default class ALCodeCop {
   }
 
   static fixALCodeCopIssuesInWorkspace() {
-    if (!vscode.workspace.workspaceFolders) return;
+    if (!vscode.workspace.workspaceFolders) {
+      return;
+    }
 
     try {
       vscode.workspace.workspaceFolders.forEach((folder) => {

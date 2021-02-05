@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import ALFileNameHelper from "./al-file-name-helper";
+import ALFileHelper from "./al-file-helper";
 import simpleGit from "simple-git";
 import { v4 as uuidv4 } from "uuid";
 
-export default class ALFileNameCommands {
+export default class ALFileCommands {
   static insertGuid() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
@@ -27,12 +27,9 @@ export default class ALFileNameCommands {
           git = true;
         }
 
-        ALFileNameHelper.renameALFiles(
-          folder.uri.fsPath,
-          (oldFile, newFile) => {
-            this.renameALFileInternal(oldFile, newFile, git, folder.uri.fsPath);
-          }
-        );
+        ALFileHelper.renameALFiles(folder.uri.fsPath, (oldFile, newFile) => {
+          this.renameALFileInternal(oldFile, newFile, git, folder.uri.fsPath);
+        });
       });
 
       vscode.window.showInformationMessage(
@@ -52,7 +49,7 @@ export default class ALFileNameCommands {
 
     try {
       if (editor.document.isDirty) await editor.document.save();
-      await ALFileNameCommands.renameALFile();
+      await ALFileCommands.renameALFile();
     } catch (err) {
       console.log(err);
     }
@@ -64,9 +61,7 @@ export default class ALFileNameCommands {
     if (path.extname(editor.document.fileName).toLowerCase() != ".al") return;
 
     const oldFile = editor.document.fileName;
-    const newFile = await ALFileNameHelper.getALFileName(
-      editor.document.fileName
-    );
+    const newFile = await ALFileHelper.getALFileName(editor.document.fileName);
 
     if (oldFile.toLowerCase() === newFile.toLowerCase()) return;
 
@@ -125,7 +120,7 @@ export default class ALFileNameCommands {
 
         vscode.workspace.openTextDocument(openPath).then((doc) => {
           vscode.window.showTextDocument(doc).then(() => {
-            ALFileNameCommands.setCursorPosition(position);
+            ALFileCommands.setCursorPosition(position);
           });
         });
       });

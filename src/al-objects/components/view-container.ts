@@ -1,5 +1,5 @@
-import IView from "./models/IView";
-import IViewContainer from "./models/IViewContainer";
+import IView from "./models/view.model";
+import IViewContainer from "./models/view-container.model";
 
 export default class ViewContainer implements IViewContainer {
   views: IView[];
