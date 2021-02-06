@@ -13,9 +13,10 @@ import MethodDeclarationWriter from "./method-declaration-writer";
 import StringBuilder from "../../helpers/string-builder";
 import FieldGroupContainerWriter from "./field-group-container-writer";
 import TokenReader from "../../tokenizers/token-reader";
+import IFormatSetting from "../../helpers/models/format-settings.model";
 
 export default class ObjectWriter {
-  static write(context: IObjectContext): string {
+  static write(context: IObjectContext, formatSetting: IFormatSetting): string {
     return new StringBuilder()
       .write(context.header)
       .write(this.writeBody(context, 4))
@@ -83,16 +84,7 @@ export default class ObjectWriter {
     segments: Array<ISegment>,
     indentation: number
   ): string {
-    const segmentNames = [
-      // "keys",
-      // "fieldgroups",
-      // "actions",
-      // "schema",
-      "requestpage",
-      "labels",
-      "elements",
-      "value",
-    ];
+    const segmentNames = ["requestpage", "labels", "elements", "value"];
 
     if (!segments || segments.length == 0) return "";
     segments = _.sortBy(segments, (seg) => segmentNames.indexOf(seg.name));

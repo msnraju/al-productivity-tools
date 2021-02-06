@@ -1,32 +1,33 @@
 import fs = require("fs");
 import path = require("path");
+import IFormatSetting from "../helpers/models/format-settings.model";
 import ObjectFormatter from "./object-formatter";
 
 export default class ALFormatter {
-  static readALFiles(folderPath: string) {
+  static formatAllALFiles(folderPath: string, formatSetting: IFormatSetting) {
     folderPath = path.resolve(folderPath);
 
     const files = fs.readdirSync(folderPath);
     files.forEach((file) => {
       const fileName = `${folderPath}\\${file}`;
       if (fs.lstatSync(fileName).isDirectory()) {
-        this.readALFiles(fileName);
+        this.formatAllALFiles(fileName, formatSetting);
       } else if (file.toLowerCase().endsWith(".al")) {
-        this.readALFile(fileName);
+        this.formatALFile(fileName, formatSetting);
       }
     });
   }
 
-  static readALFile(filePath: string) {
+  private static formatALFile(filePath: string, formatSetting: IFormatSetting) {
     filePath = path.resolve(filePath);
     const data = fs.readFileSync(filePath);
     const content = data.toString();
-    const newContent = ObjectFormatter.format(content);
+    const newContent = ObjectFormatter.format(content, formatSetting);
     fs.writeFileSync(filePath, newContent);
   }
 
-  static start() {
-    this.readALFiles("./assets/AppObject");
-    console.log("All Done!");
-  }
+  // static start() {
+  //   this.formatAllALFiles("./assets/AppObject");
+  //   console.log("All Done!");
+  // }
 }

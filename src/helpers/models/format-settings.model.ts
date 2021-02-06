@@ -1,4 +1,4 @@
-export interface IFormatSetting {
+export default interface IFormatSetting {
   renameFileNameOnSave: boolean;
   wrapProcedure: boolean;
   sortLocalVariables: boolean;

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
 import ALCodeCopFixer from "./commands/al-codecop";
+import ALDiagnostics from "./commands/al-diagnostics";
 import ALFileCommands from "./commands/al-file-commands";
 import WorkspaceEvents from "./commands/workspace-events";
 
@@ -16,6 +17,13 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "alProductivityTools.fixALCodeCopIssuesInAllFiles",
       ALCodeCopFixer.fixALCodeCopIssuesInWorkspace
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "alProductivityTools.exportDiagnostics",
+      ALDiagnostics.exportDiagnostics
     )
   );
 
