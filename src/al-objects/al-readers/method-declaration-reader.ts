@@ -44,7 +44,7 @@ export default class MethodDeclarationReader {
     method.preVarSectionComments = tokenReader.readComments();
     method.variables = this.readVariables(tokenReader);
     method.postVarSectionComments = tokenReader.readComments();
-    method.body = this.readFunctionBody(tokenReader);
+    method.body = this.readBody(tokenReader);
     method.weight = this.getWeight(method, attributeType);
 
     return method;
@@ -183,7 +183,7 @@ export default class MethodDeclarationReader {
     }
   }
 
-  private static readFunctionBody(tokenReader: ITokenReader) {
+  private static readBody(tokenReader: ITokenReader): string {
     const tokens: IToken[] = [];
 
     let value = tokenReader.peekTokenValue().toLowerCase();
@@ -217,7 +217,7 @@ export default class MethodDeclarationReader {
     tokens.push(tokenReader.token());
 
     tokenReader.readWhiteSpaces();
-    return TokenReader.tokensToString(tokens, SYMBOLS);
+    return TokenReader.tokensToString(tokens);
   }
 
   private static readAttributesAndComments(

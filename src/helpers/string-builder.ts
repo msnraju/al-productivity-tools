@@ -65,6 +65,10 @@ export default class StringBuilder {
   }
 
   popEmpty(): StringBuilder {
+    if (this.buffer.length === 0) {
+      return this;
+    }
+
     let line = this.buffer[this.buffer.length - 1];
     while (line === "" || line.endsWith("\r\n")) {
       this.buffer.pop();

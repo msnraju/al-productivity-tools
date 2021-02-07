@@ -37,7 +37,8 @@ export default class ObjectReader {
     let value = tokenReader.peekTokenValue().toLowerCase();
 
     while (value !== "}") {
-      switch (value) {
+      switch (value.toLowerCase()) {
+        case "protected":
         case "var":
           appObject.variables = VarSectionReader.read(tokenReader);
           break;
@@ -51,7 +52,9 @@ export default class ObjectReader {
           comments = [];
           break;
         case "trigger":
-          appObject.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
+          appObject.triggers.push(
+            MethodDeclarationReader.read(tokenReader, comments)
+          );
           comments = [];
           break;
         // Table
@@ -87,6 +90,8 @@ export default class ObjectReader {
         case "labels":
         // Report
         case "elements":
+        // dotnet
+        case "assembly":
         // EnumExtension
         case "value":
           appObject.segments.push({

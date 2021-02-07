@@ -6,16 +6,33 @@ import VariableReader from "./variable-reader";
 
 export default class VarSectionReader {
   static read(tokenReader: ITokenReader): IVarSection | undefined {
+    const protected2 = this.isProtected(tokenReader);
     if (!this.hasVariables(tokenReader)) {
       return;
     }
 
-    return { variables: this.readVariables(tokenReader) };
+    return {
+      protected: protected2,
+      variables: this.readVariables(tokenReader),
+    };
+  }
+
+  private static isProtected(tokenReader: ITokenReader) {
+    let value = tokenReader.peekTokenValue();
+    return value.toLowerCase() === "protected";
   }
 
   private static hasVariables(tokenReader: ITokenReader) {
+    let pos = tokenReader.pos;
     let value = tokenReader.peekTokenValue();
+    if (value.toLowerCase() === "protected") {
+      tokenReader.next();
+      tokenReader.readWhiteSpaces();
+      value = tokenReader.peekTokenValue();
+    }
+
     if (value.toLowerCase() !== "var") {
+      tokenReader.pos = pos;
       return false;
     }
 

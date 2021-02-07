@@ -1,8 +1,7 @@
 export default interface IFormatSetting {
   renameFileNameOnSave: boolean;
   wrapProcedure: boolean;
-  sortLocalVariables: boolean;
-  sortGlobalVariables: boolean;
+  sortVariables: boolean;
   sortProcedures: boolean;
   convertKeywordsToAL: boolean;
   appendParenthesisAfterProcedures: boolean;

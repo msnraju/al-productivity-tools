@@ -82,6 +82,7 @@ export default class ALDiagnostics {
         );
       });
   }
+
   private static exportDiagnosticsSummary(
     workbook: Excel.Workbook,
     dataSet: IDiagnosticProblem[]
@@ -144,6 +145,7 @@ export default class ALDiagnostics {
       { header: "Start Position", key: "startPosition" },
       { header: "End Position", key: "endPosition" },
     ];
+
     worksheet.columns = headers as any;
 
     worksheet.columns[0].width = 50;

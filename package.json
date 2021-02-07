@@ -67,23 +67,17 @@
           "scope": "resource",
           "description": "Wrap procedure declaration"
         },
-        "msn.sortLocalVariables": {
+        "msn.sortVariables": {
           "type": "boolean",
           "default": true,
           "scope": "resource",
-          "description": "Sort local variables"
-        },
-        "msn.sortGlobalVariables": {
-          "type": "boolean",
-          "default": true,
-          "scope": "resource",
-          "description": "Sort global variables"
+          "description": "Sort Variables"
         },
         "msn.sortProcedures": {
           "type": "boolean",
           "default": true,
           "scope": "resource",
-          "description": "Sort procedures"
+          "description": "Sort Procedures"
         },
         "msn.convertKeywordsToAL": {
           "type": "boolean",

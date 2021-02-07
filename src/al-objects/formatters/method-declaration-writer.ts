@@ -2,25 +2,82 @@ import IMethodDeclaration from "../components/models/method-declaration.model";
 import StringBuilder from "../../helpers/string-builder";
 import VarSectionWriter from "./var-section-writer";
 import StringHelper from "../../helpers/string-helper";
+import IFormatSetting from "../../helpers/models/format-settings.model";
+import Tokenizer from "../../tokenizers/tokenizer";
+import TokenReader from "../../tokenizers/token-reader";
+import SYMBOLS from "../maps/symbols-map";
+import { read } from "fs";
+import SYSTEM_FUNCTIONS from "../maps/system-functions-map";
+import IToken from "../../tokenizers/models/token.model";
 
 export default class MethodDeclarationWriter {
-  static write(method: IMethodDeclaration, indentation: number): string {
+  static write(
+    method: IMethodDeclaration,
+    formatSetting: IFormatSetting,
+    indentation: number
+  ): string {
     return new StringBuilder()
       .write(method.preMethodComments, indentation)
       .write(method.attributes, indentation)
-      .write(this.writeHeader(method, indentation))
+      .write(this.writeHeader(method, formatSetting, indentation))
       .write(method.preVarSectionComments, indentation)
       .writeIfDefined(method.variables, (variables) =>
-        VarSectionWriter.write(variables, indentation)
+        VarSectionWriter.write(variables, formatSetting, indentation)
       )
       .write(method.postVarSectionComments, indentation)
-      .write(method.body, indentation)
+      .write(this.formatBody(method.body, formatSetting), indentation)
       .emptyLine()
       .toString();
   }
 
+  private static formatBody(
+    body: string,
+    formatSetting: IFormatSetting
+  ): string {
+    if (body == "") {
+      return body;
+    }
+
+    const tokens = Tokenizer.tokenizer(body);
+    const buffer: string[] = [];
+
+    function hasParenthesis(tokens: IToken[], pos: number): boolean {
+      if (pos + 1 >= tokens.length) {
+        return false;
+      }
+
+      let token = tokens[pos + 1];
+      return token.value === "(";
+    }
+
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i];
+      let tokenValue = token.value;
+      if (formatSetting.convertKeywordsToAL) {
+        if (SYMBOLS[token.value.toLowerCase()]) {
+          tokenValue = SYMBOLS[token.value.toLowerCase()];
+        }
+      }
+
+      if (formatSetting.appendParenthesisAfterProcedures) {
+        if (
+          !hasParenthesis(tokens, i) &&
+          SYSTEM_FUNCTIONS[tokenValue.toLowerCase()]
+        ) {
+          tokenValue += "()";
+        }
+      }
+
+      buffer.push(tokenValue);
+    }
+
+    const newBody = buffer.join("");
+    return newBody;
+  }
+
   private static writeHeader(
     method: IMethodDeclaration,
+    formatSetting: IFormatSetting,
     indentation: number
   ): string {
     const access = this.getAccess(method);
@@ -29,11 +86,14 @@ export default class MethodDeclarationWriter {
 
     const pad = StringHelper.pad(indentation);
     const declaration = `${pad}${access}${method.type} ${method.name}(${parameters.sl})${returns}`;
-    if (declaration.length > 145) {
-      return `${pad}${access}${method.type} ${method.name}(${parameters.ml})${returns}`;
-    } else {
-      return declaration;
+
+    if (formatSetting.wrapProcedure === true) {
+      if (declaration.length > 145) {
+        return `${pad}${access}${method.type} ${method.name}(${parameters.ml})${returns}`;
+      }
     }
+
+    return declaration;
   }
 
   private static getAccess(method: IMethodDeclaration) {

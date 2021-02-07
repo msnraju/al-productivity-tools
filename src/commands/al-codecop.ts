@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { languages, workspace } from "vscode";
 import ALFormatter from "../al-objects/al-formatter";
 import ObjectFormatter from "../al-objects/object-formatter";
+import IFormatError from "../helpers/models/format-error.model";
 import IFormatSetting from "../helpers/models/format-settings.model";
 
 export default class ALCodeCop {
@@ -21,8 +22,7 @@ export default class ALCodeCop {
     const settings: IFormatSetting = {
       renameFileNameOnSave: config.get("renameFileNameOnSave") as boolean,
       wrapProcedure: config.get("wrapProcedure") as boolean,
-      sortLocalVariables: config.get("sortLocalVariables") as boolean,
-      sortGlobalVariables: config.get("sortGlobalVariables") as boolean,
+      sortVariables: config.get("sortVariables") as boolean,
       sortProcedures: config.get("sortProcedures") as boolean,
       convertKeywordsToAL: config.get("convertKeywordsToAL") as boolean,
       appendParenthesisAfterProcedures: config.get(
@@ -69,11 +69,11 @@ export default class ALCodeCop {
       const range = new vscode.Range(start, end);
       const settings = ALCodeCop.getFormatSettings();
 
-      const newContent = ObjectFormatter.format(content, settings);
+      const formattedContent = ObjectFormatter.format(content, settings);
 
-      if (content != newContent) {
+      if (content != formattedContent) {
         editor.edit((editBuilder) => {
-          editBuilder.replace(range, newContent);
+          editBuilder.replace(range, formattedContent);
         });
       }
     } catch (err) {
@@ -89,15 +89,25 @@ export default class ALCodeCop {
     }
 
     try {
+      const settings = ALCodeCop.getFormatSettings();
+      let errors: IFormatError[] = [];
       vscode.workspace.workspaceFolders.forEach((folder) => {
-        ALFormatter.formatAllALFiles(
-          folder.uri.fsPath,
-          this.getFormatSettings()
-        );
+        ALFormatter.formatAllALFiles(folder.uri.fsPath, settings, errors);
       });
+
+      if (errors.length > 0) {
+        let message = "";
+        errors.forEach((err) => {
+          message += `file: ${err.file}, error: ${err.message}\r\n`;
+        });
+
+        vscode.window.showInformationMessage(
+          `CodeCop issues fixed after ignoring ${errors.length} files."`
+        );
+      }
     } catch (err) {
-      vscode.window.showInformationMessage(
-        "An error occurred while standardizing AL files in this workspace!"
+      vscode.window.showErrorMessage(
+        "An error occurred while fixing CodeCop issues!"
       );
     }
   }

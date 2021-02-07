@@ -42,7 +42,7 @@ export default class ActionReader {
 
     let value = tokenReader.peekTokenValue();
     while (value !== "}") {
-      switch (value) {
+      switch (value.toLowerCase()) {
         case "area":
         case "group":
         case "actions":
