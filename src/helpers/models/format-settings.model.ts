@@ -1,3 +1,5 @@
+import KeyValueMap from "../../al-objects/maps/key-value-map";
+
 export default interface IFormatSetting {
   renameFileNameOnSave: boolean;
   wrapProcedure: boolean;
@@ -11,4 +13,5 @@ export default interface IFormatSetting {
   removeUnusedParameters: boolean;
   autoCorrectVariableNames: boolean;
   setDefaultDataClassification: boolean;
+  extensionFunctions: KeyValueMap;
 }

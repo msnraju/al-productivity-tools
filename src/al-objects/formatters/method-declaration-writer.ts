@@ -4,9 +4,7 @@ import VarSectionWriter from "./var-section-writer";
 import StringHelper from "../../helpers/string-helper";
 import IFormatSetting from "../../helpers/models/format-settings.model";
 import Tokenizer from "../../tokenizers/tokenizer";
-import TokenReader from "../../tokenizers/token-reader";
 import SYMBOLS from "../maps/symbols-map";
-import { read } from "fs";
 import SYSTEM_FUNCTIONS from "../maps/system-functions-map";
 import IToken from "../../tokenizers/models/token.model";
 
@@ -50,9 +48,25 @@ export default class MethodDeclarationWriter {
       return token.value === "(";
     }
 
+    function getNextTokenValue(tokens: IToken[], pos: number): string {
+      pos++;
+      while (pos < tokens.length && tokens[pos].type === "whitespace") {
+        // skip
+        pos++;
+      }
+
+      if (pos < tokens.length) {
+        return tokens[pos].value;
+      }
+
+      return "";
+    }
+
+    let prevTokenValue = "";
     for (let i = 0; i < tokens.length; i++) {
       let token = tokens[i];
       let tokenValue = token.value;
+
       if (formatSetting.convertKeywordsToAL) {
         if (SYMBOLS[token.value.toLowerCase()]) {
           tokenValue = SYMBOLS[token.value.toLowerCase()];
@@ -60,14 +74,28 @@ export default class MethodDeclarationWriter {
       }
 
       if (formatSetting.appendParenthesisAfterProcedures) {
+        if (tokenValue == "Insert") {
+          console.log("");
+        }
+
+        const nextTokenValue = getNextTokenValue(tokens, i);
+
         if (
+          prevTokenValue != "::" &&
+          nextTokenValue != ":=" &&
           !hasParenthesis(tokens, i) &&
-          SYSTEM_FUNCTIONS[tokenValue.toLowerCase()]
+          (SYSTEM_FUNCTIONS[tokenValue.toLowerCase()] ||
+            formatSetting.extensionFunctions[tokenValue.toLowerCase()])
         ) {
           tokenValue += "()";
         }
       }
 
+      if (token.type !== "whitespace") {
+        prevTokenValue = tokenValue;
+      } else {
+        prevTokenValue = "";
+      }
       buffer.push(tokenValue);
     }
 

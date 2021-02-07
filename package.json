@@ -126,6 +126,12 @@
           "default": false,
           "scope": "resource",
           "description": "Set Default DataClassification"
+        },
+        "msn.extensionFunctions": {
+          "type": "array",
+          "default": [],
+          "scope": "resource",
+          "description": "List of custom functions to append parenthesis"
         }
       }
     }

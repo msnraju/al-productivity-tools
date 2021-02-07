@@ -36,7 +36,6 @@ class SystemFunctions implements IKeyValue {
   method = "Method";
   modify = "Modify";
   next = "Next";
-  open = "Open";
   post = "Post";
   print = "Print";
   read = "Read";

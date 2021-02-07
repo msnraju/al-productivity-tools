@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { languages, workspace } from "vscode";
 import ALFormatter from "../al-objects/al-formatter";
+import KeyValueMap from "../al-objects/maps/key-value-map";
 import ObjectFormatter from "../al-objects/object-formatter";
 import IFormatError from "../helpers/models/format-error.model";
 import IFormatSetting from "../helpers/models/format-settings.model";
@@ -19,6 +19,13 @@ export default class ALCodeCop {
 
   private static getFormatSettings(): IFormatSetting {
     const config = vscode.workspace.getConfiguration("msn");
+
+    const extFunctions = config.get("extensionFunctions") as string[];
+    const functionsMap: KeyValueMap = new KeyValueMap();
+    extFunctions.forEach((func) => {
+      functionsMap[func.toLowerCase()] = func;
+    });
+
     const settings: IFormatSetting = {
       renameFileNameOnSave: config.get("renameFileNameOnSave") as boolean,
       wrapProcedure: config.get("wrapProcedure") as boolean,
@@ -44,6 +51,7 @@ export default class ALCodeCop {
       setDefaultDataClassification: config.get(
         "setDefaultDataClassification"
       ) as boolean,
+      extensionFunctions: functionsMap,
     };
 
     return settings;
@@ -76,6 +84,8 @@ export default class ALCodeCop {
           editBuilder.replace(range, formattedContent);
         });
       }
+
+      vscode.window.showInformationMessage(`CodeCop issues fixed."`);
     } catch (err) {
       vscode.window.showErrorMessage(
         "An error occurred while reading this AL file!"
@@ -103,6 +113,10 @@ export default class ALCodeCop {
 
         vscode.window.showInformationMessage(
           `CodeCop issues fixed after ignoring ${errors.length} files."`
+        );
+      } else {
+        vscode.window.showInformationMessage(
+          `CodeCop issues fixed in all AL files."`
         );
       }
     } catch (err) {
