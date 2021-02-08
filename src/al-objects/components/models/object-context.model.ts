@@ -1,4 +1,4 @@
-import IVariable from "../../models/IVariable";
+import IVariable from "../../models/variable.model";
 import IMethodDeclaration from "./method-declaration.model";
 import IFieldsContainer from "./fields-container.model";
 import IPageLayout from "./page-layout.model";

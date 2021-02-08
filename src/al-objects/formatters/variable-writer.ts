@@ -1,4 +1,4 @@
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import StringBuilder from "../../helpers/string-builder";
 
 export default class VariableWriter {

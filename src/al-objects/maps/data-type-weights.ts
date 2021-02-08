@@ -1,6 +1,6 @@
-import IWeight from "../models/IWeight";
+import IWeight from "../models/weight.model";
 
-class DataTypeWeights  implements IWeight {
+class DataTypeWeights implements IWeight {
   [key: string]: number;
 
   record = 1;

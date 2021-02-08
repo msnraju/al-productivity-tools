@@ -6,7 +6,7 @@ import VarSectionReader from "./var-section-reader";
 import AttributeReader from "./attribute-reader";
 import MethodDeclaration from "../components/method-declaration";
 import IVarSection from "../components/models/var-section.model";
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import VariableReader from "./variable-reader";
 import IParameter from "../components/models/parameter.model";
 import IToken from "../../tokenizers/models/token.model";

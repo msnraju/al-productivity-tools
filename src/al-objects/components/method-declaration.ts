@@ -1,4 +1,4 @@
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import IParameter from "./models/parameter.model";
 import IMethodDeclaration from "./models/method-declaration.model";
 import IVarSection from "./models/var-section.model";
