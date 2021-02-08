@@ -1,153 +1,103 @@
-import { Helper } from './helper';
-import { Keywords } from './keywords';
-import { IToken } from './tokenizer';
-import { IReadContext } from './object-reader';
-import _ = require('lodash');
+import _ = require("lodash");
+import DATATYPE_KEYWORDS from "../maps/data-type-keywords";
+import ITokenReader from "../../tokenizers/models/token-reader.model";
+import IVariable from "../models/IVariable";
+import VARIABLE_KEYWORDS from "../maps/variable-keywords";
+import DATATYPE_WEIGHT from "../maps/data-type-weights";
+import Variable from "../components/variable";
+import IToken from "../../tokenizers/models/token.model";
+import TokenReader from "../../tokenizers/token-reader";
 
-export interface IVariable {
-  name: string;
-  dataType: string;
-  weight: number;
-  preVariable: Array<string>;
-  value: string;
-}
-
-export class VariableReader {
-  static readVariable(
-    context: IReadContext,
+export default class VariableReader {
+  static read(
+    tokenReader: ITokenReader,
     returnType: boolean,
     resetIndex: number
   ): IVariable | undefined {
-    const tokens: Array<IToken> = [];
-    let variableName = context.tokens[context.pos].value;
-    if (returnType && variableName === ':') variableName = '';
-    else context.pos++;
+    const variable: IVariable = new Variable();
 
-    Helper.readWhiteSpaces(context, []);
+    variable.name = tokenReader.peekTokenValue();
+    if (returnType && variable.name === ":") {
+      variable.name = "";
+    } else {
+      tokenReader.next();
+    }
 
-    const colon = context.tokens[context.pos].value;
-    context.pos++;
-    if (colon !== ':') {
-      context.pos = resetIndex;
+    tokenReader.readWhiteSpaces();
+
+    const colon = tokenReader.tokenValue();
+    if (colon !== ":") {
+      tokenReader.pos = resetIndex;
       return;
     }
 
-    Helper.readWhiteSpaces(context, []);
+    tokenReader.readWhiteSpaces();
 
-    let dataType = context.tokens[context.pos].value.toLocaleLowerCase();
-    context.pos++;
+    variable.dataType = this.getDataType(tokenReader);
+    variable.weight = this.getWeight(tokenReader, variable.dataType);
 
-    const weight = VariableReader.getWeight(context, dataType);
-    if (Keywords.DataTypes[dataType]) dataType = Keywords.DataTypes[dataType];
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
+    const subType = this.getSubType(tokenReader);
+    variable.value = `${variable.name}: ${variable.dataType}${subType}`;
+
+    return variable;
+  }
+
+  private static getSubType(tokenReader: ITokenReader) {
+    const tokens: IToken[] = [];
+    let value = tokenReader.peekTokenValue().toLowerCase();
     while (
-      value !== ';' &&
-      value !== ')' &&
-      value !== 'var' &&
-      value !== 'begin'
+      value !== ";" &&
+      value !== ")" &&
+      value !== "var" &&
+      value !== "begin"
     ) {
-      tokens.push(context.tokens[context.pos]);
-      value = context.tokens[++context.pos].value.toLocaleLowerCase();
+      tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue().toLowerCase();
     }
 
-    if (value === ';') {
-      tokens.push(context.tokens[context.pos]);
-      context.pos++;
-      Helper.readWhiteSpaces(context, []);
+    if (value === ";") {
+      tokens.push(tokenReader.token());
+      tokenReader.readWhiteSpaces();
     }
 
-    const variableValue = Helper.tokensToString(tokens, Keywords.Variables);
-    return {
-      name: variableName,
-      dataType: dataType,
-      weight: weight,
-      preVariable: [],
-      value: `${variableName}: ${dataType}${variableValue}`,
-    };
+    return TokenReader.tokensToString(tokens, VARIABLE_KEYWORDS);
   }
 
-  private static getWeight(context: IReadContext, dataType: string) {
-    if (dataType == 'array') {
-      let pos = context.pos;
-      pos = _.findIndex(
-        context.tokens,
-        (item) => item.value.toLocaleLowerCase() === 'of',
-        pos
-      );
+  private static getDataType(tokenReader: ITokenReader): string {
+    let dataType = tokenReader.tokenValue().toLowerCase();
 
-      if (context.tokens[pos].value.toLocaleLowerCase() === 'of') {
-        pos++;
-        while (context.tokens[pos].type === 'whitespace') pos++;
-      }
-
-      const dataType2 = context.tokens[pos].value.toLocaleLowerCase();
-      if (Keywords.DataTypes[dataType2])
-        context.tokens[pos].value = Keywords.DataTypes[dataType2];
-
-      return Keywords.DataTypeWeight[dataType2] || 100;
-    } else return Keywords.DataTypeWeight[dataType] || 100;
-  }
-
-  static readVariables(context: IReadContext): Array<IVariable> {
-    const variables: Array<IVariable> = [];
-    let preBuffer: Array<string> = [];
-    let value = context.tokens[context.pos].value.toLocaleLowerCase();
-    if (value !== 'var') return [];
-
-    context.pos++;
-    Helper.readWhiteSpaces(context, []);
-
-    let resetIndex = context.pos;
-    while (context.pos + 3 < context.tokens.length) {
-      // Comments
-      if (context.tokens[context.pos].type === 'comment') {
-        preBuffer = [...preBuffer, ...Helper.readComments(context)];
-        continue;
-      }
-
-      // Attributes
-      const attribute = Helper.readAttribute(context, Keywords.Variables);
-      if (attribute.length > 0) {
-        preBuffer.push(attribute);
-        continue;
-      }
-
-      const variable = this.readVariable(context, false, resetIndex);
-      if (variable) {
-        variables.push({
-          ...variable,
-          preVariable: preBuffer,
-        });
-      } else {
-        context.pos = resetIndex;
-        break;
-      }
-
-      preBuffer = [];
-      resetIndex = context.pos;
+    if (DATATYPE_KEYWORDS[dataType]) {
+      dataType = DATATYPE_KEYWORDS[dataType];
     }
 
-    Helper.readWhiteSpaces(context, []);
-    return variables;
+    return dataType;
   }
 
-  static variablesToString(variables: Array<IVariable>, indentation: number) {
-    const lines: Array<string> = [];
-    const pad = _.padStart('', indentation);
-    const pad4 = _.padStart('', indentation + 4);
-
-    if (variables.length > 0) {
-      variables = _.sortBy(variables, (item) => item.weight);
-      lines.push(`${pad}var`);
-      variables.forEach((variable) => {
-        if (variable.preVariable.length > 0) {
-          variable.preVariable.forEach((line) => lines.push(`${pad4}${line}`));
-        }
-
-        lines.push(`${pad4}${variable.value}`);
-      });
+  private static getWeight(
+    tokenReader: ITokenReader,
+    dataType: string
+  ): number {
+    if (dataType.toLowerCase() !== "array") {
+      return DATATYPE_WEIGHT[dataType] || 100;
     }
 
-    return lines;
+    let pos = tokenReader.pos;
+    pos = _.findIndex(
+      tokenReader.tokens,
+      (item) => item.value.toLowerCase() === "of",
+      pos
+    );
+
+    if (tokenReader.tokens[pos].value.toLowerCase() === "of") {
+      pos++;
+      tokenReader.readWhiteSpaces();
+    }
+
+    const dataType2 = tokenReader.tokens[pos].value.toLowerCase();
+    if (DATATYPE_KEYWORDS[dataType2]) {
+      tokenReader.tokens[pos].value = DATATYPE_KEYWORDS[dataType2];
+    }
+
+    return DATATYPE_WEIGHT[dataType2] || 100;
   }
 }

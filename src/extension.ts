@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
 import ALCodeCopFixer from "./commands/al-codecop";
-import ALFileNameCommands from "./commands/al-file-name-commands";
+import ALDiagnostics from "./commands/al-diagnostics";
+import ALFileCommands from "./commands/al-file-commands";
 import WorkspaceEvents from "./commands/workspace-events";
 
 export function activate(context: vscode.ExtensionContext) {
@@ -21,22 +22,29 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
+      "alProductivityTools.exportDiagnostics",
+      ALDiagnostics.exportDiagnostics
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
       "alProductivityTools.fixALFileNamingNotation",
-      ALFileNameCommands.fixALFileNamingNotation
+      ALFileCommands.fixALFileNamingNotation
     )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.fixALCurrentFileNamingNotation",
-      ALFileNameCommands.fixALCurrentFileNamingNotation
+      ALFileCommands.fixALCurrentFileNamingNotation
     )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.insertGuid",
-      ALFileNameCommands.insertGuid
+      ALFileCommands.insertGuid
     )
   );
 
