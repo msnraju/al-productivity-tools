@@ -74,10 +74,6 @@ export default class MethodDeclarationWriter {
       }
 
       if (formatSetting.appendParenthesisAfterProcedures) {
-        if (tokenValue == "Insert") {
-          console.log("");
-        }
-
         const nextTokenValue = getNextTokenValue(tokens, i);
 
         if (

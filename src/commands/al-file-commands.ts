@@ -8,7 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 export default class ALFileCommands {
   static insertGuid() {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
 
     const pos = editor.selection.active;
     editor.edit((editBuilder) => {
@@ -36,8 +38,8 @@ export default class ALFileCommands {
         "AL file names corrected as per the best practices"
       );
     } catch (err) {
-      vscode.window.showInformationMessage(
-        "An error occurred while standardizing AL files in this workspace!"
+      vscode.window.showErrorMessage(
+        "An error occurred while standardizing AL files in this workspace."
       );
     }
   }
@@ -48,10 +50,15 @@ export default class ALFileCommands {
     if (path.extname(editor.document.fileName).toLowerCase() != ".al") return;
 
     try {
-      if (editor.document.isDirty) await editor.document.save();
+      if (editor.document.isDirty) {
+        await editor.document.save();
+      }
+
       await ALFileCommands.renameALFile();
     } catch (err) {
-      console.log(err);
+      vscode.window.showErrorMessage(
+        "An error occurred while standardizing AL file name."
+      );
     }
   }
 

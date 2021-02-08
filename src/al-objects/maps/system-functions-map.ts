@@ -4,11 +4,8 @@ import IKeyValue from "../../helpers/models/key-value.model";
 class SystemFunctions implements IKeyValue {
   [prop: string]: string;
 
-  applicationbuild = "ApplicationBuild";
-  applicationversion = "ApplicationVersion";
   break = "Break";
   calcfield = "CalcField";
-  caption = "Caption";
   clearall = "ClearAll";
   commit = "Commit";
   createguid = "CreateGuid";
@@ -18,7 +15,6 @@ class SystemFunctions implements IKeyValue {
   deletelinks = "DeleteLinks";
   displayname = "DisplayName";
   duplicate = "Duplicate";
-  export = "Export";
   find = "Find";
   findfirst = "FindFirst";
   findlast = "FindLast";
@@ -36,9 +32,6 @@ class SystemFunctions implements IKeyValue {
   method = "Method";
   modify = "Modify";
   next = "Next";
-  post = "Post";
-  print = "Print";
-  read = "Read";
   reset = "Reset";
   run = "Run";
   runmodal = "RunModal";
@@ -47,7 +40,6 @@ class SystemFunctions implements IKeyValue {
   sessionid = "SessionId";
   setrecfilter = "SetRecFilter";
   skip = "Skip";
-  update = "Update";
   workdate = "WorkDate";
 }
 /* spell-checker: enable */
