@@ -10,7 +10,9 @@ export default class MethodsWriter {
     formatSetting: IFormatSetting,
     indentation: number
   ): string {
-    if (!methods || methods.length === 0) return "";
+    if (!methods || methods.length === 0) {
+      return "";
+    }
 
     methods = formatSetting.sortProcedures
       ? _.sortBy(methods, (item) => [item.weight])

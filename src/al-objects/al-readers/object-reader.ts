@@ -16,9 +16,13 @@ import KeysReader from "./keys-reader";
 import FieldGroupsReader from "./field-groups-reader";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import ICodeComponents from "../code-components";
 
 export default class ObjectReader {
-  static read(content: string): IObjectContext {
+  static read(
+    content: string,
+    codeComponents: ICodeComponents
+  ): IObjectContext {
     const context = this.getReadContext(content);
     const appObject = new ObjectContext();
 

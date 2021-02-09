@@ -12,8 +12,6 @@ export default interface IMethodDeclaration {
   internal: boolean;
   type: string;
   name: string;
-  // variable: string;
-  // event: boolean;
   parameterList: IParameter[];
   returnType?: IVariable;
   variables?: IVarSection;
