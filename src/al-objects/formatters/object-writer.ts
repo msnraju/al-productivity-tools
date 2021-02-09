@@ -15,12 +15,17 @@ import FieldGroupContainerWriter from "./field-group-container-writer";
 import TokenReader from "../../tokenizers/token-reader";
 import IFormatSetting from "../../helpers/models/format-settings.model";
 import MethodsWriter from "./methods-writer";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ObjectWriter {
-  static write(context: IObjectContext, formatSetting: IFormatSetting): string {
+  static write(
+    context: IObjectContext,
+    formatSetting: IFormatSetting,
+    codeIndex: ICodeIndex
+  ): string {
     return new StringBuilder()
       .write(context.header)
-      .write(this.writeBody(context, formatSetting, 4))
+      .write(this.writeBody(context, formatSetting, 4, codeIndex))
       .write("}")
       .toString();
   }
@@ -28,7 +33,8 @@ export default class ObjectWriter {
   private static writeBody(
     context: IObjectContext,
     formatSetting: IFormatSetting,
-    indentation: number
+    indentation: number,
+    codeIndex: ICodeIndex
   ): string {
     return (
       new StringBuilder()
@@ -73,7 +79,12 @@ export default class ObjectWriter {
         )
         .emptyLine()
         .writeIfDefined(context.variables, (variables) =>
-          VarSectionWriter.write(variables, formatSetting, indentation)
+          VarSectionWriter.writeGlobalVariables(
+            variables,
+            formatSetting,
+            indentation,
+            codeIndex
+          )
         )
         .emptyLine()
         .write(

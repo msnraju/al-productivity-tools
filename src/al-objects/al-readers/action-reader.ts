@@ -7,14 +7,15 @@ import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import EXTENSION_KEYWORDS from "../maps/extension-keywords";
 import PAGE_ACTION_TYPES from "../maps/page-action-types";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ActionReader {
-  static read(tokenReader: ITokenReader): IAction {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IAction {
     const action: IAction = new Action();
 
     action.header = this.readActionHeader(tokenReader);
     action.comments = tokenReader.readComments();
-    this.readBody(tokenReader, action);
+    this.readBody(tokenReader, action, codeIndex);
     tokenReader.readWhiteSpaces();
 
     return action;
@@ -35,7 +36,11 @@ export default class ActionReader {
     return actionType;
   }
 
-  private static readBody(tokenReader: ITokenReader, action: IAction) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    action: IAction,
+    codeIndex: ICodeIndex
+  ) {
     let comments: string[] = [];
 
     tokenReader.test("{", "Syntax error at action declaration, '{' expected.");
@@ -48,11 +53,11 @@ export default class ActionReader {
         case "actions":
         case "action":
         case "separator":
-          action.childActions.push(this.read(tokenReader));
+          action.childActions.push(this.read(tokenReader, codeIndex));
           break;
         case "trigger":
           action.triggers.push(
-            MethodDeclarationReader.read(tokenReader, comments)
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
           );
           comments = [];
           break;
@@ -62,7 +67,7 @@ export default class ActionReader {
           } else {
             action.properties.push(...comments);
             comments = [];
-            action.properties.push(PropertyReader.read(tokenReader));
+            action.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }
       }
 

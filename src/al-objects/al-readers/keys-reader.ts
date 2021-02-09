@@ -2,21 +2,26 @@ import ITokenReader from "../../tokenizers/models/token-reader.model";
 import KeyReader from "./key-reader";
 import IKeysContainer from "../components/models/keys-container.model";
 import KeysContainer from "../components/keys-container";
+import ICodeIndex from "../models/code-index.model";
 
 export default class KeysReader {
-  static read(tokenReader: ITokenReader): IKeysContainer {
+  static read(
+    tokenReader: ITokenReader,
+    codeIndex: ICodeIndex
+  ): IKeysContainer {
     const container: IKeysContainer = new KeysContainer();
 
     this.readDeclaration(tokenReader);
     container.postLabelComments = tokenReader.readComments();
-    this.readBody(tokenReader, container);
+    this.readBody(tokenReader, container, codeIndex);
 
     return container;
   }
 
   private static readBody(
     tokenReader: ITokenReader,
-    container: IKeysContainer
+    container: IKeysContainer,
+    codeIndex: ICodeIndex
   ) {
     tokenReader.test("{", "Syntax error at Keys declaration, '{' expected.");
 
@@ -25,7 +30,7 @@ export default class KeysReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value === "key") {
-      container.keys.push(KeyReader.read(tokenReader));
+      container.keys.push(KeyReader.read(tokenReader, codeIndex));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 

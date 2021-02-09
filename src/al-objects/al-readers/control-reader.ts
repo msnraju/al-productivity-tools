@@ -8,19 +8,24 @@ import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import EXTENSION_KEYWORDS from "../maps/extension-keywords";
 import PAGE_CONTROL_TYPES from "../maps/page-control-types";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ControlReader {
-  static read(tokenReader: ITokenReader): IControl {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IControl {
     const control: IControl = new Control();
 
-    control.header = this.readControlHeader(tokenReader);
+    control.header = this.readControlHeader(tokenReader, codeIndex);
     control.comments = tokenReader.readComments();
-    this.readBody(tokenReader, control);
+    this.readBody(tokenReader, control, codeIndex);
 
     return control;
   }
 
-  private static readBody(tokenReader: ITokenReader, control: IControl) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    control: IControl,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at control declaration, '{' expected.");
 
     let comments: string[] = [];
@@ -40,13 +45,18 @@ export default class ControlReader {
         case "usercontrol":
         case "field":
         case "label":
-          control.controls.push(this.read(tokenReader));
+          control.controls.push(this.read(tokenReader, codeIndex));
           break;
         case "actions":
-          control.container = ActionContainerReader.read(tokenReader);
+          control.container = ActionContainerReader.read(
+            tokenReader,
+            codeIndex
+          );
           break;
         case "trigger":
-          control.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
+          control.triggers.push(
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
+          );
           comments = [];
           break;
         default:
@@ -55,7 +65,9 @@ export default class ControlReader {
           } else {
             control.properties.push(...comments);
             comments = [];
-            control.properties.push(PropertyReader.read(tokenReader));
+            control.properties.push(
+              PropertyReader.read(tokenReader, codeIndex)
+            );
           }
       }
 
@@ -65,7 +77,10 @@ export default class ControlReader {
     tokenReader.test("}", "Syntax error at control declaration, '}' expected.");
   }
 
-  private static readControlHeader(tokenReader: ITokenReader) {
+  private static readControlHeader(
+    tokenReader: ITokenReader,
+    codeIndex: ICodeIndex
+  ) {
     const name = this.getControlType(tokenReader);
 
     tokenReader.test("(", "Syntax error at control declaration, '(' expected.");
@@ -86,6 +101,7 @@ export default class ControlReader {
     }
 
     tokenReader.test(")", "Syntax error at control declaration, ')' expected.");
+    codeIndex.pushCodeTokens(tokens);
 
     return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }
@@ -95,7 +111,7 @@ export default class ControlReader {
 
     if (
       !PAGE_CONTROL_TYPES.hasItem(controlType) &&
-      !EXTENSION_KEYWORDS.hasItem(controlType) 
+      !EXTENSION_KEYWORDS.hasItem(controlType)
     ) {
       throw new Error(`Invalid control type '${controlType}'.`);
     }

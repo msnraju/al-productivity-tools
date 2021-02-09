@@ -5,20 +5,25 @@ import IField from "../components/models/field.model";
 import Field from "../components/field";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import ICodeIndex from "../models/code-index.model";
 
 export default class FieldReader {
-  static read(tokenReader: ITokenReader): IField {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IField {
     const field: IField = new Field();
 
     field.header = this.readHeader(tokenReader);
     field.comments = tokenReader.readComments();
-    this.readBody(tokenReader, field);
+    this.readBody(tokenReader, field, codeIndex);
     tokenReader.readWhiteSpaces();
 
     return field;
   }
 
-  private static readBody(tokenReader: ITokenReader, field: IField) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    field: IField,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at Field declaration, '{' expected.");
 
     let comments: string[] = [];
@@ -27,7 +32,9 @@ export default class FieldReader {
     while (value !== "}") {
       switch (value) {
         case "trigger":
-          field.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
+          field.triggers.push(
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
+          );
           comments = [];
           break;
         default:
@@ -36,7 +43,7 @@ export default class FieldReader {
           } else {
             field.properties.push(...comments);
             comments = [];
-            field.properties.push(PropertyReader.read(tokenReader));
+            field.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }
       }
 

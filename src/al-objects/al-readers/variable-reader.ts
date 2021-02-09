@@ -35,7 +35,6 @@ export default class VariableReader {
 
     variable.dataType = this.getDataType(tokenReader);
     variable.weight = this.getWeight(tokenReader, variable.dataType);
-
     const subType = this.getSubType(tokenReader);
     variable.value = `${variable.name}: ${variable.dataType}${subType}`;
 

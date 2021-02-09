@@ -1,22 +1,27 @@
 import ITokenReader from "../../tokenizers/models/token-reader.model";
-import IFieldsContainer from "../components/models/fields-container.model";
 import FieldReader from "./field-reader";
 import FieldsContainer from "../components/fields-container";
+import ICodeIndex from "../models/code-index.model";
+import IFieldsContainer from "../components/models/fields-container.model";
 
 export default class FieldsReader {
-  static read(tokenReader: ITokenReader): IFieldsContainer {
+  static read(
+    tokenReader: ITokenReader,
+    codeIndex: ICodeIndex
+  ): IFieldsContainer {
     const container: IFieldsContainer = new FieldsContainer();
 
     this.readDeclaration(tokenReader);
     container.postLabelComments = tokenReader.readComments();
-    this.readBody(tokenReader, container);
+    this.readBody(tokenReader, container, codeIndex);
 
     return container;
   }
 
   private static readBody(
     tokenReader: ITokenReader,
-    container: IFieldsContainer
+    container: IFieldsContainer,
+    codeIndex: ICodeIndex
   ) {
     tokenReader.test("{", "Syntax error at Fields declaration, '{' expected.");
 
@@ -25,7 +30,7 @@ export default class FieldsReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value === "field" || value === "modify") {
-      container.fields.push(FieldReader.read(tokenReader));
+      container.fields.push(FieldReader.read(tokenReader, codeIndex));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 

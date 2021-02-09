@@ -1,24 +1,27 @@
-import {
-  PAGE_LAYOUT,
-} from "../constants";
+import { PAGE_LAYOUT } from "../constants";
 import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IPageLayout from "../components/models/page-layout.model";
 import ControlReader from "./control-reader";
 import PageLayout from "../components/page-layout";
 import EXTENSION_KEYWORDS from "../maps/extension-keywords";
 import PAGE_CONTROL_TYPES from "../maps/page-control-types";
+import ICodeIndex from "../models/code-index.model";
 
 export default class PageLayoutReader {
-  static read(tokenReader: ITokenReader): IPageLayout {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IPageLayout {
     const layout = new PageLayout();
     layout.keyword = this.getKeyword(tokenReader);
     layout.postLabelComments = tokenReader.readComments();
-    this.readBody(tokenReader, layout);
+    this.readBody(tokenReader, layout, codeIndex);
 
     return layout;
   }
 
-  private static readBody(tokenReader: ITokenReader, layout: IPageLayout) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    layout: IPageLayout,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at layout body, '{' expected.");
 
     layout.comments = tokenReader.readComments();
@@ -29,7 +32,7 @@ export default class PageLayoutReader {
       PAGE_CONTROL_TYPES.hasItem(value) ||
       EXTENSION_KEYWORDS.hasItem(value)
     ) {
-      layout.controls.push(ControlReader.read(tokenReader));
+      layout.controls.push(ControlReader.read(tokenReader, codeIndex));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 
