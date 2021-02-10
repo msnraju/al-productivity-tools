@@ -1,12 +1,12 @@
 import _ = require("lodash");
 import DATATYPE_KEYWORDS from "../maps/data-type-keywords";
 import ITokenReader from "../../tokenizers/models/token-reader.model";
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import VARIABLE_KEYWORDS from "../maps/variable-keywords";
 import DATATYPE_WEIGHT from "../maps/data-type-weights";
-import Variable from "../components/variable";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import Variable from "../components/variable";
 
 export default class VariableReader {
   static read(
@@ -35,7 +35,6 @@ export default class VariableReader {
 
     variable.dataType = this.getDataType(tokenReader);
     variable.weight = this.getWeight(tokenReader, variable.dataType);
-
     const subType = this.getSubType(tokenReader);
     variable.value = `${variable.name}: ${variable.dataType}${subType}`;
 
@@ -78,7 +77,7 @@ export default class VariableReader {
     dataType: string
   ): number {
     if (dataType.toLowerCase() !== "array") {
-      return DATATYPE_WEIGHT[dataType] || 100;
+      return DATATYPE_WEIGHT[dataType.toLowerCase()] || 100;
     }
 
     let pos = tokenReader.pos;

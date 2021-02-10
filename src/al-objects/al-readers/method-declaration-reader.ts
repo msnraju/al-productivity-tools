@@ -1,4 +1,3 @@
-import SYMBOLS from "../maps/symbols-map";
 import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IAttributeType from "../components/models/attribute-type.model";
 import IMethodDeclaration from "../components/models/method-declaration.model";
@@ -6,16 +5,19 @@ import VarSectionReader from "./var-section-reader";
 import AttributeReader from "./attribute-reader";
 import MethodDeclaration from "../components/method-declaration";
 import IVarSection from "../components/models/var-section.model";
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import VariableReader from "./variable-reader";
 import IParameter from "../components/models/parameter.model";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import Tokenizer from "../../tokenizers/tokenizer";
+import ICodeIndex from "../models/code-index.model";
 
 export default class MethodDeclarationReader {
   static read(
     tokenReader: ITokenReader,
-    comments: string[]
+    comments: string[],
+    codeIndex: ICodeIndex
   ): IMethodDeclaration {
     const method: IMethodDeclaration = new MethodDeclaration(comments);
 
@@ -47,6 +49,9 @@ export default class MethodDeclarationReader {
     method.body = this.readBody(tokenReader);
     method.weight = this.getWeight(method, attributeType);
 
+    const bodyTokens = Tokenizer.tokenizer(method.body);
+    method.codeIndex.pushCodeTokens(bodyTokens);
+    codeIndex.pushCodeTokens(bodyTokens);
     return method;
   }
 

@@ -1,6 +1,6 @@
 import IVarSection from "../components/models/var-section.model";
 import ITokenReader from "../../tokenizers/models/token-reader.model";
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import AttributeReader from "./attribute-reader";
 import VariableReader from "./variable-reader";
 

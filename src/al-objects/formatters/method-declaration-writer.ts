@@ -17,13 +17,23 @@ export default class MethodDeclarationWriter {
     return new StringBuilder()
       .write(method.preMethodComments, indentation)
       .write(method.attributes, indentation)
-      .write(this.writeHeader(method, formatSetting, indentation))
+      .write(
+        MethodDeclarationWriter.writeHeader(method, formatSetting, indentation)
+      )
       .write(method.preVarSectionComments, indentation)
       .writeIfDefined(method.variables, (variables) =>
-        VarSectionWriter.write(variables, formatSetting, indentation)
+        VarSectionWriter.writeLocalVariables(
+          method,
+          variables,
+          formatSetting,
+          indentation
+        )
       )
       .write(method.postVarSectionComments, indentation)
-      .write(this.formatBody(method.body, formatSetting), indentation)
+      .write(
+        MethodDeclarationWriter.formatBody(method.body, formatSetting),
+        indentation
+      )
       .emptyLine()
       .toString();
   }
@@ -105,7 +115,11 @@ export default class MethodDeclarationWriter {
     indentation: number
   ): string {
     const access = this.getAccess(method);
-    const parameters = this.getParameters(method, indentation + 4);
+    const parameters = this.getParameters(
+      method,
+      formatSetting,
+      indentation + 4
+    );
     const returns = this.getReturns(method);
 
     const pad = StringHelper.pad(indentation);
@@ -144,12 +158,24 @@ export default class MethodDeclarationWriter {
 
   private static getParameters(
     method: IMethodDeclaration,
+    formatSetting: IFormatSetting,
     indentation: number
   ): { sl: string; ml: string } {
     const paramsBuffer: string[] = [];
 
     method.parameterList.forEach((param) => {
-      paramsBuffer.push(param.value);
+      if (
+        formatSetting.removeUnusedParameters &&
+        method.local &&
+        method.type !== "trigger"
+      ) {
+        const token = method.codeIndex.findToken(param.name);
+        if (token) {
+          paramsBuffer.push(param.value);
+        }
+      } else {
+        paramsBuffer.push(param.value);
+      }
     });
 
     let parameters = paramsBuffer.join(" ");

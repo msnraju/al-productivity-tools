@@ -4,19 +4,24 @@ import IView from "../components/models/view.model";
 import View from "../components/view";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ViewReader {
-  static read(tokenReader: ITokenReader): IView {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IView {
     const view: IView = new View();
 
     view.header = this.readHeader(tokenReader, view);
     view.comments = tokenReader.readComments();
-    this.readBody(tokenReader, view);
+    this.readBody(tokenReader, view, codeIndex);
 
     return view;
   }
 
-  private static readBody(tokenReader: ITokenReader, view: IView) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    view: IView,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at view body, '{' expected.");
 
     tokenReader.readWhiteSpaces();
@@ -25,7 +30,7 @@ export default class ViewReader {
       if (tokenReader.tokenType() === "comment") {
         view.properties.push(...tokenReader.readComments());
       } else {
-        view.properties.push(PropertyReader.read(tokenReader));
+        view.properties.push(PropertyReader.read(tokenReader, codeIndex));
       }
 
       value = tokenReader.peekTokenValue();

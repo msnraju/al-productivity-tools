@@ -4,20 +4,25 @@ import ITableKey from "../components/models/table-key.model";
 import Key from "../components/key";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import ICodeIndex from "../models/code-index.model";
 
 export default class KeyReader {
-  static read(tokenReader: ITokenReader): ITableKey {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): ITableKey {
     const key: ITableKey = new Key();
 
     key.header = this.readHeader(tokenReader);
     key.comments = tokenReader.readComments();
-    this.readBody(tokenReader, key);
+    this.readBody(tokenReader, key, codeIndex);
     tokenReader.readWhiteSpaces();
 
     return key;
   }
 
-  private static readBody(tokenReader: ITokenReader, key: ITableKey) {
+  private static readBody(
+    tokenReader: ITokenReader,
+    key: ITableKey,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at Key declaration, '{' expected.");
 
     let value = tokenReader.peekTokenValue().toLowerCase();
@@ -25,7 +30,7 @@ export default class KeyReader {
       if (tokenReader.tokenType() === "comment") {
         key.properties.push(...tokenReader.readComments());
       } else {
-        key.properties.push(PropertyReader.read(tokenReader));
+        key.properties.push(PropertyReader.read(tokenReader, codeIndex));
       }
 
       value = tokenReader.peekTokenValue().toLowerCase();

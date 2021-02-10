@@ -7,14 +7,15 @@ import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import EXTENSION_KEYWORDS from "../maps/extension-keywords";
 import XMLPORT_NODE_TYPES from "../maps/xmlport-node-types";
+import ICodeIndex from "../models/code-index.model";
 
 export default class NodeReader {
-  static read(tokenReader: ITokenReader): INode {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): INode {
     const node: INode = new Node();
 
     node.header = this.readHeader(tokenReader);
     node.comments = tokenReader.readComments();
-    this.readNodeBody(tokenReader, node);
+    this.readNodeBody(tokenReader, node, codeIndex);
     return node;
   }
 
@@ -57,7 +58,11 @@ export default class NodeReader {
     return name;
   }
 
-  private static readNodeBody(tokenReader: ITokenReader, node: INode) {
+  private static readNodeBody(
+    tokenReader: ITokenReader,
+    node: INode,
+    codeIndex: ICodeIndex
+  ) {
     tokenReader.test("{", "Syntax error at node body, '{' expected.");
 
     let comments: string[] = [];
@@ -70,11 +75,11 @@ export default class NodeReader {
         case "textattribute":
         case "fieldelement":
         case "fieldattribute":
-          node.nodes.push(this.read(tokenReader));
+          node.nodes.push(this.read(tokenReader, codeIndex));
           break;
         case "trigger":
           node.triggers.push(
-            MethodDeclarationReader.read(tokenReader, comments)
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
           );
           comments = [];
           break;
@@ -84,7 +89,7 @@ export default class NodeReader {
           } else {
             node.properties.push(...comments);
             comments = [];
-            node.properties.push(PropertyReader.read(tokenReader));
+            node.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }
           break;
       }

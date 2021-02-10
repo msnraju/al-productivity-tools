@@ -18,7 +18,7 @@ export default class ALFileHelper {
           line = line.trim();
           if (line.startsWith("//") || !line) return;
 
-          const object = this.getObject(line);
+          const object = ALFileHelper.getObject(line);
           if (object) {
             const suffix = ALObjectTypes.getALFileSuffix(object.type);
             let newObjectName = object.name.replace(/[^a-zA-Z0-9]*/g, "");
@@ -30,6 +30,54 @@ export default class ALFileHelper {
           }
         });
       });
+    });
+  }
+
+  static getALFileNameSync(file: string): string {
+    let newFilePath: string = file;
+
+    const data = fs.readFileSync(file);
+    const content = data.toString("utf8");
+    const lines = content.split(/\r?\n/g);
+    lines.forEach(async (line) => {
+      line = line.trim();
+      if (line.startsWith("//") || !line) {
+        return;
+      }
+
+      const object = ALFileHelper.getObject(line);
+      if (object) {
+        const suffix = ALObjectTypes.getALFileSuffix(object.type);
+        let newObjectName = object.name.replace(/[^a-zA-Z0-9]*/g, "");
+
+        const newFileName = `${newObjectName}.${suffix}.al`;
+        const folder = path.dirname(file);
+        newFilePath = `${folder}\\${newFileName}`;
+      }
+    });
+
+    return newFilePath;
+  }
+
+  static renameALFilesSync(
+    filePath: string,
+    renameCb: (oldName: string, newName: string) => void
+  ) {
+    const files = fs.readdirSync(filePath);
+    files.forEach((file) => {
+      const fileName = `${filePath}\\${file}`;
+      const stats = fs.lstatSync(fileName);
+
+      if (stats.isDirectory()) {
+        ALFileHelper.renameALFilesSync(fileName, renameCb);
+      } else {
+        const ext = path.extname(file).toLowerCase();
+
+        if (ext === ".al") {
+          const newFile = ALFileHelper.getALFileNameSync(fileName);
+          renameCb(fileName, newFile);
+        }
+      }
     });
   }
 
@@ -54,12 +102,12 @@ export default class ALFileHelper {
             }
 
             if (stats.isDirectory()) {
-              await this.renameALFiles(fileName, renameCb);
+              await ALFileHelper.renameALFiles(fileName, renameCb);
             } else {
               const ext = path.extname(file).toLowerCase();
 
               if (ext === ".al") {
-                const newFile = await this.getALFileName(fileName);
+                const newFile = await ALFileHelper.getALFileName(fileName);
                 renameCb(fileName, newFile);
                 resolve(newFile);
               }
@@ -90,12 +138,14 @@ export default class ALFileHelper {
             }
 
             if (stats.isDirectory()) {
-              const innerObjects = await this.getObjects(fileName);
+              const innerObjects = await ALFileHelper.getObjects(fileName);
               objects = [...objects, ...innerObjects];
             } else {
               const ext = path.extname(file).toLowerCase();
               if (ext === ".al") {
-                const fileObjects = await this.getObjectsInFile(fileName);
+                const fileObjects = await ALFileHelper.getObjectsInFile(
+                  fileName
+                );
                 objects = [...objects, ...fileObjects];
               }
             }
@@ -125,7 +175,7 @@ export default class ALFileHelper {
           const line = lines[i].trim();
           if (line.startsWith("//") || !line) continue;
 
-          const object = this.getObject(line);
+          const object = ALFileHelper.getObject(line);
           if (object) {
             object.uri = file;
             objects.push(object);

@@ -1,4 +1,4 @@
-import IVariable from "../../models/IVariable";
+import IVariable from "../../models/variable.model";
 
 export default interface IVarSection {
   protected: boolean;

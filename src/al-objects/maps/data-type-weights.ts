@@ -1,17 +1,25 @@
-import IWeight from "../models/IWeight";
+import IWeight from "../models/weight.model";
 
-class DataTypeWeights  implements IWeight {
+class DataTypeWeights implements IWeight {
   [key: string]: number;
 
   record = 1;
-  codeunit = 2;
-  page = 3;
-  report = 4;
-  query = 5;
-  xmlport = 6;
+  report = 2;
+  codeunit = 3;
+  xmlport = 4;
+  page = 5;
+  query = 6;
+  notification = 7;
+  bigtext = 8;
+  dateformula = 9;
+  recordid = 10;
+  recordref = 11;
+  fieldref = 12;
+  filterpagebuilder = 13;
+  keyref = 14;
+
   testpage = 100;
   testpermissions = 100;
-  filterpagebuilder = 100;
   interface = 100;
   list = 200;
   textconst = 199;
@@ -45,18 +53,12 @@ class DataTypeWeights  implements IWeight {
   webserviceactionresultcode = 100;
   moduledependencyinfo = 100;
   moduleinfo = 100;
-  notification = 100;
   sessionsettings = 100;
   version = 100;
   automation = 100;
   dotnet = 100;
   ocx = 100;
   textbuilder = 100;
-  bigtext = 100;
-  recordref = 100;
-  fieldref = 100;
-  keyref = 100;
-  recordid = 100;
   file = 100;
   instream = 100;
   outstream = 100;
@@ -72,7 +74,6 @@ class DataTypeWeights  implements IWeight {
   binary = 100;
   boolean = 100;
   guid = 100;
-  dateformula = 100;
   duration = 100;
   option = 100;
   text = 100;

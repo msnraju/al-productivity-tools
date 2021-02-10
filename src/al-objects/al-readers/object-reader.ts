@@ -16,14 +16,15 @@ import KeysReader from "./keys-reader";
 import FieldGroupsReader from "./field-groups-reader";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ObjectReader {
-  static read(content: string): IObjectContext {
+  static read(content: string, codeIndex: ICodeIndex): IObjectContext {
     const context = this.getReadContext(content);
     const appObject = new ObjectContext();
 
     appObject.header = ObjectReader.readHeader(context);
-    this.readBody(context, appObject);
+    this.readBody(context, appObject, codeIndex);
     appObject.footer = this.readFooter(context);
 
     return appObject;
@@ -31,7 +32,8 @@ export default class ObjectReader {
 
   private static readBody(
     tokenReader: ITokenReader,
-    appObject: IObjectContext
+    appObject: IObjectContext,
+    codeIndex: ICodeIndex
   ) {
     let comments: string[] = [];
     let value = tokenReader.peekTokenValue().toLowerCase();
@@ -47,43 +49,49 @@ export default class ObjectReader {
         case "internal":
         case "procedure":
           appObject.procedures.push(
-            MethodDeclarationReader.read(tokenReader, comments)
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
           );
           comments = [];
           break;
         case "trigger":
           appObject.triggers.push(
-            MethodDeclarationReader.read(tokenReader, comments)
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
           );
           comments = [];
           break;
         // Table
         case "fields":
-          appObject.fields = FieldsReader.read(tokenReader);
+          appObject.fields = FieldsReader.read(tokenReader, codeIndex);
           break;
         case "keys":
-          appObject.keys = KeysReader.read(tokenReader);
+          appObject.keys = KeysReader.read(tokenReader, codeIndex);
           break;
         case "fieldgroups":
-          appObject.fieldGroups = FieldGroupsReader.read(tokenReader);
+          appObject.fieldGroups = FieldGroupsReader.read(
+            tokenReader,
+            codeIndex
+          );
           break;
         // Page
         case "layout":
-          appObject.layout = PageLayoutReader.read(tokenReader);
+          appObject.layout = PageLayoutReader.read(tokenReader, codeIndex);
           break;
         case "views":
-          appObject.views = ViewContainerReader.read(tokenReader);
+          appObject.views = ViewContainerReader.read(tokenReader, codeIndex);
           break;
         case "actions":
-          appObject.actions = ActionContainerReader.read(tokenReader);
+          appObject.actions = ActionContainerReader.read(
+            tokenReader,
+            codeIndex
+          );
           break;
         // Report
         case "dataset":
-          appObject.dataSet = DataSetReader.read(tokenReader);
+          appObject.dataSet = DataSetReader.read(tokenReader, codeIndex);
           break;
         // XmlPort
         case "schema":
-          appObject.schema = SchemaReader.read(tokenReader);
+          appObject.schema = SchemaReader.read(tokenReader, codeIndex);
           break;
         // Report
         case "requestpage":
@@ -94,9 +102,12 @@ export default class ObjectReader {
         case "assembly":
         // EnumExtension
         case "value":
+          const tokens = tokenReader.readBracesSegment();
+          codeIndex.pushCodeTokens(tokens);
+
           appObject.segments.push({
             name: value,
-            tokens: tokenReader.readBracesSegment(),
+            tokens: tokens,
           });
           break;
         default:
@@ -105,7 +116,9 @@ export default class ObjectReader {
           } else {
             appObject.properties.push(...comments);
             comments = [];
-            appObject.properties.push(PropertyReader.read(tokenReader));
+            appObject.properties.push(
+              PropertyReader.read(tokenReader, codeIndex)
+            );
           }
           break;
       }

@@ -20,7 +20,9 @@ export default class ALFileCommands {
   }
 
   static fixALFileNamingNotation() {
-    if (!vscode.workspace.workspaceFolders) return;
+    if (!vscode.workspace.workspaceFolders) {
+      return;
+    }
 
     try {
       vscode.workspace.workspaceFolders.forEach((folder) => {
@@ -29,9 +31,17 @@ export default class ALFileCommands {
           git = true;
         }
 
-        ALFileHelper.renameALFiles(folder.uri.fsPath, (oldFile, newFile) => {
-          this.renameALFileInternal(oldFile, newFile, git, folder.uri.fsPath);
-        });
+        ALFileHelper.renameALFilesSync(
+          folder.uri.fsPath,
+          (oldFile, newFile) => {
+            ALFileCommands.renameALFileInternal(
+              oldFile,
+              newFile,
+              git,
+              folder.uri.fsPath
+            );
+          }
+        );
       });
 
       vscode.window.showInformationMessage(
@@ -64,13 +74,20 @@ export default class ALFileCommands {
 
   static async renameALFile() {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
-    if (path.extname(editor.document.fileName).toLowerCase() != ".al") return;
+    if (!editor) {
+      return;
+    }
+
+    if (path.extname(editor.document.fileName).toLowerCase() != ".al") {
+      return;
+    }
 
     const oldFile = editor.document.fileName;
     const newFile = await ALFileHelper.getALFileName(editor.document.fileName);
 
-    if (oldFile.toLowerCase() === newFile.toLowerCase()) return;
+    if (oldFile.toLowerCase() === newFile.toLowerCase()) {
+      return;
+    }
 
     const folder = vscode.workspace.getWorkspaceFolder(editor.document.uri);
     if (
@@ -107,17 +124,24 @@ export default class ALFileCommands {
 
     if (git)
       simpleGit(gitPath).mv(oldFile, newFile, () => {
-        if (openNewFile) openNewFile(newFile);
+        if (openNewFile) {
+          openNewFile(newFile);
+        }
       });
     else {
       fs.renameSync(oldFile, newFile);
-      if (openNewFile) openNewFile(newFile);
+      if (openNewFile) {
+        openNewFile(newFile);
+      }
     }
   }
 
   private static openNewALFile(newFile: string) {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
+
     const position = editor.selection.active;
 
     vscode.commands
@@ -135,7 +159,9 @@ export default class ALFileCommands {
 
   private static setCursorPosition(position: vscode.Position) {
     const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
 
     editor.selection = new vscode.Selection(position, position);
     editor.revealRange(new vscode.Range(position, position));

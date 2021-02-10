@@ -6,21 +6,23 @@ import DataItem from "../components/data-item";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import REPORT_DATAITEM_TYPES from "../maps/report-dataitem-types";
+import ICodeIndex from "../models/code-index.model";
 
 export default class DataItemReader {
-  static read(tokenReader: ITokenReader): IDataItem {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IDataItem {
     const dataItem: IDataItem = new DataItem();
 
-    dataItem.header = this.readDataItemHeader(tokenReader);
+    dataItem.header = this.readDataItemHeader(tokenReader, codeIndex);
     dataItem.comments = tokenReader.readComments();
-    this.readDataItemItems(tokenReader, dataItem);
+    this.readDataItemItems(tokenReader, dataItem, codeIndex);
 
     return dataItem;
   }
 
   private static readDataItemItems(
     tokenReader: ITokenReader,
-    dataItem: IDataItem
+    dataItem: IDataItem,
+    codeIndex: ICodeIndex
   ) {
     tokenReader.test(
       "{",
@@ -35,10 +37,12 @@ export default class DataItemReader {
       switch (value) {
         case "dataitem":
         case "column":
-          dataItem.dataItems.push(this.read(tokenReader));
+          dataItem.dataItems.push(this.read(tokenReader, codeIndex));
           break;
         case "trigger":
-          dataItem.triggers.push(MethodDeclarationReader.read(tokenReader, comments));
+          dataItem.triggers.push(
+            MethodDeclarationReader.read(tokenReader, comments, codeIndex)
+          );
           comments = [];
           break;
         default:
@@ -47,7 +51,9 @@ export default class DataItemReader {
           } else {
             dataItem.properties.push(...comments);
             comments = [];
-            dataItem.properties.push(PropertyReader.read(tokenReader));
+            dataItem.properties.push(
+              PropertyReader.read(tokenReader, codeIndex)
+            );
           }
           break;
       }
@@ -61,7 +67,10 @@ export default class DataItemReader {
     );
   }
 
-  private static readDataItemHeader(tokenReader: ITokenReader) {
+  private static readDataItemHeader(
+    tokenReader: ITokenReader,
+    codeIndex: ICodeIndex
+  ) {
     const name = this.getDataItemType(tokenReader);
 
     tokenReader.test(
@@ -88,6 +97,8 @@ export default class DataItemReader {
       ")",
       "Syntax error in DateItem declaration, ')' expected."
     );
+
+    codeIndex.pushCodeTokens(tokens);
 
     return `${name}(${TokenReader.tokensToString(tokens, {})})`;
   }

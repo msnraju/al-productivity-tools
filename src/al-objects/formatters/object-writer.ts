@@ -14,12 +14,18 @@ import StringBuilder from "../../helpers/string-builder";
 import FieldGroupContainerWriter from "./field-group-container-writer";
 import TokenReader from "../../tokenizers/token-reader";
 import IFormatSetting from "../../helpers/models/format-settings.model";
+import MethodsWriter from "./methods-writer";
+import ICodeIndex from "../models/code-index.model";
 
 export default class ObjectWriter {
-  static write(context: IObjectContext, formatSetting: IFormatSetting): string {
+  static write(
+    context: IObjectContext,
+    formatSetting: IFormatSetting,
+    codeIndex: ICodeIndex
+  ): string {
     return new StringBuilder()
       .write(context.header)
-      .write(this.writeBody(context, formatSetting, 4))
+      .write(this.writeBody(context, formatSetting, 4, codeIndex))
       .write("}")
       .toString();
   }
@@ -27,58 +33,69 @@ export default class ObjectWriter {
   private static writeBody(
     context: IObjectContext,
     formatSetting: IFormatSetting,
-    indentation: number
+    indentation: number,
+    codeIndex: ICodeIndex
   ): string {
-    return new StringBuilder()
-      .write(context.properties, indentation)
-      .emptyLine()
-      .writeIfDefined(context.fields, (container) =>
-        FieldsContainerWriter.write(container, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.keys, (container) =>
-        KeysContainerWriter.write(container, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.fieldGroups, (container) =>
-        FieldGroupContainerWriter.write(container, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.layout, (layout) =>
-        PageLayoutWriter.write(layout, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.actions, (container) =>
-        ActionContainerWriter.write(container, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.views, (container) =>
-        ViewContainerWriter.write(container, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.dataSet, (dataSet) =>
-        DataSetWriter.write(dataSet, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.schema, (schema) =>
-        SchemaWriter.write(schema, formatSetting, indentation)
-      )
-      .emptyLine()
-      .write(this.writeSegments(context.segments, indentation))
-      .emptyLine()
-      .writeEach(context.triggers, (trigger) =>
-        MethodDeclarationWriter.write(trigger, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeIfDefined(context.variables, (variables) =>
-        VarSectionWriter.write(variables, formatSetting, indentation)
-      )
-      .emptyLine()
-      .writeEach(context.procedures, (procedure) =>
-        MethodDeclarationWriter.write(procedure, formatSetting, indentation)
-      )
-      .popEmpty()
-      .toString();
+    return (
+      new StringBuilder()
+        .write(context.properties, indentation)
+        .emptyLine()
+        .writeIfDefined(context.fields, (container) =>
+          FieldsContainerWriter.write(container, formatSetting, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.keys, (container) =>
+          KeysContainerWriter.write(container, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.fieldGroups, (container) =>
+          FieldGroupContainerWriter.write(container, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.layout, (layout) =>
+          PageLayoutWriter.write(layout, formatSetting, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.actions, (container) =>
+          ActionContainerWriter.write(container, formatSetting, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.views, (container) =>
+          ViewContainerWriter.write(container, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.dataSet, (dataSet) =>
+          DataSetWriter.write(dataSet, formatSetting, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.schema, (schema) =>
+          SchemaWriter.write(schema, formatSetting, indentation)
+        )
+        .emptyLine()
+        .write(this.writeSegments(context.segments, indentation))
+        .emptyLine()
+        .writeEach(context.triggers, (trigger) =>
+          MethodDeclarationWriter.write(trigger, formatSetting, indentation)
+        )
+        .emptyLine()
+        .writeIfDefined(context.variables, (variables) =>
+          VarSectionWriter.writeGlobalVariables(
+            variables,
+            formatSetting,
+            indentation,
+            codeIndex
+          )
+        )
+        .emptyLine()
+        .write(
+          MethodsWriter.write(context.procedures, formatSetting, indentation)
+        )
+        // .writeEach(context.procedures, (procedure) =>
+        //   MethodDeclarationWriter.write(procedure, formatSetting, indentation)
+        // )
+        .popEmpty()
+        .toString()
+    );
   }
 
   private static writeSegments(

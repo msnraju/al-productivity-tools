@@ -1,4 +1,6 @@
-import IVariable from "../../models/IVariable";
+import IToken from "../../../tokenizers/models/token.model";
+import ICodeIndex from "../../models/code-index.model";
+import IVariable from "../../models/variable.model";
 import IParameter from "./parameter.model";
 import IVarSection from "./var-section.model";
 
@@ -12,12 +14,11 @@ export default interface IMethodDeclaration {
   internal: boolean;
   type: string;
   name: string;
-  // variable: string;
-  // event: boolean;
   parameterList: IParameter[];
   returnType?: IVariable;
   variables?: IVarSection;
 
   body: string;
   weight: number;
+  codeIndex: ICodeIndex;
 }

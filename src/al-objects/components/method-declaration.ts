@@ -1,7 +1,9 @@
-import IVariable from "../models/IVariable";
+import IVariable from "../models/variable.model";
 import IParameter from "./models/parameter.model";
 import IMethodDeclaration from "./models/method-declaration.model";
 import IVarSection from "./models/var-section.model";
+import ICodeIndex from "../models/code-index.model";
+import CodeIndex from "../code-index";
 
 export default class MethodDeclaration implements IMethodDeclaration {
   preMethodComments: string[];
@@ -20,6 +22,7 @@ export default class MethodDeclaration implements IMethodDeclaration {
   returnType?: IVariable;
   body: string;
   weight: number;
+  codeIndex: ICodeIndex;
 
   constructor(comments: string[]) {
     this.preMethodComments = comments;
@@ -37,5 +40,6 @@ export default class MethodDeclaration implements IMethodDeclaration {
     this.returnType = undefined;
     this.body = "";
     this.weight = 0;
+    this.codeIndex = new CodeIndex();
   }
 }

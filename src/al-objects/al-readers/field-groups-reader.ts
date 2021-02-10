@@ -2,21 +2,26 @@ import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IFieldGroupList from "../components/models/field-group-list.model";
 import FieldGroupReader from "./field-group-reader";
 import FieldGroupContainer from "../components/field-group-container";
+import ICodeIndex from "../models/code-index.model";
 
 export default class FieldGroupsReader {
-  static read(tokenReader: ITokenReader): IFieldGroupList {
+  static read(
+    tokenReader: ITokenReader,
+    codeIndex: ICodeIndex
+  ): IFieldGroupList {
     const container: IFieldGroupList = new FieldGroupContainer();
 
     container.keyword = this.getLabel(tokenReader);
     container.postLabelComments = tokenReader.readComments();
-    this.readBody(tokenReader, container);
+    this.readBody(tokenReader, container, codeIndex);
 
     return container;
   }
 
   private static readBody(
     tokenReader: ITokenReader,
-    container: IFieldGroupList
+    container: IFieldGroupList,
+    codeIndex: ICodeIndex
   ) {
     tokenReader.test(
       "{",
@@ -28,7 +33,7 @@ export default class FieldGroupsReader {
 
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value === "fieldgroup") {
-      container.fieldGroups.push(FieldGroupReader.read(tokenReader));
+      container.fieldGroups.push(FieldGroupReader.read(tokenReader, codeIndex));
       value = tokenReader.peekTokenValue().toLowerCase();
     }
 
