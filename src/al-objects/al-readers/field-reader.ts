@@ -41,7 +41,7 @@ export default class FieldReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            field.properties.push(...comments);
+            comments.forEach(p => field.properties.push({ name: '//', property: p }))
             comments = [];
             field.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }

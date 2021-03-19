@@ -38,7 +38,7 @@ export default class ObjectWriter {
   ): string {
     return (
       new StringBuilder()
-        .write(context.properties, indentation)
+        .write(context.properties.map(p => p.property), indentation)
         .emptyLine()
         .writeIfDefined(context.fields, (container) =>
           FieldsContainerWriter.write(container, formatSetting, indentation)
@@ -56,7 +56,7 @@ export default class ObjectWriter {
           PageLayoutWriter.write(layout, formatSetting, indentation)
         )
         .emptyLine()
-        .writeIfDefined(context.actions, (container) =>
+        .writeIfDefined(context.actionsContainer, (container) =>
           ActionContainerWriter.write(container, formatSetting, indentation)
         )
         .emptyLine()

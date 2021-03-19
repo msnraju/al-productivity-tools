@@ -14,7 +14,7 @@ export default class ControlReader {
   static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IControl {
     const control: IControl = new Control();
 
-    control.header = this.readControlHeader(tokenReader, codeIndex);
+    this.readControlHeader(control, tokenReader, codeIndex);
     control.comments = tokenReader.readComments();
     this.readBody(tokenReader, control, codeIndex);
 
@@ -63,7 +63,7 @@ export default class ControlReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            control.properties.push(...comments);
+            comments.forEach(p => control.properties.push({ name: '//', property: p }))
             comments = [];
             control.properties.push(
               PropertyReader.read(tokenReader, codeIndex)
@@ -78,21 +78,27 @@ export default class ControlReader {
   }
 
   private static readControlHeader(
+    control: IControl,
     tokenReader: ITokenReader,
     codeIndex: ICodeIndex
   ) {
-    const name = this.getControlType(tokenReader);
+    control.type = this.getControlType(tokenReader);
 
     tokenReader.test("(", "Syntax error at control declaration, '(' expected.");
 
     let counter = 1;
     const tokens: IToken[] = [];
+    const values: string[] = [];
 
     let value = tokenReader.peekTokenValue();
     while (value !== ")" || counter !== 0) {
-      tokens.push(tokenReader.token());
+      if (value.trim() !== '' && value.trim() != ';') {
+        values.push(value);
+      }
 
+      tokens.push(tokenReader.token());
       value = tokenReader.peekTokenValue();
+
       if (value === "(") {
         counter++;
       } else if (value === ")") {
@@ -102,8 +108,19 @@ export default class ControlReader {
 
     tokenReader.test(")", "Syntax error at control declaration, ')' expected.");
     codeIndex.pushCodeTokens(tokens);
+    const elements = TokenReader.tokensToString(tokens, {});
 
-    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
+    switch (control.type.toLowerCase()) {
+      case 'field':
+        control.name = values[0];
+        control.sourceExpr = values[1];
+        break;
+      default:
+        control.name = values[0];
+        break;
+    }
+
+    control.header = `${control.type}(${elements})`;
   }
 
   private static getControlType(tokenReader: ITokenReader) {

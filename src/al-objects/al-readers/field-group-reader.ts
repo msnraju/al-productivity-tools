@@ -30,7 +30,8 @@ export default class FieldGroupReader {
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
       if (tokenReader.tokenType() === "comment") {
-        fieldGroup.properties.push(...tokenReader.readComments());
+        const comments = tokenReader.readComments();
+        comments.forEach(p => fieldGroup.properties.push({ name: '//', property: p }))
       } else {
         fieldGroup.properties.push(PropertyReader.read(tokenReader, codeIndex));
       }

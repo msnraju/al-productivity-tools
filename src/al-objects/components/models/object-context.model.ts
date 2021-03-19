@@ -10,21 +10,24 @@ import ISegment from "./segment.model";
 import IKeysContainer from "./keys-container.model";
 import IFieldGroupList from "./field-group-list.model";
 import IVarSection from "./var-section.model";
+import IProperty from "./property.model";
+import IAppObjectDeclaration from "./app-object-declaration.model";
 
 export default interface IObjectContext {
+  declaration: IAppObjectDeclaration;
   keys?: IKeysContainer;
   fieldGroups?: IFieldGroupList;
   views?: IViewContainer;
   schema?: ISchema;
   dataSet?: IDataSet;
-  actions?: IActionContainer;
+  actionsContainer?: IActionContainer;
   layout?: IPageLayout;
   header: string;
   footer: string;
   fields?: IFieldsContainer;
   variables?: IVarSection;
-  procedures: Array<IMethodDeclaration>;
-  triggers: Array<IMethodDeclaration>;
-  segments: Array<ISegment>;
-  properties: string[];
+  procedures: IMethodDeclaration[];
+  triggers: IMethodDeclaration[];
+  segments: ISegment[];
+  properties: IProperty[];
 }

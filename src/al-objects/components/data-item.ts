@@ -1,6 +1,7 @@
 import IMethodDeclaration from "./models/method-declaration.model";
 import ISegment from "./models/segment.model";
 import IDataItem from "./models/data-item.model";
+import IProperty from "./models/property.model";
 
 export default class DataItem implements IDataItem {
   dataItems: IDataItem[];
@@ -8,7 +9,7 @@ export default class DataItem implements IDataItem {
   header: string;
   triggers: IMethodDeclaration[];
   segments: ISegment[];
-  properties: string[];
+  properties: IProperty[];
 
   constructor() {
     this.header = "";

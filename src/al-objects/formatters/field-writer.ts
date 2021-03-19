@@ -24,7 +24,7 @@ export default class FieldWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(field.properties, indentation)
+      .write(field.properties.map(p => p.property), indentation)
       .emptyLine()
       .writeEach(field.triggers, (trigger) =>
         MethodDeclarationWriter.write(trigger, formatSetting, indentation)

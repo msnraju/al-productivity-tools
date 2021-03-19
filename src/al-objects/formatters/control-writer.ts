@@ -25,7 +25,7 @@ export default class ControlWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(control.properties, indentation)
+      .write(control.properties.map(p => p.property), indentation)
       .emptyLine()
       .writeEach(control.controls, (control) =>
         ControlWriter.write(control, formatSetting, indentation)

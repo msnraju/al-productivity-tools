@@ -1,12 +1,236 @@
 import * as Excel from "exceljs";
 import * as vscode from "vscode";
+import fs = require("fs");
 import _ = require("lodash");
 import { languages } from "vscode";
 import IDiagnosticProblem from "./models/diagnostic-problem.model";
 import IDiagnosticsSummary from "./models/diagnostics-summary.model";
 import CodeAnalyzerRules from "../code-analyzers/code-analyzer-rules";
+import IDiagnosticTooltipProblem from "./models/diagnostic-tooltip-problem.model";
+import ObjectReader from "../al-objects/al-readers/object-reader";
+import CodeIndex from "../al-objects/code-index";
+import ICodeIndex from "../al-objects/models/code-index.model";
+import IObjectContext from "../al-objects/components/models/object-context.model";
+import IControl from "../al-objects/components/models/control.model";
+import IAction from "../al-objects/components/models/action.model";
+import ALPackage from "../al-packages/al-package";
+import IALPackage from "../al-packages/models/al-package.model";
+import StringHelper from "../helpers/string-helper";
+import ALPackageHelper from "../al-packages/al-package-helper";
+import { SymbolReferences } from "../al-packages/models/symbol-reference.model";
 
 export default class ALDiagnostics {
+  private static readonly TooltipRuleCode: string = 'AA0218';
+
+  static exportMissingTooltips() {
+    try {
+
+      const dataSet: IDiagnosticTooltipProblem[] = [];
+      const wsFolders = ALDiagnostics.getWorkSpaceFolders();
+      const transilations = ALPackage.getTransilations(wsFolders);
+      const packages = ALPackage.getALPackagesFromSymbols(wsFolders);
+
+      const problems = languages.getDiagnostics();
+      for (const [fileUri, diagnostics] of problems) {
+        let filePath = fileUri.fsPath;
+        for (const folder of wsFolders) {
+          filePath = filePath.replace(folder, "");
+        }
+
+        if (filePath.startsWith("\\") || filePath.startsWith("/")) {
+          filePath = filePath.substring(1);
+        }
+
+        const tooltipDiagnostics = diagnostics.filter(i => i.code === ALDiagnostics.TooltipRuleCode);
+        if (tooltipDiagnostics.length === 0) {
+          continue;
+        }
+
+        const data = fs.readFileSync(fileUri.fsPath);
+        const content = data.toString();
+        const codeIndex: ICodeIndex = new CodeIndex();
+        let objectContent: IObjectContext = ObjectReader.read(content, codeIndex);
+
+        const msgExpr = /The Tooltip property for (PageField|PageAction) (.*) must be filled./;
+        for (const diagnostic of tooltipDiagnostics) {
+          const match = msgExpr.exec(diagnostic.message) || ['', ''];
+          const type = match[1];
+          const name = match[2];
+          let caption: string = "";
+          let dutchCaption: string = "";
+
+          switch (type) {
+            case 'PageField':
+              caption = ALDiagnostics.getFieldCaption(packages, objectContent, name);
+              break;
+            case 'PageAction':
+              caption = ALDiagnostics.getActionCaption(objectContent, name);
+              break;
+          }
+
+          if (caption) {
+            const transilation = transilations.find(p => p.source && (p.source + '').toLowerCase() === caption.toLowerCase());
+            if (transilation) {
+              dutchCaption = transilation.target;
+            }
+          }
+
+          dataSet.push({
+            file: filePath,
+            code: diagnostic.code + "",
+            type: type,
+            name: name,
+            caption: caption,
+            dutchCaption: dutchCaption,
+            startLineNo: diagnostic.range.start.line,
+            endLineNo: diagnostic.range.end.line,
+            startPosition: diagnostic.range.start.character,
+            endPosition: diagnostic.range.end.character,
+            severity: ALDiagnostics.severityToString(diagnostic.severity),
+          });
+        }
+      }
+
+      ALDiagnostics.exportTooltipsToExcel(dataSet, wsFolders[0]);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  private static getWorkSpaceFolders() {
+    const wsFolders = [];
+
+    if (vscode.workspace.workspaceFolders) {
+      for (const folder of vscode.workspace.workspaceFolders) {
+        wsFolders.push(folder.uri.fsPath);
+      }
+    }
+    return wsFolders;
+  }
+
+  private static getActionCaption(objectContent: IObjectContext, name: string): string {
+    if (!objectContent.actionsContainer || !objectContent.actionsContainer.actions) {
+      return "";
+    }
+
+    const action = ALDiagnostics.findInActions(objectContent.actionsContainer.actions, name);
+    if (action) {
+      const caption = action.properties.find(c => c.name.toLowerCase() === 'caption');
+      if (caption) {
+        const captionExpr = /Caption\s?=\s?'(.*)'\s*;/i;
+        const match = captionExpr.exec(caption.property);
+        if (match) {
+          return match[1];
+        }
+      }
+    }
+
+    return "";
+  }
+
+  private static findInActions(actions: IAction[], name: string): IAction | undefined {
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      if (action.type.toLowerCase() === 'action' && action.name === name) {
+        return action;
+      }
+
+      if (action.actions && action.actions.length > 0) {
+        const actionFound = ALDiagnostics.findInActions(action.actions, name);
+        if (actionFound) {
+          return actionFound;
+        }
+      }
+    }
+  }
+
+  private static getFieldCaption(packages: IALPackage[], objectContent: IObjectContext, name: string): string {
+    if (!objectContent.layout || !objectContent.layout.controls) {
+      return "";
+    }
+
+    if (name === '"Buy-from Country/Region Cde"') {
+      console.log('');
+    }
+
+    const control = ALDiagnostics.findInControls(objectContent.layout.controls, name);
+    if (!control) {
+      throw new Error('Control not found');
+    }
+
+    const caption = control.properties.find(c => c.name.toLowerCase() === 'caption');
+    if (caption) {
+      const captionExpr = /Caption\s?=\s?'(.*)'\s*;/i;
+      const match = captionExpr.exec(caption.property);
+      if (!match) {
+        throw new Error('Caption Expression Error');
+      }
+
+      return match[1];
+    } else {
+      // get caption from base object
+      let page: SymbolReferences.Page | undefined;
+      let sourceTable = "";
+      switch (objectContent.declaration.type.toLowerCase()) {
+        case "pageextension":
+          page = ALPackageHelper.findPage(packages, objectContent.declaration.baseObject);
+          break;
+        case "page":
+          page = ALPackageHelper.findPage(packages, objectContent.declaration.id);
+          break;
+      }
+
+      if (!page) {
+        throw new Error('Page not found');
+      }
+
+      sourceTable = page.Properties.find(p => p.Name === 'SourceTable')?.Value || '';
+
+      if (!sourceTable) {
+        throw new Error('SourceTable not found');
+      }
+
+      const fieldName = StringHelper.removeQuotes(control.sourceExpr);
+      const table = ALPackageHelper.findTable(packages, sourceTable);
+      if (!table) {
+        throw new Error('Table not found');
+      }
+
+      let field = table.Fields.find(p => p.Name === fieldName);
+      if (!field) {
+        const fields = ALPackageHelper.findTableExtensionFields(packages, table.Name);
+        field = fields?.find(p => p.Name === fieldName);
+        if (!field) {
+          // this should be variable or function or expression
+          return '';
+        }
+      }
+
+      const caption = field.Properties?.find(p => p.Name === "Caption");
+      if (!caption) {
+        return '';
+      }
+
+      return caption.Value;
+    }
+  }
+
+  private static findInControls(controls: IControl[], name: string): IControl | undefined {
+    for (let i = 0; i < controls.length; i++) {
+      const control = controls[i];
+      if (control.type.toLowerCase() === 'field' && control.name === name) {
+        return control;
+      }
+
+      if (control.controls && control.controls.length > 0) {
+        const controlFound = ALDiagnostics.findInControls(control.controls, name);
+        if (controlFound) {
+          return controlFound;
+        }
+      }
+    }
+  }
+
   static exportDiagnostics() {
     const dataSet: IDiagnosticProblem[] = [];
     const wsFolders = [];
@@ -37,28 +261,76 @@ export default class ALDiagnostics {
           endLineNo: diagnostic.range.end.line,
           startPosition: diagnostic.range.start.character,
           endPosition: diagnostic.range.end.character,
-          severity: severityToString(diagnostic.severity),
+          severity: ALDiagnostics.severityToString(diagnostic.severity),
         });
-      }
-    }
-
-    function severityToString(severity: vscode.DiagnosticSeverity): string {
-      switch (severity) {
-        case vscode.DiagnosticSeverity.Error:
-          return "Error";
-        case vscode.DiagnosticSeverity.Warning:
-          return "Warning";
-        case vscode.DiagnosticSeverity.Information:
-          return "Information";
-        case vscode.DiagnosticSeverity.Hint:
-          return "Hint";
-        default:
-          return severity + "";
       }
     }
 
     ALDiagnostics.exportToExcel(dataSet, wsFolders[0]);
   }
+
+  private static severityToString(severity: vscode.DiagnosticSeverity): string {
+    switch (severity) {
+      case vscode.DiagnosticSeverity.Error:
+        return "Error";
+      case vscode.DiagnosticSeverity.Warning:
+        return "Warning";
+      case vscode.DiagnosticSeverity.Information:
+        return "Information";
+      case vscode.DiagnosticSeverity.Hint:
+        return "Hint";
+      default:
+        return severity + "";
+    }
+  }
+
+  private static exportTooltipsToExcel(
+    dataSet: IDiagnosticTooltipProblem[],
+    basePath: string
+  ) {
+    let workbook = new Excel.Workbook();
+    ALDiagnostics.exportTooltipsData(workbook, dataSet);
+
+    const fileName = `${basePath}\\MissingTooltips.xlsx`;
+    workbook.xlsx
+      .writeFile(fileName)
+      .then(() => {
+        vscode.window.showInformationMessage(
+          `Missing Tooltips exported to ${fileName}`
+        );
+      })
+      .catch((r) => {
+        vscode.window.showErrorMessage(
+          `An error occurred while exporting missing tooltips.\n\n${r.message}"`
+        );
+      });
+  }
+
+  private static exportTooltipsData(
+    workbook: Excel.Workbook,
+    dataSet: IDiagnosticTooltipProblem[]
+  ) {
+    let worksheet = workbook.addWorksheet("Tooltips");
+    const headers = [
+      { header: "File", key: "file" },
+      { header: "Type", key: "type" },
+      { header: "Name", key: "name" },
+      { header: "Caption", key: "caption" },
+      { header: "Dutch Caption", key: "dutchCaption" },
+    ];
+
+    worksheet.columns = headers as any;
+
+    worksheet.columns[0].width = 50;
+    worksheet.columns[1].width = 10;
+    worksheet.columns[2].width = 30;
+    worksheet.columns[3].width = 50;
+    worksheet.columns[3].width = 50;
+    worksheet.addRows(dataSet);
+
+    ALDiagnostics.formatHeader(worksheet);
+  }
+
 
   private static exportToExcel(
     dataSet: IDiagnosticProblem[],
@@ -92,7 +364,7 @@ export default class ALDiagnostics {
 
     const dataGroupedByCode = _.groupBy(dataSet, (d) => d.code);
     for (const code in dataGroupedByCode) {
-      let rule = _.find(rules, (d) => d.id == code);
+      let rule = _.find(rules, (d) => d.id === code);
       const firstItem = dataGroupedByCode[code][0];
       if (!rule && firstItem) {
         rule = {
@@ -138,7 +410,7 @@ export default class ALDiagnostics {
     const headers = [
       { header: "File", key: "file" },
       { header: "Code", key: "code" },
-      { header: "message", key: "message" },
+      { header: "Message", key: "message" },
       { header: "Severity", key: "severity" },
       { header: "Start Line No.", key: "startLineNo" },
       { header: "End Line No.", key: "endLineNo" },

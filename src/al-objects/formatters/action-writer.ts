@@ -24,9 +24,9 @@ export default class ActionWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(action.properties, indentation)
+      .write(action.properties.map(p => p.property), indentation)
       .emptyLine()
-      .writeEach(action.childActions, (action) =>
+      .writeEach(action.actions, (action) =>
         ActionWriter.write(action, formatSetting, indentation)
       )
       .emptyLine()

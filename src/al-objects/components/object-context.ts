@@ -8,12 +8,15 @@ import IViewContainer from "./models/view-container.model";
 import ISegment from "./models/segment.model";
 import IObjectContext from "./models/object-context.model";
 import IVarSection from "./models/var-section.model";
+import IProperty from "./models/property.model";
+import IAppObjectDeclaration from "./models/app-object-declaration.model";
+import AppObjectDeclaration from "./app-object-declaration";
 
 export default class ObjectContext implements IObjectContext {
   views?: IViewContainer | undefined;
   schema?: ISchema | undefined;
   dataSet?: IDataSet | undefined;
-  actions?: IActionContainer | undefined;
+  actionsContainer?: IActionContainer | undefined;
   layout?: IPageLayout | undefined;
   header: string;
   footer: string;
@@ -22,7 +25,8 @@ export default class ObjectContext implements IObjectContext {
   procedures: IMethodDeclaration[];
   triggers: IMethodDeclaration[];
   segments: ISegment[];
-  properties: string[];
+  properties: IProperty[];
+  declaration: IAppObjectDeclaration;
 
   constructor() {
     this.header = "";
@@ -31,5 +35,6 @@ export default class ObjectContext implements IObjectContext {
     this.triggers = [];
     this.segments = [];
     this.properties = [];
+    this.declaration = new AppObjectDeclaration();
   }
 }
