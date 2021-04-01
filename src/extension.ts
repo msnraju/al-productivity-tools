@@ -36,6 +36,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
+      "alProductivityTools.importMissingTooltips",
+      ALDiagnostics.importMissingTooltips
+    )
+  );
+  
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
       "alProductivityTools.fixALFileNamingNotation",
       ALFileCommands.fixALFileNamingNotation
     )

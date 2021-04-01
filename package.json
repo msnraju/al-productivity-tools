@@ -54,6 +54,10 @@
       {
         "command": "alProductivityTools.exportMissingTooltips",
         "title": "MSN: Export Missing Tooltips"
+      },
+      {
+        "command": "alProductivityTools.importMissingTooltips",
+        "title": "MSN: Import Missing Tooltips"
       }
     ],
     "configuration": {

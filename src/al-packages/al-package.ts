@@ -3,19 +3,19 @@ import * as jszip from "jszip";
 import fs = require("fs");
 import parser = require('fast-xml-parser');
 import IALPackage from "./models/al-package.model";
-import ITransilation from "./models/al-transilation.model";
+import ITranslation from "./models/al-translation.model";
 
 export default class ALPackage {
-    static getTransilations(wsFolders: string[]): ITransilation[] {
-        const transilations: ITransilation[] = [];
+    static getTranslations(wsFolders: string[]): ITranslation[] {
+        const translations: ITranslation[] = [];
         wsFolders.forEach(folder => {
-            ALPackage.readTransilations(folder, transilations);
+            ALPackage.readTranslations(folder, translations);
         });
 
-        return transilations;
+        return translations;
     }
 
-    private static readTransilations(folder: string, transilations: ITransilation[]) {
+    private static readTranslations(folder: string, translations: ITranslation[]) {
         const options = {
             attributeNamePrefix: "@_",
             attrNodeName: "attr", //default is 'false'
@@ -47,7 +47,7 @@ export default class ALPackage {
                 const tempObj = parser.getTraversalObj(xmlData, options);
                 var jsonObj = parser.convertToJson(tempObj, options);
                 const units = jsonObj.xliff.file.body.group["trans-unit"];
-                transilations.push(...units);
+                translations.push(...units);
             } catch (err) {
                 throw err;
             }

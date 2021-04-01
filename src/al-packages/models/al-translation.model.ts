@@ -1,4 +1,4 @@
-export default interface ITransilation {
+export default interface ITranslation {
     source: string;
     target: string;
     note: string[];
