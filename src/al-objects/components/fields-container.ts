@@ -12,3 +12,4 @@ export default class FieldsContainer implements IFieldsContainer {
     this.comments = [];
   }
 }
+

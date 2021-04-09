@@ -24,8 +24,29 @@ export default class ControlWriter {
     formatSetting: IFormatSetting,
     indentation: number
   ): string {
+    const controlType = control.type.toLowerCase();
+
+    if (
+      ["field", "label", "part", "systempart"].indexOf(controlType) !== -1 &&
+      formatSetting.setDefaultApplicationArea
+    ) {
+      const prop = control.properties.find(
+        (p) => p.name.toLowerCase() === "applicationarea"
+      );
+
+      if (!prop) {
+        control.properties.push({
+          name: "ApplicationArea",
+          property: "ApplicationArea = All;",
+        });
+      }
+    }
+
     return new StringBuilder()
-      .write(control.properties.map(p => p.property), indentation)
+      .write(
+        control.properties.map((p) => p.property),
+        indentation
+      )
       .emptyLine()
       .writeEach(control.controls, (control) =>
         ControlWriter.write(control, formatSetting, indentation)

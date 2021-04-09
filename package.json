@@ -129,6 +129,12 @@
           "scope": "resource",
           "description": "Auto correct variable names"
         },
+        "msn.setDefaultApplicationArea": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Set Default Application Area"
+        },
         "msn.setDefaultDataClassification": {
           "type": "boolean",
           "default": false,

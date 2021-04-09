@@ -17,7 +17,7 @@ import FieldGroupsReader from "./field-groups-reader";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import ICodeIndex from "../models/code-index.model";
-import { isNumber } from "lodash";
+import RequestPageReader from "./request-page-reader";
 
 export default class ObjectReader {
   static read(content: string, codeIndex: ICodeIndex): IObjectContext {
@@ -31,7 +31,7 @@ export default class ObjectReader {
     return appObject;
   }
 
-  private static readBody(
+  public static readBody(
     tokenReader: ITokenReader,
     appObject: IObjectContext,
     codeIndex: ICodeIndex
@@ -96,6 +96,8 @@ export default class ObjectReader {
           break;
         // Report
         case "requestpage":
+          appObject.requestPage = RequestPageReader.read(tokenReader, codeIndex);
+          break;
         case "labels":
         // Report
         case "elements":
@@ -115,7 +117,9 @@ export default class ObjectReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            comments.forEach(p => appObject.properties.push({ name: '//', property: p }))
+            comments.forEach((p) =>
+              appObject.properties.push({ name: "//", property: p })
+            );
             comments = [];
             appObject.properties.push(
               PropertyReader.read(tokenReader, codeIndex)
@@ -133,7 +137,10 @@ export default class ObjectReader {
     return new TokenReader(Tokenizer.tokenizer(content));
   }
 
-  private static readObjectHeader(appObject: IObjectContext, tokenReader: ITokenReader) {
+  private static readObjectHeader(
+    appObject: IObjectContext,
+    tokenReader: ITokenReader
+  ) {
     const tokens: IToken[] = [];
     const values: string[] = [];
     let value = tokenReader.peekTokenValue();

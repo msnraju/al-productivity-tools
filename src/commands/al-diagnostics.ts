@@ -78,9 +78,9 @@ export default class ALDiagnostics {
           }
 
           if (caption) {
-            const transilation = translations.find(p => p.source && (p.source + '').toLowerCase() === caption.toLowerCase());
-            if (transilation) {
-              dutchCaption = transilation.target;
+            const translation = translations.find(p => p.source && (p.source + '').toLowerCase() === caption.toLowerCase());
+            if (translation) {
+              dutchCaption = translation.target;
             }
           }
 
@@ -180,6 +180,7 @@ export default class ALDiagnostics {
       removeUnusedGlobalVariables: false,
       removeUnusedParameters: false,
       autoCorrectVariableNames: false,
+      setDefaultApplicationArea: false,
       setDefaultDataClassification: false,
       extensionFunctions: {},
     };
@@ -412,7 +413,7 @@ export default class ALDiagnostics {
     let workbook = new Excel.Workbook();
     ALDiagnostics.exportTooltipsData(workbook, dataSet);
 
-    const fileName = `${basePath}\\MissingTooltips.xlsx`;
+    const fileName = `${basePath}\\.vscode\\MissingTooltips.xlsx`;
     workbook.xlsx
       .writeFile(fileName)
       .then(() => {
@@ -454,7 +455,7 @@ export default class ALDiagnostics {
     ALDiagnostics.exportDiagnosticsData(workbook, dataSet);
     ALDiagnostics.exportDiagnosticsSummary(workbook, dataSet);
 
-    const fileName = `${basePath}\\Diagnostics.xlsx`;
+    const fileName = `${basePath}\\.vscode\\Diagnostics.xlsx`;
     workbook.xlsx
       .writeFile(fileName)
       .then(() => {

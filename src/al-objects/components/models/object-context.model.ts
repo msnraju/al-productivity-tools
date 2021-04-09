@@ -12,6 +12,7 @@ import IFieldGroupList from "./field-group-list.model";
 import IVarSection from "./var-section.model";
 import IProperty from "./property.model";
 import IAppObjectDeclaration from "./app-object-declaration.model";
+import IRequestPage from "./request-page.model";
 
 export default interface IObjectContext {
   declaration: IAppObjectDeclaration;
@@ -19,6 +20,7 @@ export default interface IObjectContext {
   fieldGroups?: IFieldGroupList;
   views?: IViewContainer;
   schema?: ISchema;
+  requestPage?: IRequestPage;
   dataSet?: IDataSet;
   actionsContainer?: IActionContainer;
   layout?: IPageLayout;

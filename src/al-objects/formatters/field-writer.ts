@@ -2,6 +2,7 @@ import IField from "../components/models/field.model";
 import StringBuilder from "../../helpers/string-builder";
 import MethodDeclarationWriter from "./method-declaration-writer";
 import IFormatSetting from "../../helpers/models/format-settings.model";
+import IProperty from "../components/models/property.model";
 
 export default class FieldWriter {
   static write(
@@ -23,13 +24,41 @@ export default class FieldWriter {
     formatSetting: IFormatSetting,
     indentation: number
   ): string {
+    if (formatSetting.setDefaultDataClassification) {
+      const prop = field.properties.find(
+        (p) => p.name.toLowerCase() === "dataclassification"
+      );
+
+      const fieldClass = field.properties.find(
+        (p) => p.name.toLowerCase() === "fieldclass"
+      );
+
+      if (!prop && FieldWriter.isNormalField(fieldClass)) {
+        field.properties.push({
+          name: "DataClassification",
+          property: "DataClassification = CustomerContent;",
+        });
+      }
+    }
+
     return new StringBuilder()
-      .write(field.properties.map(p => p.property), indentation)
+      .write(
+        field.properties.map((p) => p.property),
+        indentation
+      )
       .emptyLine()
       .writeEach(field.triggers, (trigger) =>
         MethodDeclarationWriter.write(trigger, formatSetting, indentation)
       )
       .popEmpty()
       .toString();
+  }
+
+  static isNormalField(fieldClass: IProperty | undefined) {
+    if(!fieldClass) {
+      return true;
+    }
+
+    return /\s*FieldClass\s*=\s*Normal\s*;\s*/i.test(fieldClass.property);
   }
 }

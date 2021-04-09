@@ -23,8 +23,27 @@ export default class ActionWriter {
     formatSetting: IFormatSetting,
     indentation: number
   ): string {
+    if (
+      action.type.toLowerCase() === "action" &&
+      formatSetting.setDefaultApplicationArea
+    ) {
+      const prop = action.properties.find(
+        (p) => p.name.toLowerCase() === "applicationarea"
+      );
+
+      if (!prop) {
+        action.properties.push({
+          name: "ApplicationArea",
+          property: "ApplicationArea = All;",
+        });
+      }
+    }
+
     return new StringBuilder()
-      .write(action.properties.map(p => p.property), indentation)
+      .write(
+        action.properties.map((p) => p.property),
+        indentation
+      )
       .emptyLine()
       .writeEach(action.actions, (action) =>
         ActionWriter.write(action, formatSetting, indentation)
