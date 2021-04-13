@@ -1,11 +1,14 @@
 import ISegment from "./segment.model";
 import IMethodDeclaration from "./method-declaration.model";
+import IProperty from "./property.model";
 
 export default interface IAction {
-  childActions: Array<IAction>;
+  actions: IAction[];
   comments: string[];
   header: string;
-  triggers: Array<IMethodDeclaration>;
-  segments: Array<ISegment>;
-  properties: string[];
+  triggers: IMethodDeclaration[];
+  segments: ISegment[];
+  properties: IProperty[];
+  type: string;
+  name: string;
 }

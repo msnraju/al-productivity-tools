@@ -23,7 +23,7 @@ export default class FieldGroupWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(fieldGroup.properties, indentation)
+      .write(fieldGroup.properties.map(p => p.property), indentation)
       .popEmpty()
       .toString();
   }

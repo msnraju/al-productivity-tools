@@ -28,7 +28,8 @@ export default class KeyReader {
     let value = tokenReader.peekTokenValue().toLowerCase();
     while (value !== "}") {
       if (tokenReader.tokenType() === "comment") {
-        key.properties.push(...tokenReader.readComments());
+        const comments = tokenReader.readComments();
+        comments.forEach(p => key.properties.push({ name: '//', property: p }))
       } else {
         key.properties.push(PropertyReader.read(tokenReader, codeIndex));
       }

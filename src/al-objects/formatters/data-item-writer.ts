@@ -24,7 +24,7 @@ export default class DataItemWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(dataItem.properties, indentation)
+      .write(dataItem.properties.map(p => p.property), indentation)
       .emptyLine()
       .writeEach(dataItem.dataItems, (dataItem) =>
         DataItemWriter.write(dataItem, formatSetting, indentation)

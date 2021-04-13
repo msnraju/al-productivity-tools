@@ -1,11 +1,12 @@
 import IMethodDeclaration from "./method-declaration.model";
+import IProperty from "./property.model";
 import ISegment from "./segment.model";
 
 export default interface IDataItem {
-  dataItems: Array<IDataItem>;
+  dataItems: IDataItem[];
   comments: string[];
   header: string;
-  triggers: Array<IMethodDeclaration>;
-  segments: Array<ISegment>;
-  properties: string[];
+  triggers: IMethodDeclaration[];
+  segments: ISegment[];
+  properties: IProperty[];
 }

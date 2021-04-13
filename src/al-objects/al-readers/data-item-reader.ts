@@ -49,7 +49,7 @@ export default class DataItemReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            dataItem.properties.push(...comments);
+            comments.forEach(p => dataItem.properties.push({ name: '//', property: p }))
             comments = [];
             dataItem.properties.push(
               PropertyReader.read(tokenReader, codeIndex)

@@ -87,7 +87,7 @@ export default class NodeReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            node.properties.push(...comments);
+            comments.forEach(p => node.properties.push({ name: '//', property: p }))
             comments = [];
             node.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }

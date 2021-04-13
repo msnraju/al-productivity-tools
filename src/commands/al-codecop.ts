@@ -48,6 +48,9 @@ export default class ALCodeCop {
       autoCorrectVariableNames: config.get(
         "autoCorrectVariableNames"
       ) as boolean,
+      setDefaultApplicationArea: config.get(
+        "setDefaultApplicationArea"
+      ) as boolean,
       setDefaultDataClassification: config.get(
         "setDefaultDataClassification"
       ) as boolean,
@@ -79,7 +82,7 @@ export default class ALCodeCop {
 
       const formattedContent = ObjectFormatter.format(content, settings);
 
-      if (content != formattedContent) {
+      if (content !== formattedContent) {
         editor.edit((editBuilder) => {
           editBuilder.replace(range, formattedContent);
         });

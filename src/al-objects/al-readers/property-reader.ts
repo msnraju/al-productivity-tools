@@ -3,14 +3,15 @@ import ITokenReader from "../../tokenizers/models/token-reader.model";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import ICodeIndex from "../models/code-index.model";
+import IProperty from "../components/models/property.model";
 
 export default class PropertyReader {
-  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): string {
+  static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IProperty {
     const name = this.readPropertyName(tokenReader);
     this.readEquals(tokenReader);
     const propertyValue = this.readValue(name, tokenReader, codeIndex);
 
-    return `${name} = ${propertyValue}`;
+    return { name: name, property: `${name} = ${propertyValue}` };
   }
 
   private static readValue(

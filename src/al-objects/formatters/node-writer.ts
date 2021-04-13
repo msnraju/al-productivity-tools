@@ -24,7 +24,7 @@ export default class NodeWriter {
     indentation: number
   ): string {
     return new StringBuilder()
-      .write(node.properties, indentation)
+      .write(node.properties.map(p => p.property), indentation)
       .emptyLine()
       .writeEach(node.nodes, (node) =>
         NodeWriter.write(node, formatSetting, indentation)

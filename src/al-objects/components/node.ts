@@ -1,6 +1,7 @@
 import ISegment from "./models/segment.model";
 import IMethodDeclaration from "./models/method-declaration.model";
 import INode from "./models/node.model";
+import IProperty from "./models/property.model";
 
 export default class Node implements INode {
   nodes: INode[];
@@ -8,7 +9,7 @@ export default class Node implements INode {
   header: string;
   triggers: IMethodDeclaration[];
   segments: ISegment[];
-  properties: string[];
+  properties: IProperty[];
 
   constructor() {
     this.header = "";

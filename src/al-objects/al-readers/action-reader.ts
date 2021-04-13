@@ -13,7 +13,7 @@ export default class ActionReader {
   static read(tokenReader: ITokenReader, codeIndex: ICodeIndex): IAction {
     const action: IAction = new Action();
 
-    action.header = this.readActionHeader(tokenReader);
+    this.readActionHeader(action, tokenReader);
     action.comments = tokenReader.readComments();
     this.readBody(tokenReader, action, codeIndex);
     tokenReader.readWhiteSpaces();
@@ -53,7 +53,7 @@ export default class ActionReader {
         case "actions":
         case "action":
         case "separator":
-          action.childActions.push(this.read(tokenReader, codeIndex));
+          action.actions.push(this.read(tokenReader, codeIndex));
           break;
         case "trigger":
           action.triggers.push(
@@ -65,7 +65,7 @@ export default class ActionReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            action.properties.push(...comments);
+            comments.forEach(p => action.properties.push({ name: '//', property: p }))
             comments = [];
             action.properties.push(PropertyReader.read(tokenReader, codeIndex));
           }
@@ -77,17 +77,33 @@ export default class ActionReader {
     tokenReader.test("}", "Syntax error at action declaration, '}' expected.");
   }
 
-  private static readActionHeader(tokenReader: ITokenReader) {
+  private static readActionHeader(action: IAction, tokenReader: ITokenReader) {
     const tokens: IToken[] = [];
-    const name = this.getActionType(tokenReader);
+    const type = this.getActionType(tokenReader);
+    const values = [];
+    let counter = 1;
 
     tokenReader.test("(", "Syntax error at action declaration, '(' expected.");
 
-    while (tokenReader.peekTokenValue() !== ")") {
+    let value = tokenReader.peekTokenValue();
+    while (value !== ")" || counter !== 0) {
+      if (value.trim() !== '' && value.trim() != ';') {
+        values.push(value);
+      }
+
       tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue();
+      if (value === "(") {
+        counter++;
+      } else if (value === ")") {
+        counter--;
+      }
     }
 
+    action.type = type;
+    action.name = values[0];
+
     tokenReader.test(")", "Syntax error at action declaration, ')' expected.");
-    return `${name}(${TokenReader.tokensToString(tokens, {})})`;
+    action.header = `${type}(${TokenReader.tokensToString(tokens, {})})`;
   }
 }

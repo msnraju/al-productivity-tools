@@ -37,27 +37,27 @@ export default class ALDiagnostics {
           endLineNo: diagnostic.range.end.line,
           startPosition: diagnostic.range.start.character,
           endPosition: diagnostic.range.end.character,
-          severity: severityToString(diagnostic.severity),
+          severity: ALDiagnostics.severityToString(diagnostic.severity),
         });
       }
     }
 
-    function severityToString(severity: vscode.DiagnosticSeverity): string {
-      switch (severity) {
-        case vscode.DiagnosticSeverity.Error:
-          return "Error";
-        case vscode.DiagnosticSeverity.Warning:
-          return "Warning";
-        case vscode.DiagnosticSeverity.Information:
-          return "Information";
-        case vscode.DiagnosticSeverity.Hint:
-          return "Hint";
-        default:
-          return severity + "";
-      }
-    }
-
     ALDiagnostics.exportToExcel(dataSet, wsFolders[0]);
+  }
+
+  private static severityToString(severity: vscode.DiagnosticSeverity): string {
+    switch (severity) {
+      case vscode.DiagnosticSeverity.Error:
+        return "Error";
+      case vscode.DiagnosticSeverity.Warning:
+        return "Warning";
+      case vscode.DiagnosticSeverity.Information:
+        return "Information";
+      case vscode.DiagnosticSeverity.Hint:
+        return "Hint";
+      default:
+        return severity + "";
+    }
   }
 
   private static exportToExcel(
@@ -68,7 +68,7 @@ export default class ALDiagnostics {
     ALDiagnostics.exportDiagnosticsData(workbook, dataSet);
     ALDiagnostics.exportDiagnosticsSummary(workbook, dataSet);
 
-    const fileName = `${basePath}\\Diagnostics.xlsx`;
+    const fileName = `${basePath}\\.vscode\\Diagnostics.xlsx`;
     workbook.xlsx
       .writeFile(fileName)
       .then(() => {
@@ -92,7 +92,7 @@ export default class ALDiagnostics {
 
     const dataGroupedByCode = _.groupBy(dataSet, (d) => d.code);
     for (const code in dataGroupedByCode) {
-      let rule = _.find(rules, (d) => d.id == code);
+      let rule = _.find(rules, (d) => d.id === code);
       const firstItem = dataGroupedByCode[code][0];
       if (!rule && firstItem) {
         rule = {
@@ -138,7 +138,7 @@ export default class ALDiagnostics {
     const headers = [
       { header: "File", key: "file" },
       { header: "Code", key: "code" },
-      { header: "message", key: "message" },
+      { header: "Message", key: "message" },
       { header: "Severity", key: "severity" },
       { header: "Start Line No.", key: "startLineNo" },
       { header: "End Line No.", key: "endLineNo" },

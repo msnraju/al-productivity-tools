@@ -7,7 +7,7 @@ export default class ViewWriter {
       .write(view.header, indentation)
       .append(view.comments, indentation)
       .write("{", indentation)
-      .write(view.properties, indentation + 4)
+      .write(view.properties.map(p => p.property), indentation + 4)
       .popEmpty()
       .write("}", indentation)
       .toString();

@@ -16,6 +16,8 @@ import TokenReader from "../../tokenizers/token-reader";
 import IFormatSetting from "../../helpers/models/format-settings.model";
 import MethodsWriter from "./methods-writer";
 import ICodeIndex from "../models/code-index.model";
+import { Context } from "mocha";
+import RequestPageWriter from "./request-page-writer";
 
 export default class ObjectWriter {
   static write(
@@ -30,7 +32,7 @@ export default class ObjectWriter {
       .toString();
   }
 
-  private static writeBody(
+  public static writeBody(
     context: IObjectContext,
     formatSetting: IFormatSetting,
     indentation: number,
@@ -38,7 +40,10 @@ export default class ObjectWriter {
   ): string {
     return (
       new StringBuilder()
-        .write(context.properties, indentation)
+        .write(
+          context.properties.map((p) => p.property),
+          indentation
+        )
         .emptyLine()
         .writeIfDefined(context.fields, (container) =>
           FieldsContainerWriter.write(container, formatSetting, indentation)
@@ -56,7 +61,7 @@ export default class ObjectWriter {
           PageLayoutWriter.write(layout, formatSetting, indentation)
         )
         .emptyLine()
-        .writeIfDefined(context.actions, (container) =>
+        .writeIfDefined(context.actionsContainer, (container) =>
           ActionContainerWriter.write(container, formatSetting, indentation)
         )
         .emptyLine()
@@ -72,6 +77,9 @@ export default class ObjectWriter {
           SchemaWriter.write(schema, formatSetting, indentation)
         )
         .emptyLine()
+        .writeIfDefined(context.requestPage, (requestPage) =>
+          RequestPageWriter.write(requestPage, formatSetting, indentation)
+        )
         .write(this.writeSegments(context.segments, indentation))
         .emptyLine()
         .writeEach(context.triggers, (trigger) =>
@@ -102,9 +110,12 @@ export default class ObjectWriter {
     segments: Array<ISegment>,
     indentation: number
   ): string {
-    const segmentNames = ["requestpage", "labels", "elements", "value"];
+    const segmentNames = ["labels", "elements", "value"];
 
-    if (!segments || segments.length == 0) return "";
+    if (!segments || segments.length === 0) {
+      return "";
+    }
+
     segments = _.sortBy(segments, (seg) => segmentNames.indexOf(seg.name));
 
     const writer = new StringBuilder();

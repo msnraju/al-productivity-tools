@@ -14,7 +14,7 @@ export default class KeyWriter {
 
   private static writeBody(key: ITableKey, indentation: number): string {
     return new StringBuilder()
-      .write(key.properties, indentation)
+      .write(key.properties.map(p => p.property), indentation)
       .popEmpty()
       .toString();
   }

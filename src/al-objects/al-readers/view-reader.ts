@@ -28,7 +28,8 @@ export default class ViewReader {
     let value = tokenReader.peekTokenValue();
     while (value !== "}") {
       if (tokenReader.tokenType() === "comment") {
-        view.properties.push(...tokenReader.readComments());
+        const comments = tokenReader.readComments();
+        comments.forEach(p => view.properties.push({ name: '//', property: p }));
       } else {
         view.properties.push(PropertyReader.read(tokenReader, codeIndex));
       }

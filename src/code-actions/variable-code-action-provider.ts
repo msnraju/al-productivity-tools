@@ -19,15 +19,22 @@ export default class VariableCodeActionProvider
     }
 
     const names = VariableNameService.getNameSuggestions(variable);
-    if (!names || names.length === 0) return;
+    if (!names || names.length === 0) {
+      return;
+    }
 
     const fixes = [];
 
     for (let i = 0; i < names.length; i++) {
-      if (names[i] === variable.name) continue;
+      if (names[i] === variable.name) {
+        continue;
+      }
 
       const fix = this.createFix(document, range, names[i], variable);
-      if (i === 0) fix.isPreferred = true;
+      if (i === 0) {
+        fix.isPreferred = true;
+      }
+      
       fixes.push(fix);
     }
 

@@ -17,20 +17,21 @@ import FieldGroupsReader from "./field-groups-reader";
 import IToken from "../../tokenizers/models/token.model";
 import TokenReader from "../../tokenizers/token-reader";
 import ICodeIndex from "../models/code-index.model";
+import RequestPageReader from "./request-page-reader";
 
 export default class ObjectReader {
   static read(content: string, codeIndex: ICodeIndex): IObjectContext {
-    const context = this.getReadContext(content);
+    const context = ObjectReader.getReadContext(content);
     const appObject = new ObjectContext();
 
-    appObject.header = ObjectReader.readHeader(context);
-    this.readBody(context, appObject, codeIndex);
-    appObject.footer = this.readFooter(context);
+    ObjectReader.readObjectHeader(appObject, context);
+    ObjectReader.readBody(context, appObject, codeIndex);
+    appObject.footer = ObjectReader.readFooter(context);
 
     return appObject;
   }
 
-  private static readBody(
+  public static readBody(
     tokenReader: ITokenReader,
     appObject: IObjectContext,
     codeIndex: ICodeIndex
@@ -80,7 +81,7 @@ export default class ObjectReader {
           appObject.views = ViewContainerReader.read(tokenReader, codeIndex);
           break;
         case "actions":
-          appObject.actions = ActionContainerReader.read(
+          appObject.actionsContainer = ActionContainerReader.read(
             tokenReader,
             codeIndex
           );
@@ -95,6 +96,8 @@ export default class ObjectReader {
           break;
         // Report
         case "requestpage":
+          appObject.requestPage = RequestPageReader.read(tokenReader, codeIndex);
+          break;
         case "labels":
         // Report
         case "elements":
@@ -114,7 +117,9 @@ export default class ObjectReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            appObject.properties.push(...comments);
+            comments.forEach((p) =>
+              appObject.properties.push({ name: "//", property: p })
+            );
             comments = [];
             appObject.properties.push(
               PropertyReader.read(tokenReader, codeIndex)
@@ -132,10 +137,20 @@ export default class ObjectReader {
     return new TokenReader(Tokenizer.tokenizer(content));
   }
 
-  private static readHeader(tokenReader: ITokenReader): string {
+  private static readObjectHeader(
+    appObject: IObjectContext,
+    tokenReader: ITokenReader
+  ) {
     const tokens: IToken[] = [];
-    while (tokenReader.peekTokenValue() !== "{") {
+    const values: string[] = [];
+    let value = tokenReader.peekTokenValue();
+    while (value !== "{") {
+      if (value.trim() !== "" && value.trim() !== ",") {
+        values.push(value);
+      }
+
       tokens.push(tokenReader.token());
+      value = tokenReader.peekTokenValue();
     }
 
     if (tokenReader.peekTokenValue() !== "{") {
@@ -144,7 +159,8 @@ export default class ObjectReader {
 
     tokens.push(tokenReader.token());
     tokenReader.readWhiteSpaces();
-    return TokenReader.tokensToString(tokens, OBJECT_TYPE_KEYWORDS);
+    appObject.header = TokenReader.tokensToString(tokens, OBJECT_TYPE_KEYWORDS);
+    appObject.declaration.updateFromHeaderValues(values);
   }
 
   private static readFooter(tokenReader: ITokenReader): string {

@@ -12,6 +12,7 @@ export default interface IFormatSetting {
   removeUnusedGlobalVariables: boolean;
   removeUnusedParameters: boolean;
   autoCorrectVariableNames: boolean;
+  setDefaultApplicationArea: boolean;
   setDefaultDataClassification: boolean;
   extensionFunctions: KeyValueMap;
 }
