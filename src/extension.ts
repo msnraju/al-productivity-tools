@@ -4,6 +4,7 @@ import ALCodeCopFixer from "./commands/al-codecop";
 import ALDiagnostics from "./commands/al-diagnostics";
 import ALFileCommands from "./commands/al-file-commands";
 import WorkspaceEvents from "./commands/workspace-events";
+import { Tooltips } from "./tooltips/Tooltips";
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -30,14 +31,14 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.exportMissingTooltips",
-      ALDiagnostics.exportMissingTooltips
+      Tooltips.exportMissingTooltips
     )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "alProductivityTools.importMissingTooltips",
-      ALDiagnostics.importMissingTooltips
+      Tooltips.importMissingTooltips
     )
   );
   
