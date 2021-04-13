@@ -54,6 +54,7 @@ export default class ALCodeCop {
       setDefaultDataClassification: config.get(
         "setDefaultDataClassification"
       ) as boolean,
+      qualifyWithRecPrefix: config.get("qualifyWithRecPrefix") as boolean,
       extensionFunctions: functionsMap,
     };
 

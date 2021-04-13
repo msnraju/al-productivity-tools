@@ -58,6 +58,10 @@
       {
         "command": "alProductivityTools.importMissingTooltips",
         "title": "MSN: Import Missing Tooltips"
+      },
+      {
+        "command": "alProductivityTools.extractALPackages",
+        "title": "MSN: Extract AL Packages"
       }
     ],
     "configuration": {
@@ -140,6 +144,12 @@
           "default": false,
           "scope": "resource",
           "description": "Set Default DataClassification"
+        },
+        "msn.qualifyWithRecPrefix": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Qualify With Rec. Prefix"
         },
         "msn.extensionFunctions": {
           "type": "array",

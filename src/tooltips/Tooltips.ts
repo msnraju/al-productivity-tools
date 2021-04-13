@@ -206,6 +206,7 @@ export class Tooltips {
       autoCorrectVariableNames: false,
       setDefaultApplicationArea: false,
       setDefaultDataClassification: false,
+      qualifyWithRecPrefix: false,
       extensionFunctions: {},
     };
 

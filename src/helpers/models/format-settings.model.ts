@@ -14,5 +14,6 @@ export default interface IFormatSetting {
   autoCorrectVariableNames: boolean;
   setDefaultApplicationArea: boolean;
   setDefaultDataClassification: boolean;
+  qualifyWithRecPrefix: boolean;
   extensionFunctions: KeyValueMap;
 }
