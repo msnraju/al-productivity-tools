@@ -31,7 +31,7 @@ export default class StringBuilder {
   }
 
   append(lines: string[] | string, indentation: number = 0): StringBuilder {
-    if (lines.length !== 1 || this.buffer.length == 0) {
+    if (lines.length !== 1 || this.buffer.length === 0) {
       return this.write(lines, indentation);
     }
 

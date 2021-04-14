@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { ZipUtil } from "./al-packages/zip-util";
 import VariableCodeActionProvider from "./code-actions/variable-code-action-provider";
 import ALCodeCopFixer from "./commands/al-codecop";
 import ALDiagnostics from "./commands/al-diagnostics";
@@ -41,13 +40,6 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.registerCommand(
         "alProductivityTools.importMissingTooltips",
         Tooltips.importMissingTooltips
-      )
-    );
-
-    context.subscriptions.push(
-      vscode.commands.registerCommand(
-        "alProductivityTools.extractALPackages",
-        ZipUtil.extractALPackages
       )
     );
 

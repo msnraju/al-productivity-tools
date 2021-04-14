@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import ALFormatter from "../al-objects/al-formatter";
 import KeyValueMap from "../al-objects/maps/key-value-map";
 import ObjectFormatter from "../al-objects/object-formatter";
+import { AppSymbolsCache } from "../al-packages/app-symbols-cache";
 import IFormatError from "../helpers/models/format-error.model";
 import IFormatSetting from "../helpers/models/format-settings.model";
 
@@ -56,12 +57,13 @@ export default class ALCodeCop {
       ) as boolean,
       qualifyWithRecPrefix: config.get("qualifyWithRecPrefix") as boolean,
       extensionFunctions: functionsMap,
+      symbols: [],
     };
 
     return settings;
   }
 
-  static fixALCodeCopIssues() {
+  static async fixALCodeCopIssues() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
       return;
@@ -69,21 +71,19 @@ export default class ALCodeCop {
 
     try {
       const document = editor.document;
-
-      // Get the word within the selection
       const content = document.getText();
       const lines = content.split("\n");
-      const start = new vscode.Position(0, 0);
-      const end = new vscode.Position(
-        lines.length,
-        lines[lines.length - 1].length
-      );
-      const range = new vscode.Range(start, end);
       const settings = ALCodeCop.getFormatSettings();
-
+      settings.symbols = await AppSymbolsCache.getSymbols();
       const formattedContent = ObjectFormatter.format(content, settings);
 
       if (content !== formattedContent) {
+        const start = new vscode.Position(0, 0);
+        const end = new vscode.Position(
+          lines.length,
+          lines[lines.length - 1].length
+        );
+        const range = new vscode.Range(start, end);
         editor.edit((editBuilder) => {
           editBuilder.replace(range, formattedContent);
         });
@@ -97,36 +97,27 @@ export default class ALCodeCop {
     }
   }
 
-  static fixALCodeCopIssuesInWorkspace() {
+  static async fixALCodeCopIssuesInWorkspace() {
     if (!vscode.workspace.workspaceFolders) {
       return;
     }
 
-    try {
-      const settings = ALCodeCop.getFormatSettings();
-      let errors: IFormatError[] = [];
-      vscode.workspace.workspaceFolders.forEach((folder) => {
-        ALFormatter.formatAllALFiles(folder.uri.fsPath, settings, errors);
-      });
+    const settings = ALCodeCop.getFormatSettings();
+    settings.symbols = await AppSymbolsCache.getSymbols();
 
-      if (errors.length > 0) {
-        let message = "";
-        errors.forEach((err) => {
-          message += `file: ${err.file}, error: ${err.message}\r\n`;
+    let errors: IFormatError[] = [];
+    vscode.workspace.workspaceFolders.forEach((folder) => {
+      ALFormatter.formatAllALFiles(folder.uri.fsPath, settings, errors)
+        .then(() => {
+          vscode.window.showInformationMessage(
+            `CodeCop issues fixed after ignoring ${errors.length} files."`
+          );
+        })
+        .catch((reason) => {
+          vscode.window.showErrorMessage(
+            "An error occurred while fixing CodeCop issues!"
+          );
         });
-
-        vscode.window.showInformationMessage(
-          `CodeCop issues fixed after ignoring ${errors.length} files."`
-        );
-      } else {
-        vscode.window.showInformationMessage(
-          `CodeCop issues fixed in all AL files."`
-        );
-      }
-    } catch (err) {
-      vscode.window.showErrorMessage(
-        "An error occurred while fixing CodeCop issues!"
-      );
-    }
+    });
   }
 }

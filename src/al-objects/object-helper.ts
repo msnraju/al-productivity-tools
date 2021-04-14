@@ -1,5 +1,16 @@
 import IControl from "./components/models/control.model";
 import IAction from "./components/models/action.model";
+import IObjectContext from "./components/models/object-context.model";
+import {
+  AppSymbols,
+  Field,
+  Page,
+  Table,
+  TableExtension,
+} from "../symbol-references";
+import StringHelper from "../helpers/string-helper";
+import { table } from "console";
+import { isNumber } from "lodash";
 
 export class ObjectHelper {
   static findInActions(actions: IAction[], name: string): IAction | undefined {
@@ -38,5 +49,80 @@ export class ObjectHelper {
         }
       }
     }
+  }
+
+  static fixSourceExpr(
+    sourceExpr: string,
+    appObject: IObjectContext,
+    symbols: AppSymbols[]
+  ): string {
+    const variable = appObject.variables?.variables.find(
+      (p) => p.name.toLowerCase() === sourceExpr.toLowerCase()
+    );
+    if (variable) {
+      return sourceExpr;
+    }
+
+    const pages: Page[] = [];
+    const tables: Table[] = [];
+    const tableExtensions: TableExtension[] = [];
+    symbols.forEach((s) => {
+      pages.push(...s.Pages);
+      tables.push(...s.Tables);
+      tableExtensions.push(...s.TableExtensions);
+    });
+
+    let sourceTable: string = "";
+    if (/PageExtension/i.test(appObject.declaration.type)) {
+      const baseObject = StringHelper.removeQuotes(
+        appObject.declaration.baseObject
+      );
+
+      const page = pages.find((p) => p.Name === baseObject);
+      sourceTable =
+        page?.Properties.find((p) => /SourceTable/i.test(p.Name))?.Value || "";
+    } else {
+      const page = pages.find((p) => p.Id === Number(appObject.declaration.id));
+      sourceTable =
+        page?.Properties.find((p) => /SourceTable/i.test(p.Name))?.Value || "";
+    }
+
+    if (!sourceTable) {
+      return sourceExpr;
+    }
+
+    const table = /[0-9]*/.test(sourceTable)
+      ? tables.find((t) => t.Id === Number(sourceTable))
+      : tables.find((t) => t.Name === sourceTable);
+
+    if (!table) {
+      return sourceExpr;
+    }
+
+    const fields: Field[] = [];
+    fields.push(...table.Fields);
+    tableExtensions
+      .filter((p) => p.TargetObject === table.Name)
+      .forEach((p) => fields.push(...p.Fields));
+
+    const sourceExpr2 = StringHelper.removeQuotes(sourceExpr).toLowerCase();
+    const field = fields.find(
+      (p) => p.Name.toLowerCase() === sourceExpr2.toLowerCase()
+    );
+
+    if (field) {
+      if (/[^0-9A-Z_]/i.test(field.Name)) {
+        return `Rec."${field.Name}"`;
+      } else {
+        return `Rec.${field.Name}`;
+      }
+    }
+
+    return sourceExpr;
+  }
+
+  private static findTable(tables: Table[], name: string) {
+    const table = tables.find((p) => p.Name === name);
+    return table;
   }
 }

@@ -1,4 +1,5 @@
 import KeyValueMap from "../../al-objects/maps/key-value-map";
+import { AppSymbols } from "../../symbol-references";
 
 export default interface IFormatSetting {
   renameFileNameOnSave: boolean;
@@ -16,4 +17,6 @@ export default interface IFormatSetting {
   setDefaultDataClassification: boolean;
   qualifyWithRecPrefix: boolean;
   extensionFunctions: KeyValueMap;
+
+  symbols: AppSymbols[];
 }

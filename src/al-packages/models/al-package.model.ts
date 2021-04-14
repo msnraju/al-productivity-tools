@@ -1,6 +1,6 @@
-import { SymbolReferences } from "./symbol-reference.model";
+import { AppSymbols } from "../../symbol-references";
 
 export default interface IALPackage {
-    file: string;
-    symbols: SymbolReferences.RootObject;
+  file: string;
+  symbols: AppSymbols;
 }

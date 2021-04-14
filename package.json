@@ -3,7 +3,7 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Dynamics 365 Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "icon": "icon/logo.png",
   "repository": {
     "url": "https://github.com/msnraju/al-productivity-tools"
@@ -58,10 +58,6 @@
       {
         "command": "alProductivityTools.importMissingTooltips",
         "title": "MSN: Import Missing Tooltips"
-      },
-      {
-        "command": "alProductivityTools.extractALPackages",
-        "title": "MSN: Extract AL Packages"
       }
     ],
     "configuration": {
