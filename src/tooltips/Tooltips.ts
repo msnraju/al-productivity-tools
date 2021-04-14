@@ -1,6 +1,7 @@
 import * as Excel from "exceljs";
 import * as vscode from "vscode";
 import fs = require("fs");
+import path = require("path");
 import _ = require("lodash");
 import { languages } from "vscode";
 import IDiagnosticTooltipProblem from "./models/diagnostic-tooltip-problem.model";
@@ -12,11 +13,12 @@ import ALPackage from "../al-packages/al-package";
 import IALPackage from "../al-packages/models/al-package.model";
 import StringHelper from "../helpers/string-helper";
 import ALPackageHelper from "../al-packages/al-package-helper";
-import { SymbolReferences } from "../al-packages/models/symbol-reference.model";
+import { AppSymbols, Page } from "../symbol-references";
 import ObjectWriter from "../al-objects/formatters/object-writer";
 import IFormatSetting from "../helpers/models/format-settings.model";
 import { ObjectHelper } from "../al-objects/object-helper";
 import { WorkspaceHelper } from "../helpers/workspace-helper";
+import { AppSymbolsCache } from "../al-packages/app-symbols-cache";
 
 export class Tooltips {
   private static readonly TooltipRuleCode: string = "AA0218";
@@ -28,12 +30,12 @@ export class Tooltips {
     { header: "Dutch Caption", key: "dutchCaption" },
   ];
 
-  static exportMissingTooltips() {
+  static async exportMissingTooltips() {
     try {
       const dataSet: IDiagnosticTooltipProblem[] = [];
       const wsFolders = WorkspaceHelper.getWorkSpaceFolders();
       const translations = ALPackage.getTranslations(wsFolders);
-      const packages = ALPackage.getALPackagesFromSymbols(wsFolders);
+      const symbols = await AppSymbolsCache.getSymbols();
 
       const problems = languages.getDiagnostics();
       for (const [fileUri, diagnostics] of problems) {
@@ -71,7 +73,7 @@ export class Tooltips {
 
           switch (type) {
             case "PageField":
-              caption = Tooltips.getFieldCaption(packages, objectContent, name);
+              caption = Tooltips.getFieldCaption(symbols, objectContent, name);
               break;
             case "PageAction":
               caption = Tooltips.getActionCaption(objectContent, name);
@@ -113,14 +115,19 @@ export class Tooltips {
     }
   }
 
-  static importMissingTooltips() {
+  static async importMissingTooltips() {
     try {
       if (!vscode.workspace.workspaceFolders) {
         return;
       }
 
       const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
-      const filename = workspaceFolder + "\\.vscode\\Tooltips.xlsx";
+      const filename = path.resolve(
+        workspaceFolder,
+        ".vscode",
+        "Tooltips.xlsx"
+      );
+      const symbols = await AppSymbolsCache.getSymbols();
 
       Tooltips.getTooltipsData(filename).then((data) => {
         try {
@@ -129,7 +136,8 @@ export class Tooltips {
             const fullPath = workspaceFolder + "\\" + file;
             const newContent = Tooltips.updateTooltips(
               fullPath,
-              tooltipsData[file]
+              tooltipsData[file],
+              symbols
             );
             fs.writeFileSync(fullPath, newContent);
           }
@@ -152,7 +160,8 @@ export class Tooltips {
 
   private static updateTooltips(
     file: string,
-    data: IDiagnosticTooltipProblem[]
+    data: IDiagnosticTooltipProblem[],
+    symbols: AppSymbols[]
   ) {
     const buffer = fs.readFileSync(file);
     const content = buffer.toString();
@@ -206,7 +215,9 @@ export class Tooltips {
       autoCorrectVariableNames: false,
       setDefaultApplicationArea: false,
       setDefaultDataClassification: false,
+      qualifyWithRecPrefix: false,
       extensionFunctions: {},
+      symbols: symbols,
     };
 
     return ObjectWriter.write(objectContent, settings, codeIndex);
@@ -244,7 +255,7 @@ export class Tooltips {
   }
 
   private static getFieldCaption(
-    packages: IALPackage[],
+    symbols: AppSymbols[],
     objectContent: IObjectContext,
     name: string
   ): string {
@@ -273,18 +284,18 @@ export class Tooltips {
       return match[1];
     } else {
       // get caption from base object
-      let page: SymbolReferences.Page | undefined;
+      let page: Page | undefined;
       let sourceTable = "";
       switch (objectContent.declaration.type.toLowerCase()) {
         case "pageextension":
           page = ALPackageHelper.findPage(
-            packages,
+            symbols,
             objectContent.declaration.baseObject
           );
           break;
         case "page":
           page = ALPackageHelper.findPage(
-            packages,
+            symbols,
             objectContent.declaration.id
           );
           break;
@@ -302,7 +313,7 @@ export class Tooltips {
       }
 
       const fieldName = StringHelper.removeQuotes(control.sourceExpr);
-      const table = ALPackageHelper.findTable(packages, sourceTable);
+      const table = ALPackageHelper.findTable(symbols, sourceTable);
       if (!table) {
         throw new Error("Table not found");
       }
@@ -310,7 +321,7 @@ export class Tooltips {
       let field = table.Fields.find((p) => p.Name === fieldName);
       if (!field) {
         const fields = ALPackageHelper.findTableExtensionFields(
-          packages,
+          symbols,
           table.Name
         );
         field = fields?.find((p) => p.Name === fieldName);

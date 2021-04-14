@@ -16,7 +16,9 @@ export default class ALFileHelper {
         const lines = content.split(/\r?\n/g);
         lines.forEach(async (line) => {
           line = line.trim();
-          if (line.startsWith("//") || !line) return;
+          if (line.startsWith("//") || !line) {
+            return;
+          }
 
           const object = ALFileHelper.getObject(line);
           if (object) {
@@ -173,7 +175,9 @@ export default class ALFileHelper {
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
-          if (line.startsWith("//") || !line) continue;
+          if (line.startsWith("//") || !line) {
+            continue;
+          }
 
           const object = ALFileHelper.getObject(line);
           if (object) {
@@ -194,7 +198,7 @@ export default class ALFileHelper {
 
     if (ExtensionExpr.test(line)) {
       const match = ExtensionExpr.exec(line);
-      if (match)
+      if (match) {
         return {
           type: match[1],
           id: match[2],
@@ -202,21 +206,24 @@ export default class ALFileHelper {
           extension: true,
           extends: (match[7] || "") + (match[8] || ""),
         };
+      }
     } else if (AppObjectExpr.test(line)) {
       const match = AppObjectExpr.exec(line);
-      if (match)
+      if (match) {
         return {
           type: match[1],
           id: match[2],
           name: (match[4] || "") + (match[5] || ""),
         };
+      }
     } else if (ObjectExpr.test(line)) {
       const match = ObjectExpr.exec(line);
-      if (match)
+      if (match) {
         return {
           type: match[1],
           name: (match[3] || "") + (match[4] || ""),
         };
+      }
     }
   }
 }

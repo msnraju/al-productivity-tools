@@ -3,7 +3,7 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Dynamics 365 Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "icon": "icon/logo.png",
   "repository": {
     "url": "https://github.com/msnraju/al-productivity-tools"
@@ -140,6 +140,12 @@
           "default": false,
           "scope": "resource",
           "description": "Set Default DataClassification"
+        },
+        "msn.qualifyWithRecPrefix": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Qualify With Rec. Prefix"
         },
         "msn.extensionFunctions": {
           "type": "array",

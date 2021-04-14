@@ -58,7 +58,7 @@ export default class ObjectWriter {
         )
         .emptyLine()
         .writeIfDefined(context.layout, (layout) =>
-          PageLayoutWriter.write(layout, formatSetting, indentation)
+          PageLayoutWriter.write(layout, context, formatSetting, indentation)
         )
         .emptyLine()
         .writeIfDefined(context.actionsContainer, (container) =>

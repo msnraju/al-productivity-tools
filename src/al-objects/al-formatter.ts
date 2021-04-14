@@ -10,32 +10,49 @@ export default class ALFormatter {
     formatSetting: IFormatSetting,
     errors: IFormatError[]
   ) {
-    folderPath = path.resolve(folderPath);
-    const files = fs.readdirSync(folderPath);
-    files.forEach((file) => {
-      try {
-        const fileName = `${folderPath}\\${file}`;
+    return new Promise<void>((resolve, reject) => {
+      const promises: Promise<void>[] = [];
+
+      folderPath = path.resolve(folderPath);
+      const files = fs.readdirSync(folderPath);
+      files.forEach((file) => {
+        const fileName = path.resolve(folderPath, file);
         if (fs.lstatSync(fileName).isDirectory()) {
-          this.formatAllALFiles(fileName, formatSetting, errors);
+          const promise = this.formatAllALFiles(
+            fileName,
+            formatSetting,
+            errors
+          );
+          promises.push(promise);
         } else if (file.toLowerCase().endsWith(".al")) {
-          this.formatALFile(fileName, formatSetting);
+          const promise = this.formatALFile(fileName, formatSetting, errors);
+          promises.push(promise);
         }
-      } catch (err) {
-        errors.push({ file: file, message: err.message });
-      }
+      });
+
+      Promise.all(promises).then(() => {
+        resolve();
+      });
     });
   }
 
-  private static formatALFile(filePath: string, formatSetting: IFormatSetting) {
-    filePath = path.resolve(filePath);
-    const data = fs.readFileSync(filePath);
-    const content = data.toString();
-    const newContent = ObjectFormatter.format(content, formatSetting);
-    fs.writeFileSync(filePath, newContent);
-  }
+  private static formatALFile(
+    filePath: string,
+    formatSetting: IFormatSetting,
+    errors: IFormatError[]
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        filePath = path.resolve(filePath);
+        const data = fs.readFileSync(filePath);
+        const content = data.toString();
+        const newContent = ObjectFormatter.format(content, formatSetting);
+        fs.writeFileSync(filePath, newContent);
+      } catch (err) {
+        errors.push(err);
+      }
 
-  // static start() {
-  //   this.formatAllALFiles("./assets/AppObject");
-  //   console.log("All Done!");
-  // }
+      resolve();
+    });
+  }
 }

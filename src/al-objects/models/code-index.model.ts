@@ -1,3 +1,4 @@
+import { AppSymbols } from "../../symbol-references";
 import IToken from "../../tokenizers/models/token.model";
 
 export default interface ICodeIndex {

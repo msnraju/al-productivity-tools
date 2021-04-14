@@ -42,10 +42,7 @@ export default class ALPackage {
             }
 
             try {
-                const fileFullPath = path.resolve(`${transFolder}/${file}`);
-                const xmlData = fs.readFileSync(fileFullPath, { encoding: 'utf8' });
-                const tempObj = parser.getTraversalObj(xmlData, options);
-                var jsonObj = parser.convertToJson(tempObj, options);
+                var jsonObj = ALPackage.getJsonTranslations(transFolder, file, options);
                 const units = jsonObj.xliff.file.body.group["trans-unit"];
                 translations.push(...units);
             } catch (err) {
@@ -54,6 +51,19 @@ export default class ALPackage {
         });
     }
 
+
+    private static getJsonTranslations(transFolder: string, file: string, options: {
+        attributeNamePrefix: string; attrNodeName: string; //default is 'false'
+        textNodeName: string; ignoreAttributes: boolean; ignoreNameSpace: boolean; allowBooleanAttributes: boolean; parseNodeValue: boolean; parseAttributeValue: boolean; trimValues: boolean; cdataTagName: string; //default is 'false'
+        cdataPositionChar: string; parseTrueNumberOnly: boolean; arrayMode: boolean; //"strict"
+        stopNodes: string[];
+    }) {
+        const fileFullPath = path.resolve(`${transFolder}/${file}`);
+        const xmlData = fs.readFileSync(fileFullPath, { encoding: 'utf8' });
+        const tempObj = parser.getTraversalObj(xmlData, options);
+        var jsonObj = parser.convertToJson(tempObj, options);
+        return jsonObj;
+    }
 
     static getALPackagesFromSymbols(wsFolders: string[]): IALPackage[] {
         const packages: IALPackage[] = [];
