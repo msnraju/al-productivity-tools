@@ -22,7 +22,7 @@ export default class ALPackageHelper {
       name = match ? match[1] : name;
     }
 
-    return pages.find((p) => p.Name === name);
+    return pages.find((p) => p.Name.toLowerCase() === name.toLowerCase());
   }
 
   static findPageExtension(

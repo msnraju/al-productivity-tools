@@ -259,12 +259,19 @@ export class Tooltips {
     objectContent: IObjectContext,
     name: string
   ): string {
-    if (!objectContent.layout || !objectContent.layout.controls) {
+    let layout: any = null;
+    if (objectContent.declaration.type.toLowerCase() === "report") {
+      layout = objectContent.requestPage?.layout;
+    } else {
+      layout = objectContent.layout;
+    }
+
+    if (!layout || !layout.controls) {
       return "";
     }
 
     const control = ObjectHelper.findInControls(
-      objectContent.layout.controls,
+      layout.controls,
       name
     );
     if (!control) {
