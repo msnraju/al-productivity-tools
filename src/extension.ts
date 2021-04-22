@@ -4,7 +4,8 @@ import ALCodeCopFixer from "./commands/al-codecop";
 import ALDiagnostics from "./commands/al-diagnostics";
 import ALFileCommands from "./commands/al-file-commands";
 import WorkspaceEvents from "./commands/workspace-events";
-import { Tooltips } from "./tooltips/tooltips";
+import { Tooltips } from "./tooltips/Tooltips";
+
 
 export function activate(context: vscode.ExtensionContext) {
   try {

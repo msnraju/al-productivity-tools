@@ -63,7 +63,9 @@ export default class ControlReader {
           if (tokenReader.tokenType() === "comment") {
             comments.push(...tokenReader.readComments());
           } else {
-            comments.forEach(p => control.properties.push({ name: '//', property: p }))
+            comments.forEach((p) =>
+              control.properties.push({ name: "//", property: p })
+            );
             comments = [];
             control.properties.push(
               PropertyReader.read(tokenReader, codeIndex)
@@ -92,7 +94,7 @@ export default class ControlReader {
 
     let value = tokenReader.peekTokenValue();
     while (value !== ")" || counter !== 0) {
-      if (value.trim() !== '' && value.trim() != ';') {
+      if (value.trim() !== "" && value.trim() != ";") {
         values.push(value);
       }
 
@@ -111,9 +113,11 @@ export default class ControlReader {
     const elements = TokenReader.tokensToString(tokens, {});
 
     switch (control.type.toLowerCase()) {
-      case 'field':
+      case "field":
         control.name = values[0];
-        control.sourceExpr = values[1];
+        control.sourceExpr = values
+          .filter((v, i) => i > 0 && i < values.length)
+          .join('');
         break;
       default:
         control.name = values[0];
