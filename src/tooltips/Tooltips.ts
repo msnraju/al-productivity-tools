@@ -68,6 +68,7 @@ export class Tooltips {
           const match = msgExpr.exec(diagnostic.message) || ["", ""];
           const type = match[1];
           const name = match[2];
+
           let caption: string = "";
           let dutchCaption: string = "";
 
@@ -270,10 +271,7 @@ export class Tooltips {
       return "";
     }
 
-    const control = ObjectHelper.findInControls(
-      layout.controls,
-      name
-    );
+    const control = ObjectHelper.findInControls(layout.controls, name);
     if (!control) {
       throw new Error("Control not found");
     }
@@ -319,7 +317,13 @@ export class Tooltips {
         throw new Error("SourceTable not found");
       }
 
-      const fieldName = StringHelper.removeQuotes(control.sourceExpr);
+      let sourceExpr = control.sourceExpr;
+      if (/rec\.(.*)/i.test(sourceExpr)) {
+        const match2 = /rec\.(.*)/i.exec(sourceExpr);
+        sourceExpr = match2 ? match2[1] : sourceExpr;
+      }
+
+      const fieldName = StringHelper.removeQuotes(sourceExpr);
       const table = ALPackageHelper.findTable(symbols, sourceTable);
       if (!table) {
         throw new Error("Table not found");
