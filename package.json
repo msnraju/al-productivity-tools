@@ -24,7 +24,7 @@
     "onCommand:alProductivityTools.fixALCurrentFileNamingNotation",
     "onCommand:alProductivityTools.insertGuid"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
