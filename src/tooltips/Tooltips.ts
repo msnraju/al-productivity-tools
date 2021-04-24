@@ -275,17 +275,29 @@ export class Tooltips {
     objectContent: IObjectContext,
     name: string
   ): string {
+    let action: IAction | undefined = undefined;
+
     if (
-      !objectContent.actionsContainer ||
-      !objectContent.actionsContainer.actions
+      objectContent.actionsContainer &&
+      objectContent.actionsContainer.actions
     ) {
+      action = ObjectHelper.findInActions(
+        objectContent.actionsContainer.actions,
+        name
+      );
+    }
+
+    if (!action && objectContent.layout) {
+      action = ObjectHelper.findActionInControls(
+        objectContent.layout.controls,
+        name
+      );
+    }
+
+    if (!action) {
       return "";
     }
 
-    const action = ObjectHelper.findInActions(
-      objectContent.actionsContainer.actions,
-      name
-    );
     if (action) {
       const caption = action.properties.find(
         (c) => c.name.toLowerCase() === "caption"
