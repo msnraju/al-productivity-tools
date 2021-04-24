@@ -51,6 +51,37 @@ export class ObjectHelper {
     }
   }
 
+  static findActionInControls(
+    controls: IControl[],
+    name: string
+  ): IAction | undefined {
+    for (let i = 0; i < controls.length; i++) {
+      const control = controls[i];
+
+      if (control.container && control.container.actions.length > 0) {
+        const action = ObjectHelper.findInActions(
+          control.container.actions,
+          name
+        );
+        
+        if (action) {
+          return action;
+        }
+      }
+
+      if (control.controls && control.controls.length > 0) {
+        const actionFound = ObjectHelper.findActionInControls(
+          control.controls,
+          name
+        );
+
+        if (actionFound) {
+          return actionFound;
+        }
+      }
+    }
+  }
+
   static fixSourceExpr(
     sourceExpr: string,
     appObject: IObjectContext,

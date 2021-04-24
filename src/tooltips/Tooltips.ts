@@ -19,6 +19,8 @@ import IFormatSetting from "../helpers/models/format-settings.model";
 import { ObjectHelper } from "../al-objects/object-helper";
 import { WorkspaceHelper } from "../helpers/workspace-helper";
 import { AppSymbolsCache } from "../al-packages/app-symbols-cache";
+import IAction from "../al-objects/components/models/action.model";
+import IControl from "../al-objects/components/models/control.model";
 
 export class Tooltips {
   private static readonly TooltipRuleCode: string = "AA0218";
@@ -132,6 +134,7 @@ export class Tooltips {
 
       Tooltips.getTooltipsData(filename).then((data) => {
         try {
+          data = data.filter((p) => /\s*/.test(p.caption));
           const tooltipsData = _.groupBy(data, (p) => p.file);
           for (const file in tooltipsData) {
             const fullPath = workspaceFolder + "\\" + file;
@@ -172,31 +175,65 @@ export class Tooltips {
     data.forEach((diagnostic) => {
       switch (diagnostic.type) {
         case "PageField":
-          if (objectContent.layout) {
-            const control = ObjectHelper.findInControls(
-              objectContent.layout.controls,
+          let control: IControl | undefined = undefined;
+          let layout = Tooltips.getPageLayout(objectContent);
+          if (layout) {
+            control = ObjectHelper.findInControls(
+              layout.controls,
               diagnostic.name
             );
-            if (control) {
+          }
+
+          if (control) {
+            const tooltip = control.properties.find(
+              (p) => p.name.toLowerCase() === "tooltip"
+            );
+
+            if (tooltip) {
+              tooltip.property = `Tooltip = '${diagnostic.caption}';`;
+            } else {
               control.properties.push({
                 name: "Tooltip",
                 property: `Tooltip = '${diagnostic.caption}';`,
               });
             }
+          } else {
+            console.log(`Field '${diagnostic.name} not found.`);
           }
           break;
         case "PageAction":
+          let action: IAction | undefined = undefined;
           if (objectContent.actionsContainer) {
-            const action = ObjectHelper.findInActions(
+            action = ObjectHelper.findInActions(
               objectContent.actionsContainer.actions,
               diagnostic.name
             );
-            if (action) {
+          }
+
+          if (!action) {
+            let layout = Tooltips.getPageLayout(objectContent);
+            if (layout) {
+              action = ObjectHelper.findActionInControls(
+                layout.controls,
+                diagnostic.name
+              );
+            }
+          }
+
+          if (action) {
+            const tooltip = action.properties.find(
+              (p) => p.name.toLowerCase() === "tooltip"
+            );
+            if (tooltip) {
+              tooltip.property = `Tooltip = '${diagnostic.caption}';`;
+            } else {
               action.properties.push({
                 name: "Tooltip",
                 property: `Tooltip = '${diagnostic.caption}';`,
               });
             }
+          } else {
+            console.log(`Action '${diagnostic.name} not found.`);
           }
           break;
       }
@@ -222,6 +259,16 @@ export class Tooltips {
     };
 
     return ObjectWriter.write(objectContent, settings, codeIndex);
+  }
+
+  private static getPageLayout(objectContent: IObjectContext) {
+    let layout = objectContent.layout;
+    if (!layout) {
+      if (objectContent.declaration.type.toLowerCase() === "report") {
+        layout = objectContent.requestPage?.layout;
+      }
+    }
+    return layout;
   }
 
   private static getActionCaption(
