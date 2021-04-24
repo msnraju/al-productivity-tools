@@ -3,7 +3,7 @@
   "displayName": "AL Productivity Tools",
   "description": "Microsoft Dynamics 365 Business Central - AL Productivity Tools",
   "publisher": "MSNRaju",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "icon": "icon/logo.png",
   "repository": {
     "url": "https://github.com/msnraju/al-productivity-tools"
@@ -24,7 +24,7 @@
     "onCommand:alProductivityTools.fixALCurrentFileNamingNotation",
     "onCommand:alProductivityTools.insertGuid"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {

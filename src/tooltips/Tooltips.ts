@@ -19,7 +19,8 @@ import IFormatSetting from "../helpers/models/format-settings.model";
 import { ObjectHelper } from "../al-objects/object-helper";
 import { WorkspaceHelper } from "../helpers/workspace-helper";
 import { AppSymbolsCache } from "../al-packages/app-symbols-cache";
-import IProperty from "../al-objects/components/models/property.model";
+import IAction from "../al-objects/components/models/action.model";
+import IControl from "../al-objects/components/models/control.model";
 
 export class Tooltips {
   private static readonly TooltipRuleCode: string = "AA0218";
@@ -133,7 +134,7 @@ export class Tooltips {
 
       Tooltips.getTooltipsData(filename).then((data) => {
         try {
-          data = data.filter((p) => p.caption !== "");
+          data = data.filter((p) => /\s*/.test(p.caption));
           const tooltipsData = _.groupBy(data, (p) => p.file);
           for (const file in tooltipsData) {
             const fullPath = workspaceFolder + "\\" + file;
@@ -174,7 +175,7 @@ export class Tooltips {
     data.forEach((diagnostic) => {
       switch (diagnostic.type) {
         case "PageField":
-          let control: any = null;
+          let control: IControl | undefined = undefined;
           let layout = Tooltips.getPageLayout(objectContent);
           if (layout) {
             control = ObjectHelper.findInControls(
@@ -185,7 +186,7 @@ export class Tooltips {
 
           if (control) {
             const tooltip = control.properties.find(
-              (p: IProperty) => p.name.toLowerCase() === "tooltip"
+              (p) => p.name.toLowerCase() === "tooltip"
             );
 
             if (tooltip) {
@@ -201,13 +202,15 @@ export class Tooltips {
           }
           break;
         case "PageAction":
-          let action: any = null;
+          let action: IAction | undefined = undefined;
           if (objectContent.actionsContainer) {
             action = ObjectHelper.findInActions(
               objectContent.actionsContainer.actions,
               diagnostic.name
             );
-          } else {
+          }
+
+          if (!action) {
             let layout = Tooltips.getPageLayout(objectContent);
             if (layout) {
               action = ObjectHelper.findActionInControls(
@@ -219,7 +222,7 @@ export class Tooltips {
 
           if (action) {
             const tooltip = action.properties.find(
-              (p: IProperty) => p.name.toLowerCase() === "tooltip"
+              (p) => p.name.toLowerCase() === "tooltip"
             );
             if (tooltip) {
               tooltip.property = `Tooltip = '${diagnostic.caption}';`;
