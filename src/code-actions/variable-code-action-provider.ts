@@ -9,57 +9,57 @@ export default class VariableCodeActionProvider
     vscode.CodeActionKind.QuickFix,
   ];
 
-  public provideCodeActions(
+  public async provideCodeActions(
     document: vscode.TextDocument,
     range: vscode.Range
-  ): vscode.CodeAction[] | undefined {
-    const variable = ActiveVariableReader.getVariable(document, range);
-    if (!variable) {
-      return;
-    }
-
-    const names = VariableNameService.getNameSuggestions(variable);
-    if (!names || names.length === 0) {
-      return;
-    }
-
-    const fixes = [];
-
-    for (let i = 0; i < names.length; i++) {
-      if (names[i] === variable.name) {
-        continue;
+  ): Promise<vscode.CodeAction[] | undefined> {
+    return new Promise(async resolve => {
+      const variable = ActiveVariableReader.getVariable(document, range);
+      if (!variable) {
+        resolve(undefined);
+        return;
+      }
+  
+      const names = VariableNameService.getNameSuggestions(variable!);
+      if (!names || names.length === 0) {
+        resolve(undefined);
+        return;
+      }
+  
+      const fixes:vscode.CodeAction[] = [];
+  
+      for (let i = 0; i < names.length; i++) {
+        if (names[i] === variable!.name) {
+          continue;
+        }
+  
+        fixes.push(await this.createFix(document, range, names[i], variable!));
       }
 
-      const fix = this.createFix(document, range, names[i], variable);
-      if (i === 0) {
-        fix.isPreferred = true;
-      }
-      
-      fixes.push(fix);
-    }
-
-    return fixes;
+      resolve(fixes);
+    });
   }
 
-  private createFix(
+  private async createFix(
     document: vscode.TextDocument,
     range: vscode.Range,
     name: string,
     variable: IVariableDeclaration
-  ): vscode.CodeAction {
-    const title = `Change variable name to: ${name}`;
-    const fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
-    fix.edit = new vscode.WorkspaceEdit();
-
-    const line = document.lineAt(range.start.line);
-    const pos = line.text.indexOf(variable.matchText);
-    const start = new vscode.Position(range.start.line, pos);
-
-    fix.edit.replace(
-      document.uri,
-      new vscode.Range(start, start.translate(0, variable.name.length)),
-      `${name}`
-    );
-    return fix;
+  ): Promise<vscode.CodeAction> {
+    return new Promise(async resolve => {
+      const title = `Change variable name to: ${name}`;
+      const fix = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+  
+      const line = document.lineAt(range.start.line);
+      const pos = line.text.indexOf(variable.matchText);
+      const start = new vscode.Position(range.start.line, pos);
+  
+      fix.edit = await vscode.commands.executeCommand('vscode.executeDocumentRenameProvider',
+        document.uri,
+        start,
+        name);
+  
+      resolve(fix);
+    });
   }
 }
