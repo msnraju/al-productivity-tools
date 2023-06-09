@@ -16,12 +16,14 @@ export default class VariableCodeActionProvider
     return new Promise(async resolve => {
       const variable = ActiveVariableReader.getVariable(document, range);
       if (!variable) {
-        resolve;
+        resolve(undefined);
+        return;
       }
   
       const names = VariableNameService.getNameSuggestions(variable!);
       if (!names || names.length === 0) {
-        resolve;
+        resolve(undefined);
+        return;
       }
   
       const fixes:vscode.CodeAction[] = [];
